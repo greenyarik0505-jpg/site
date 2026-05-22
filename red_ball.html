@@ -1241,5 +1241,120 @@ new Phaser.Game({
   },
 });
 </script>
+
+<!-- TROLL SYSTEM (Firebase) -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+<style>
+#troll-matrix{position:fixed;top:0;left:0;width:100%;height:100%;z-index:9999;pointer-events:none;display:none}
+#troll-virus{display:none;position:fixed;top:0;left:0;width:100%;height:100%;z-index:10000;background:#000;justify-content:center;align-items:center;flex-direction:column;cursor:pointer}
+#troll-virus h1{color:#0f0;font-size:clamp(20px,5vw,36px);text-align:center;font-family:monospace;animation:troll-blink .5s infinite}
+#troll-virus p{color:#0f0;font-size:14px;margin-top:10px;font-family:monospace}
+@keyframes troll-blink{50%{opacity:.3}}
+#troll-disco{display:none;position:fixed;top:0;left:0;width:100%;height:100%;z-index:9998;pointer-events:none;animation:troll-disco-anim .2s infinite}
+@keyframes troll-disco-anim{0%{background:rgba(255,0,0,.35)}25%{background:rgba(0,0,255,.35)}50%{background:rgba(0,255,0,.35)}75%{background:rgba(255,255,0,.35)}100%{background:rgba(128,0,128,.35)}}
+.troll-confetti{position:fixed;width:10px;height:10px;z-index:9998;pointer-events:none;animation:troll-confetti-fall 3s ease-out forwards}
+@keyframes troll-confetti-fall{0%{opacity:1;transform:translateY(0) rotate(0deg)}100%{opacity:0;transform:translateY(100vh) rotate(720deg)}}
+#troll-rainbow-overlay{display:none;position:fixed;top:0;left:0;width:100%;height:100%;z-index:9997;pointer-events:none;outline:8px solid red;animation:troll-rainbow-border .5s linear infinite}
+@keyframes troll-rainbow-border{0%{outline-color:#f00}15%{outline-color:#f80}30%{outline-color:#ff0}45%{outline-color:#0f0}60%{outline-color:#0ff}75%{outline-color:#00f}90%{outline-color:#f0f}100%{outline-color:#f00}}
+</style>
+<canvas id="troll-matrix"></canvas>
+<div id="troll-virus" onclick="this.style.display='none'">
+  <h1>⚠️ ВНИМАНИЕ ⚠️<br>ОБНАРУЖЕН ВИРУС!!!<br>ВСЕ ДАННЫЕ УДАЛЕНЫ!</h1>
+  <p>(нажми чтобы закрыть 😂)</p>
+</div>
+<div id="troll-disco"></div>
+<div id="troll-rainbow-overlay"></div>
+<script>
+(function(){
+  var FIREBASE_CONFIG={apiKey:"AIzaSyCgtdub04BI7T_Wst-SNEzBGpHXHo6egDI",authDomain:"site-2171d.firebaseapp.com",databaseURL:"https://site-2171d-default-rtdb.europe-west1.firebasedatabase.app",projectId:"site-2171d",storageBucket:"site-2171d.firebasestorage.app",messagingSenderId:"43505553535",appId:"1:43505553535:web:c9e72f6469e46559a1ef4a",measurementId:"G-P4SYJY0M9C"};
+  var db=null;
+  try{var _app=firebase.apps.length?firebase.apps[0]:firebase.initializeApp(FIREBASE_CONFIG);db=firebase.database(_app);}catch(e){console.warn('Troll Firebase init error:',e);}
+  var lastTrollTime=Date.now();
+  var _matrixInterval=null;
+  var _discoTimeout=null;
+  function executeTroll(type){
+    switch(type){
+      case'flip':trollFlip();break;
+      case'matrix':trollMatrix();break;
+      case'disco':trollDisco();break;
+      case'virus':trollVirus();break;
+      case'shake':trollShake();break;
+      case'confetti':trollConfetti();break;
+      case'runaway':trollRunAway();break;
+      case'rainbow':trollRainbow();break;
+      case'gravity':trollGravity();break;
+      case'reset':trollReset();break;
+    }
+  }
+  function trollFlip(){document.body.style.transform='rotate(180deg)';document.body.style.transition='transform 1s';setTimeout(function(){document.body.style.transform='';},5000);}
+  function trollMatrix(){
+    var mc=document.getElementById('troll-matrix');
+    mc.style.display='block';
+    var mctx=mc.getContext('2d');
+    mc.width=window.innerWidth;mc.height=window.innerHeight;
+    var cols=Math.floor(mc.width/14);
+    var drops=Array(cols).fill(1);
+    var chars='アイウエオカキクケコサシスセソタチツテトナニヌネノ0123456789ABCDEF';
+    clearInterval(_matrixInterval);
+    _matrixInterval=setInterval(function(){
+      mctx.fillStyle='rgba(0,0,0,0.05)';mctx.fillRect(0,0,mc.width,mc.height);
+      mctx.fillStyle='#0f0';mctx.font='14px monospace';
+      for(var i=0;i<drops.length;i++){
+        var ch=chars[Math.floor(Math.random()*chars.length)];
+        mctx.fillText(ch,i*14,drops[i]*14);
+        if(drops[i]*14>mc.height&&Math.random()>0.975)drops[i]=0;
+        drops[i]++;
+      }
+    },35);
+    setTimeout(function(){clearInterval(_matrixInterval);mc.style.display='none';},8000);
+  }
+  function trollDisco(){
+    var d=document.getElementById('troll-disco');
+    d.style.display='block';
+    clearTimeout(_discoTimeout);
+    _discoTimeout=setTimeout(function(){d.style.display='none';},5000);
+  }
+  function trollVirus(){document.getElementById('troll-virus').style.display='flex';}
+  function trollShake(){
+    var count=0;
+    var int=setInterval(function(){
+      document.body.style.transform='translate('+((Math.random()-.5)*30)+'px,'+((Math.random()-.5)*20)+'px)';
+      count++;if(count>40){clearInterval(int);document.body.style.transform='';}
+    },50);
+  }
+  function trollConfetti(){
+    var colors=['#ff6b6b','#feca57','#48dbfb','#ff9ff3','#6c5ce7','#00b894','#fd79a8'];
+    for(var i=0;i<80;i++){(function(){
+      var c=document.createElement('div');
+      c.className='troll-confetti';
+      c.style.left=Math.random()*100+'%';c.style.top='-10px';
+      c.style.background=colors[Math.floor(Math.random()*colors.length)];
+      c.style.borderRadius=Math.random()>.5?'50%':'0';
+      c.style.animationDelay=Math.random()*2+'s';
+      c.style.animationDuration=(2+Math.random()*2)+'s';
+      document.body.appendChild(c);setTimeout(function(){c.remove();},5000);
+    })();}
+  }
+  function trollRunAway(){}
+  function trollRainbow(){
+    var o=document.getElementById('troll-rainbow-overlay');
+    o.style.display='block';
+    setTimeout(function(){o.style.display='none';},6000);
+  }
+  function trollGravity(){}
+  function trollReset(){
+    document.body.style.transform='';
+    var mc=document.getElementById('troll-matrix');mc.style.display='none';
+    clearInterval(_matrixInterval);
+    document.getElementById('troll-virus').style.display='none';
+    document.getElementById('troll-disco').style.display='none';
+    clearTimeout(_discoTimeout);
+    document.getElementById('troll-rainbow-overlay').style.display='none';
+    document.querySelectorAll('.troll-confetti').forEach(function(c){c.remove();});
+  }
+  if(db){db.ref('trolls').on('child_added',function(snap){var data=snap.val();if(data&&data.time>lastTrollTime){executeTroll(data.type);}});}
+})();
+</script>
 </body>
 </html>
