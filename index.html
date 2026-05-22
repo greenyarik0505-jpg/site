@@ -1,394 +1,534 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>YARIK0505 | Игровой Хаб</title>
-    <style>
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-        }
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Red Ball 3 — Веб-игра</title>
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 
-        body {
-            background-color: #0b0e14;
-            color: #f0f3f5;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            min-height: 100vh;
-            padding: 20px;
-        }
+    body {
+      background: #0d0d1a;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      font-family: 'Segoe UI', Arial, sans-serif;
+      user-select: none;
+    }
 
-        header {
-            text-align: center;
-            margin-bottom: 30px;
-            margin-top: 20px;
-        }
+    /* Верхняя панель */
+    #ui-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: 800px;
+      padding: 12px 24px;
+      background: linear-gradient(135deg, #1a1a3e, #2d2d6b);
+      border-radius: 14px 14px 0 0;
+      border: 2px solid #3a3a7e;
+      border-bottom: none;
+    }
 
-        header h1 {
-            font-size: 2.5rem;
-            color: #00ffcc;
-            text-shadow: 0 0 15px rgba(0, 255, 204, 0.4);
-            margin-bottom: 5px;
-        }
+    #level-label {
+      color: #f1c40f;
+      font-size: 20px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      text-shadow: 0 0 10px rgba(241,196,15,0.6);
+    }
 
-        header p {
-            color: #8a99ad;
-            font-size: 1.1rem;
-        }
+    #restart-btn {
+      background: linear-gradient(135deg, #e74c3c, #922b21);
+      color: #fff;
+      border: none;
+      padding: 8px 22px;
+      border-radius: 24px;
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform .15s, box-shadow .15s;
+      box-shadow: 0 4px 16px rgba(231,76,60,.45);
+      letter-spacing: .5px;
+    }
+    #restart-btn:hover  { transform: scale(1.07); box-shadow: 0 6px 22px rgba(231,76,60,.65); }
+    #restart-btn:active { transform: scale(.94); }
 
-        .container {
-            width: 100%;
-            max-width: 900px;
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 25px;
-        }
+    #game-wrap {
+      border-radius: 0 0 14px 14px;
+      overflow: hidden;
+      box-shadow: 0 24px 64px rgba(0,0,0,.7);
+      border: 2px solid #3a3a7e;
+      border-top: none;
+    }
 
-        @media (max-width: 768px) {
-            .container {
-                grid-template-columns: 1fr;
-            }
-        }
-
-        .card {
-            background: #151a24;
-            border: 1px solid #222d3d;
-            border-radius: 16px;
-            padding: 25px;
-            box-shadow: 0 8px 24px rgba(0,0,0,0.3);
-            display: flex;
-            flex-direction: column;
-        }
-
-        .card h2 {
-            font-size: 1.5rem;
-            margin-bottom: 15px;
-            color: #ff007f;
-            border-bottom: 2px solid #222d3d;
-            padding-bottom: 10px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        /* Стиль кликера */
-        .clicker-box {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            flex-grow: 1;
-            padding: 10px 0;
-        }
-
-        .stats {
-            font-size: 1.8rem;
-            font-weight: bold;
-            margin-bottom: 5px;
-            color: #fff;
-        }
-
-        .sub-stats {
-            color: #8a99ad;
-            margin-bottom: 20px;
-            font-size: 0.9rem;
-        }
-
-        .click-btn {
-            width: 160px;
-            height: 160px;
-            border-radius: 50%;
-            border: none;
-            background: linear-gradient(135deg, #00ffcc, #0077ff);
-            color: #fff;
-            font-size: 1.3rem;
-            font-weight: bold;
-            cursor: pointer;
-            box-shadow: 0 0 25px rgba(0, 255, 204, 0.5);
-            transition: transform 0.1s, box-shadow 0.2s;
-            outline: none;
-            user-select: none;
-        }
-
-        .click-btn:active {
-            transform: scale(0.92);
-            box-shadow: 0 0 15px rgba(0, 255, 204, 0.7);
-        }
-
-        .upgrades-list {
-            margin-top: 20px;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-
-        .upgrade-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background: #1c2331;
-            padding: 12px 15px;
-            border-radius: 10px;
-            border: 1px solid #2a374d;
-        }
-
-        .upgrade-info p {
-            font-weight: bold;
-            font-size: 0.95rem;
-        }
-
-        .upgrade-info span {
-            font-size: 0.8rem;
-            color: #8a99ad;
-        }
-
-        .upg-btn {
-            background: #ff007f;
-            color: white;
-            border: none;
-            padding: 8px 14px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-weight: bold;
-            transition: background 0.2s;
-        }
-
-        .upg-btn:hover {
-            background: #e0006c;
-        }
-
-        .upg-btn:disabled {
-            background: #3a414d;
-            color: #727b8a;
-            cursor: not-allowed;
-        }
-
-        /* Стиль списка проектов */
-        .project-link {
-            display: flex;
-            align-items: center;
-            background: #1c2331;
-            border: 1px solid #2a374d;
-            border-radius: 12px;
-            padding: 15px;
-            margin-bottom: 12px;
-            text-decoration: none;
-            color: inherit;
-            transition: transform 0.2s, border-color 0.2s;
-        }
-
-        .project-link:hover {
-            transform: translateX(5px);
-            border-color: #00ffcc;
-        }
-
-        .project-icon {
-            font-size: 2rem;
-            margin-right: 15px;
-        }
-
-        .project-text h3 {
-            font-size: 1.1rem;
-            color: #fff;
-            margin-bottom: 3px;
-        }
-
-        .project-text p {
-            font-size: 0.85rem;
-            color: #8a99ad;
-        }
-
-        .reset-btn {
-            background: none;
-            border: 1px solid #3a414d;
-            color: #727b8a;
-            padding: 5px 10px;
-            border-radius: 6px;
-            font-size: 0.8rem;
-            cursor: pointer;
-            margin-top: auto;
-            align-self: flex-end;
-            transition: color 0.2s, border-color 0.2s;
-        }
-
-        .reset-btn:hover {
-            color: #ff4444;
-            border-color: #ff4444;
-        }
-    </style>
+    #hint {
+      color: rgba(255,255,255,.35);
+      font-size: 12px;
+      margin-top: 10px;
+      letter-spacing: .5px;
+    }
+  </style>
 </head>
 <body>
 
-    <header>
-        <h1>YARIK0505 HUB</h1>
-        <p>Мой личный игровой стенд и полезные инструменты</p>
-    </header>
+<div id="ui-bar">
+  <span id="level-label">🎮 Уровень 1 / 3</span>
+  <button id="restart-btn" onclick="restartCurrentLevel()">↺ Рестарт</button>
+</div>
+<div id="game-wrap"></div>
+<p id="hint">← → / A D — движение &nbsp;|&nbsp; ↑ / W / Пробел — прыжок</p>
 
-    <div class="container">
-        
-        <div class="card">
-            <h2>Неоновый Кликер <span id="level-display" style="font-size: 1rem; color: #00ffcc;">Ур. 1</span></h2>
-            
-            <div class="clicker-box">
-                <div class="stats" id="score-display">0 🪙</div>
-                <div class="sub-stats" id="cps-display">В секунду: 0</div>
-                <button class="click-btn" id="click-trigger">КЛИК!</button>
-            </div>
+<!-- Phaser 3 через CDN -->
+<script src="https://cdn.jsdelivr.net/npm/phaser@3.60.0/dist/phaser.min.js"></script>
+<script>
+// =============================================================
+//  ДАННЫЕ УРОВНЕЙ
+//  platforms: [x_left, y_top, width, height]
+//  spikes:    [x_left, y_top]  (каждый шип 20×20)
+//  start/finish: центр объекта
+// =============================================================
+const LEVELS = [
 
-            <div class="upgrades-list">
-                <div class="upgrade-item">
-                    <div class="upgrade-info">
-                        <p>🔥 Мощный Клик</p>
-                        <span id="upg1-desc">+1 за клик (Всего: 1)</span>
-                    </div>
-                    <button class="upg-btn" id="upg1-btn">ЦЕНА: 15</button>
-                </div>
-                <div class="upgrade-item">
-                    <div class="upgrade-info">
-                        <p>🤖 Авто-Бот</p>
-                        <span id="upg2-desc">+1 в сек (Всего: 0)</span>
-                    </div>
-                    <button class="upg-btn" id="upg2-btn">ЦЕНА: 50</button>
-                </div>
-            </div>
-            
-            <button class="reset-btn" id="reset-trigger">Сбросить прогресс</button>
-        </div>
+  /* ---------- Уровень 1: Лёгкий (голубое небо) ---------- */
+  {
+    sky: 0x87CEEB,
+    start:  { x: 60,  y: 505 },
+    finish: { x: 720, y: 200 },
+    platforms: [
+      [   0, 540, 260, 20 ],   // стартовый участок
+      [ 320, 470, 120, 20 ],   // ступень 1
+      [ 490, 400, 120, 20 ],   // ступень 2
+      [ 650, 325, 120, 20 ],   // ступень 3
+      [ 530, 230, 230, 20 ],   // верхняя площадка (финиш)
+      [   0, 580, 800, 20 ],   // нижний пол
+    ],
+    spikes: [
+      [270, 560], [292, 560],
+      [445, 560], [467, 560],
+      [615, 560], [637, 560],
+    ],
+  },
 
-        <div class="card">
-            <h2>Мои проекты & Ссылки</h2>
-            
-            <a href="https://t.me/" target="_blank" class="project-link">
-                <div class="project-icon">🤖</div>
-                <div class="project-text">
-                    <h3>Мой Telegram Бот</h3>
-                    <p>Крутой бот на Python для автоматизации задач и фана.</p>
-                </div>
-            </a>
+  /* ---------- Уровень 2: Средний (закат) ---------- */
+  {
+    sky: 0xE07B39,
+    start:  { x: 50,  y: 500 },
+    finish: { x: 738, y: 145 },
+    platforms: [
+      [   0, 540, 175, 20 ],
+      [ 235, 470,  90, 20 ],
+      [ 385, 400,  90, 20 ],
+      [ 265, 315,  90, 20 ],
+      [ 415, 240,  90, 20 ],
+      [ 575, 310,  90, 20 ],
+      [ 630, 185, 170, 20 ],
+      [   0, 580, 800, 20 ],
+    ],
+    spikes: [
+      [180, 560], [202, 560], [224, 560],
+      [348, 560], [370, 560], [392, 560],
+      [515, 560], [537, 560],
+      /* шипы на платформе */
+      [392, 380], [414, 380],
+    ],
+  },
 
-            <a href="https://github.com/" target="_blank" class="project-link">
-                <div class="project-icon">💻</div>
-                <div class="project-text">
-                    <h3>Мой GitHub</h3>
-                    <p>Репозитории с кодом, скриптами и моими наработками.</p>
-                </div>
-            </a>
+  /* ---------- Уровень 3: Сложный (ночь) ---------- */
+  {
+    sky: 0x12122a,
+    start:  { x: 40,  y: 505 },
+    finish: { x: 715, y: 105 },
+    platforms: [
+      [   0, 545, 130, 20 ],
+      [ 185, 478,  75, 20 ],
+      [ 320, 410,  75, 20 ],
+      [ 200, 338,  75, 20 ],
+      [ 335, 265,  75, 20 ],
+      [ 475, 335,  75, 20 ],
+      [ 475, 200,  75, 20 ],
+      [ 605, 265,  75, 20 ],
+      [ 610, 140, 190, 20 ],
+      [   0, 580, 800, 20 ],
+    ],
+    spikes: [
+      [135, 560], [157, 560], [179, 560],
+      [275, 560], [297, 560],
+      [438, 560], [460, 560], [482, 560],
+      [562, 560], [584, 560],
+      /* шипы на платформах */
+      [325, 390], [347, 390],
+      [340, 245], [362, 245],
+    ],
+  },
 
-            <a href="mailto:admin@yarik0505.eu.cc" class="project-link">
-                <div class="project-icon">✉️</div>
-                <div class="project-text">
-                    <h3>Связаться со мной</h3>
-                    <p>admin@yarik0505.eu.cc — моя рабочая доменная почта.</p>
-                </div>
-            </a>
-        </div>
+];
 
-    </div>
+// =============================================================
+//  ГЛОБАЛЬНОЕ СОСТОЯНИЕ
+// =============================================================
+let currentLevel = 0;
+let game         = null;
 
-    <script>
-        // Инициализация данных
-        let gameData = {
-            score: 0,
-            clickPower: 1,
-            autoCps: 0,
-            level: 1,
-            upg1Cost: 15,
-            upg2Cost: 50
-        };
+// =============================================================
+//  ИГРОВАЯ СЦЕНА
+// =============================================================
+class GameScene extends Phaser.Scene {
+  constructor() { super({ key: 'GameScene' }); }
 
-        // Загрузка сохранений
-        if (localStorage.getItem('yarik_hub_save')) {
-            gameData = JSON.parse(localStorage.getItem('yarik_hub_save'));
-        }
+  // -----------------------------------------------------------
+  //  Программное создание текстур (только если ещё нет в кэше)
+  // -----------------------------------------------------------
+  buildTextures() {
+    const g = this.make.graphics({ add: false });
 
-        // Элементы DOM
-        const scoreEl = document.getElementById('score-display');
-        const cpsEl = document.getElementById('cps-display');
-        const lvlEl = document.getElementById('level-display');
-        const clickBtn = document.getElementById('click-trigger');
-        const upg1Btn = document.getElementById('upg1-btn');
-        const upg2Btn = document.getElementById('upg2-btn');
-        const upg1Desc = document.getElementById('upg1-desc');
-        const upg2Desc = document.getElementById('upg2-desc');
-        const resetBtn = document.getElementById('reset-trigger');
+    /* Красный шар */
+    if (!this.textures.exists('ball')) {
+      g.clear();
+      g.fillStyle(0x990000);
+      g.fillCircle(21, 21, 19);         // тень
+      g.fillStyle(0xcc0000);
+      g.fillCircle(20, 20, 18);         // основной цвет
+      g.fillStyle(0xff5555);
+      g.fillCircle(12, 11, 7);          // блик
+      g.fillStyle(0xffffff, 0.7);
+      g.fillCircle(10, 9, 3);           // яркий блик
+      g.generateTexture('ball', 40, 40);
+    }
 
-        // Обновление интерфейса
-        function updateUI() {
-            scoreEl.innerText = Math.floor(gameData.score) + ' 🪙';
-            cpsEl.innerText = 'В секунду: ' + gameData.autoCps;
-            lvlEl.innerText = 'Ур. ' + gameData.level;
-            
-            upg1Btn.innerText = 'ЦЕНА: ' + gameData.upg1Cost;
-            upg1Desc.innerText = '+1 за клик (Всего: ' + gameData.clickPower + ')';
-            upg1Btn.disabled = gameData.score < gameData.upg1Cost;
+    /* Плитка платформы 32×20 */
+    if (!this.textures.exists('plat')) {
+      g.clear();
+      g.fillStyle(0x27ae60);
+      g.fillRect(0, 0, 32, 20);
+      g.fillStyle(0x2ecc71);
+      g.fillRect(0, 0, 32, 5);          // верхний светлый слой
+      g.fillStyle(0x1a7a44);
+      g.fillRect(0, 15, 32, 5);         // нижний тёмный слой
+      g.fillStyle(0x1a6e3c);
+      g.fillRect(31, 0, 1, 20);         // правая граница
+      g.generateTexture('plat', 32, 20);
+    }
 
-            upg2Btn.innerText = 'ЦЕНА: ' + gameData.upg2Cost;
-            upg2Desc.innerText = '+1 в сек (Всего: ' + gameData.autoCps + ')';
-            upg2Btn.disabled = gameData.score < gameData.upg2Cost;
-        }
+    /* Тёмная плитка для ночного уровня 32×20 */
+    if (!this.textures.exists('plat_dark')) {
+      g.clear();
+      g.fillStyle(0x555577);
+      g.fillRect(0, 0, 32, 20);
+      g.fillStyle(0x7777aa);
+      g.fillRect(0, 0, 32, 5);
+      g.fillStyle(0x333355);
+      g.fillRect(0, 15, 32, 5);
+      g.fillStyle(0x222244);
+      g.fillRect(31, 0, 1, 20);
+      g.generateTexture('plat_dark', 32, 20);
+    }
 
-        // Функция сохранения
-        function saveGame() {
-            localStorage.setItem('yarik_hub_save', JSON.stringify(gameData));
-        }
+    /* Шип 20×20 */
+    if (!this.textures.exists('spike')) {
+      g.clear();
+      g.fillStyle(0xdd1111);
+      g.beginPath();
+      g.moveTo(10, 0);
+      g.lineTo(20, 20);
+      g.lineTo(0, 20);
+      g.closePath();
+      g.fillPath();
+      g.fillStyle(0xff7777, 0.6);
+      g.beginPath();
+      g.moveTo(10, 3);
+      g.lineTo(16, 17);
+      g.lineTo(10, 17);
+      g.closePath();
+      g.fillPath();
+      g.generateTexture('spike', 20, 20);
+    }
 
-        // Клик!
-        clickBtn.addEventListener('click', () => {
-            gameData.score += gameData.clickPower;
-            // Расчет уровня на основе накопленных сил
-            gameData.level = Math.floor((gameData.clickPower + gameData.autoCps) / 2) + 1;
-            updateUI();
-            saveGame();
-        });
+    /* Финишная звезда 44×44 */
+    if (!this.textures.exists('finish')) {
+      g.clear();
+      g.fillStyle(0xf39c12, 0.25);
+      g.fillCircle(22, 22, 22);         // ореол
+      g.fillStyle(0xf1c40f);
+      g.fillCircle(22, 22, 16);         // звезда
+      g.fillStyle(0xffeaa7);
+      g.fillCircle(14, 13, 6);          // блик
+      g.fillStyle(0xffffff, 0.9);
+      g.fillCircle(12, 11, 2);
+      g.generateTexture('finish', 44, 44);
+    }
 
-        // Покупка Апгрейда 1 (+клик)
-        upg1Btn.addEventListener('click', () => {
-            if (gameData.score >= gameData.upg1Cost) {
-                gameData.score -= gameData.upg1Cost;
-                gameData.clickPower += 1;
-                gameData.upg1Cost = Math.style = Math.floor(gameData.upg1Cost * 1.5);
-                updateUI();
-                saveGame();
-            }
-        });
+    g.destroy();
+  }
 
-        // Покупка Апгрейда 2 (автокликер)
-        upg2Btn.addEventListener('click', () => {
-            if (gameData.score >= gameData.upg2Cost) {
-                gameData.score -= gameData.upg2Cost;
-                gameData.autoCps += 1;
-                gameData.upg2Cost = Math.floor(gameData.upg2Cost * 1.6);
-                updateUI();
-                saveGame();
-            }
-        });
+  // -----------------------------------------------------------
+  //  Создание сцены
+  // -----------------------------------------------------------
+  create() {
+    const lvl = LEVELS[currentLevel];
 
-        // Сброс прогресса
-        resetBtn.addEventListener('click', () => {
-            if (confirm('Реально сбросить весь прогресс кликера?')) {
-                gameData = { score: 0, clickPower: 1, autoCps: 0, level: 1, upg1Cost: 15, upg2Cost: 50 };
-                updateUI();
-                saveGame();
-            }
-        });
+    /* Фон */
+    this.cameras.main.setBackgroundColor(lvl.sky);
 
-        // Цикл автокликера (10 раз в секунду для плавности)
-        setInterval(() => {
-            if (gameData.autoCps > 0) {
-                gameData.score += gameData.autoCps / 10;
-                updateUI();
-            }
-        }, 100);
+    /* Текстуры */
+    this.buildTextures();
 
-        // Каждую минуту автосохранение на всякий случай
-        setInterval(saveGame, 60000);
+    /* Флаги состояния */
+    this.isDead    = false;
+    this.levelDone = false;
 
-        // Первое включение
-        updateUI();
-    </script>
+    /* Декор: облака / звёзды */
+    this.addDecor(lvl);
+
+    /* ---- ПЛАТФОРМЫ ---- */
+    const platKey = currentLevel === 2 ? 'plat_dark' : 'plat';
+    this.platforms = this.physics.add.staticGroup();
+
+    lvl.platforms.forEach(([px, py, pw /*, ph ignored — tile is 20px tall */]) => {
+      const cols = Math.ceil(pw / 32);
+      for (let c = 0; c < cols; c++) {
+        // центр тайла: px + c*32 + 16, py + 10
+        const t = this.platforms.create(px + c * 32 + 16, py + 10, platKey);
+        t.refreshBody();
+      }
+    });
+
+    /* ---- ШИПЫ ---- */
+    this.spikes = this.physics.add.staticGroup();
+
+    lvl.spikes.forEach(([sx, sy]) => {
+      const sp = this.spikes.create(sx + 10, sy + 10, 'spike');
+      sp.body.setSize(12, 12).setOffset(4, 4); // урезанный хитбокс
+      sp.refreshBody();
+    });
+
+    /* ---- ФИНИШ ---- */
+    this.finishStar = this.physics.add.staticImage(lvl.finish.x, lvl.finish.y, 'finish');
+    this.finishStar.body.setSize(26, 26).setOffset(9, 9);
+    this.finishStar.refreshBody();
+
+    // Пульсирующая анимация финишной звезды
+    this.tweens.add({
+      targets:  this.finishStar,
+      scale:    1.3,
+      yoyo:     true,
+      repeat:   -1,
+      duration: 550,
+      ease:     'Sine.easeInOut',
+    });
+
+    /* ---- ИГРОК (шар) ---- */
+    this.ball = this.physics.add.sprite(lvl.start.x, lvl.start.y, 'ball');
+    this.ball.setCollideWorldBounds(true);
+    this.ball.setBounce(0.08);
+    this.ball.body.setCircle(18, 2, 2); // круглый хитбокс
+
+    /* ---- ФИЗИКА/КОЛЛИЗИИ ---- */
+    this.physics.add.collider(this.ball, this.platforms);
+
+    this.physics.add.overlap(
+      this.ball, this.finishStar,
+      this.reachFinish, null, this
+    );
+
+    this.physics.add.overlap(
+      this.ball, this.spikes,
+      this.hitSpike, null, this
+    );
+
+    /* ---- ВВОД ---- */
+    this.keys = this.input.keyboard.addKeys({
+      left:  Phaser.Input.Keyboard.KeyCodes.LEFT,
+      right: Phaser.Input.Keyboard.KeyCodes.RIGHT,
+      up:    Phaser.Input.Keyboard.KeyCodes.UP,
+      a:     Phaser.Input.Keyboard.KeyCodes.A,
+      d:     Phaser.Input.Keyboard.KeyCodes.D,
+      w:     Phaser.Input.Keyboard.KeyCodes.W,
+      space: Phaser.Input.Keyboard.KeyCodes.SPACE,
+    });
+
+    /* ---- UI ---- */
+    this.refreshHtml();
+
+    // Подсказка на первом уровне
+    if (currentLevel === 0) {
+      const hint = this.add.text(400, 18, '← → двигайся  |  ↑ прыгай  |  ⭐ — финиш', {
+        fontSize: '14px', color: '#ffffffaa',
+      }).setOrigin(0.5, 0).setDepth(5);
+      this.time.delayedCall(4000, () => hint.destroy());
+    }
+  }
+
+  // -----------------------------------------------------------
+  //  Декор: облака (уровни 1-2) или звёзды (уровень 3)
+  // -----------------------------------------------------------
+  addDecor(lvl) {
+    if (currentLevel < 2) {
+      // Облака
+      const clouds = [[100,55],[310,35],[560,65],[720,28]];
+      clouds.forEach(([cx,cy]) => {
+        const g = this.add.graphics();
+        g.fillStyle(0xffffff, 0.55);
+        g.fillEllipse(cx,     cy,    72, 36);
+        g.fillEllipse(cx+24,  cy-12, 52, 30);
+        g.fillEllipse(cx-22,  cy-8,  44, 26);
+      });
+    } else {
+      // Звёзды ночного неба
+      const g = this.add.graphics();
+      g.fillStyle(0xffffff, 0.8);
+      for (let i = 0; i < 60; i++) {
+        const sx = Phaser.Math.Between(0, 800);
+        const sy = Phaser.Math.Between(0, 300);
+        const sr = Phaser.Math.FloatBetween(0.5, 2);
+        g.fillCircle(sx, sy, sr);
+      }
+      // Луна
+      g.fillStyle(0xf5f5dc, 0.95);
+      g.fillCircle(720, 55, 30);
+      g.fillStyle(0x12122a);
+      g.fillCircle(730, 50, 24); // вырез полумесяца
+    }
+  }
+
+  // -----------------------------------------------------------
+  //  Главный игровой цикл
+  // -----------------------------------------------------------
+  update() {
+    if (this.isDead || this.levelDone) return;
+
+    const onGround = this.ball.body.blocked.down;
+    const goLeft   = this.keys.left.isDown  || this.keys.a.isDown;
+    const goRight  = this.keys.right.isDown || this.keys.d.isDown;
+    const doJump   = Phaser.Input.Keyboard.JustDown(this.keys.up)
+                  || Phaser.Input.Keyboard.JustDown(this.keys.w)
+                  || Phaser.Input.Keyboard.JustDown(this.keys.space);
+
+    /* Горизонтальное движение с плавным торможением */
+    if (goLeft)       this.ball.setVelocityX(-230);
+    else if (goRight) this.ball.setVelocityX( 230);
+    else              this.ball.setVelocityX(this.ball.body.velocity.x * 0.75);
+
+    /* Прыжок */
+    if (doJump && onGround) this.ball.setVelocityY(-530);
+
+    /* Вращение шара при движении */
+    this.ball.angle += this.ball.body.velocity.x * 0.011;
+  }
+
+  // -----------------------------------------------------------
+  //  Достижение финиша
+  // -----------------------------------------------------------
+  reachFinish() {
+    if (this.levelDone) return;
+    this.levelDone = true;
+
+    this.cameras.main.flash(400, 255, 240, 80);
+
+    this.time.delayedCall(520, () => {
+      currentLevel++;
+      if (currentLevel >= LEVELS.length) {
+        this.showVictory();
+      } else {
+        this.scene.restart();
+      }
+    });
+  }
+
+  // -----------------------------------------------------------
+  //  Касание шипа → мгновенный рестарт
+  // -----------------------------------------------------------
+  hitSpike() {
+    if (this.isDead || this.levelDone) return;
+    this.isDead = true;
+
+    this.cameras.main.shake(300, 0.018);
+    this.cameras.main.flash(180, 255, 0, 0, false);
+
+    // Эффект «разлёта» шара
+    this.ball.setVelocityY(-380);
+    this.ball.setVelocityX(Phaser.Math.Between(-180, 180));
+
+    this.time.delayedCall(430, () => this.scene.restart());
+  }
+
+  // -----------------------------------------------------------
+  //  Экран победы (после 3-го уровня)
+  // -----------------------------------------------------------
+  showVictory() {
+    // Затемнение
+    this.add.rectangle(400, 300, 800, 600, 0x000000, 0.78).setDepth(10);
+
+    // Трофей
+    this.add.text(400, 175, '🏆', { fontSize: '72px' })
+      .setOrigin(0.5).setDepth(11);
+
+    // Заголовок
+    this.add.text(400, 268, 'ПОБЕДА!', {
+      fontSize: '58px', color: '#f1c40f', fontStyle: 'bold',
+      stroke: '#000', strokeThickness: 8,
+    }).setOrigin(0.5).setDepth(11);
+
+    // Подзаголовок
+    this.add.text(400, 345, 'Все 3 уровня пройдены!', {
+      fontSize: '24px', color: '#ecf0f1',
+    }).setOrigin(0.5).setDepth(11);
+
+    // Кнопка «Начать заново»
+    const btn = this.add.text(400, 425, '[ Начать заново ]', {
+      fontSize: '28px', color: '#e74c3c', fontStyle: 'bold',
+    }).setOrigin(0.5).setDepth(11).setInteractive({ useHandCursor: true });
+
+    btn.on('pointerover',  () => btn.setColor('#ff8888'));
+    btn.on('pointerout',   () => btn.setColor('#e74c3c'));
+    btn.on('pointerdown',  () => { currentLevel = 0; this.scene.restart(); });
+
+    // Обновляем HTML-счётчик
+    this.refreshHtml();
+  }
+
+  // -----------------------------------------------------------
+  //  Обновление HTML-метки уровня
+  // -----------------------------------------------------------
+  refreshHtml() {
+    const el = document.getElementById('level-label');
+    const lvNum = Math.min(currentLevel + 1, LEVELS.length);
+    if (el) el.textContent = `🎮 Уровень ${lvNum} / ${LEVELS.length}`;
+  }
+}
+
+// =============================================================
+//  КОНФИГУРАЦИЯ И ЗАПУСК PHASER
+// =============================================================
+const config = {
+  type:   Phaser.AUTO,
+  width:  800,
+  height: 600,
+  parent: 'game-wrap',
+  physics: {
+    default: 'arcade',
+    arcade: {
+      gravity: { y: 620 },
+      debug: false,
+    },
+  },
+  scene: GameScene,
+};
+
+game = new Phaser.Game(config);
+
+// =============================================================
+//  Глобальная функция HTML-кнопки «Рестарт»
+// =============================================================
+function restartCurrentLevel() {
+  const sc = game.scene.getScene('GameScene');
+  if (sc) {
+    sc.isDead    = false;
+    sc.levelDone = false;
+    sc.scene.restart();
+  }
+}
+</script>
 </body>
 </html>
