@@ -79,6 +79,27 @@ body{background:linear-gradient(135deg,#0f0c29 0%,#302b63 50%,#24243e 100%);min-
 .fb-status{position:fixed;top:8px;right:8px;width:10px;height:10px;border-radius:50%;z-index:50;opacity:0.5}
 .fb-status.online{background:#00b894}
 .fb-status.offline{background:#ff6b6b}
+
+.admin-tabs{display:flex;gap:4px;margin-bottom:14px;flex-wrap:wrap}
+.admin-tab-btn{flex:1;min-width:80px;padding:7px 4px;border:1px solid #444;background:#16213e;color:#aaa;border-radius:10px;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit;transition:background .2s,color .2s}
+.admin-tab-btn.active{background:#6c5ce7;color:#fff;border-color:#6c5ce7}
+.admin-tab-pane{display:none}
+.admin-tab-pane.active{display:block}
+
+.stat-row{display:flex;justify-content:space-between;align-items:center;background:rgba(255,255,255,.05);padding:8px 12px;border-radius:10px;margin:5px 0;font-size:13px}
+.stat-val{font-weight:700;color:#feca57}
+.log-item{font-size:11px;color:#888;padding:3px 0;border-bottom:1px solid #222}
+
+#troll-glitch-overlay{display:none;position:fixed;top:0;left:0;width:100%;height:100%;z-index:997;pointer-events:none}
+#troll-typewriter-overlay{display:none;position:fixed;top:0;left:0;width:100%;height:100%;z-index:998;background:rgba(0,0,0,.88);color:#0f0;font-family:monospace;font-size:clamp(10px,1.8vw,15px);padding:20px;overflow:hidden;pointer-events:none;white-space:pre-wrap;word-break:break-all}
+#troll-bigtext-overlay{display:none;position:fixed;top:0;left:0;width:100%;height:100%;z-index:999;background:rgba(0,0,0,.75);justify-content:center;align-items:center;pointer-events:none;flex-direction:column}
+#troll-bigtext-overlay span{font-size:clamp(32px,10vw,80px);font-weight:900;color:#ff0000;text-shadow:0 0 30px #ff0000,0 0 60px #ff6600;text-align:center;animation:trollBigPulse .4s infinite}
+@keyframes trollBigPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.06)}}
+#troll-broadcast-banner{display:none;position:fixed;bottom:0;left:0;right:0;z-index:10001;background:linear-gradient(135deg,#6c5ce7,#a29bfe);color:#fff;padding:14px 24px 18px;font-size:15px;font-weight:700;text-align:center;box-shadow:0 -4px 20px rgba(108,92,231,.5);animation:trollBannerSlide .4s ease-out}
+@keyframes trollBannerSlide{from{transform:translateY(100%)}to{transform:translateY(0)}}
+.troll-floating-el{position:fixed;pointer-events:none;z-index:998;font-size:28px;animation-fill-mode:forwards;line-height:1}
+@keyframes trollFallDown{0%{opacity:1;transform:translateY(0) rotate(0deg)}100%{opacity:0;transform:translateY(110vh) rotate(720deg)}}
+@keyframes trollRiseUp{0%{opacity:1;transform:translateY(0) rotate(0deg)}100%{opacity:0;transform:translateY(-110vh) rotate(-360deg)}}
 </style>
 </head>
 <body>
@@ -91,6 +112,10 @@ body{background:linear-gradient(135deg,#0f0c29 0%,#302b63 50%,#24243e 100%);min-
 <h1>⚠️ ВНИМАНИЕ ⚠️<br>ОБНАРУЖЕН ВИРУС!!!<br>ВСЕ ДАННЫЕ УДАЛЕНЫ!</h1>
 <p>(нажми чтобы закрыть 😂)</p>
 </div>
+<div id="troll-glitch-overlay"></div>
+<div id="troll-typewriter-overlay"></div>
+<div id="troll-bigtext-overlay"><span id="troll-bigtext-word"></span></div>
+<div id="troll-broadcast-banner" onclick="this.style.display='none'"></div>
 
 <div class="header">
 <h1>🎮 ИГРОВОЙ ПОРТАЛ</h1>
@@ -133,11 +158,22 @@ body{background:linear-gradient(135deg,#0f0c29 0%,#302b63 50%,#24243e 100%);min-
 <h2>🛠 Админ-панель</h2>
 
 <div id="adminMain">
+<div class="admin-tabs">
+<button class="admin-tab-btn active" onclick="switchAdminTab('games')">🎮 Игры</button>
+<button class="admin-tab-btn" onclick="switchAdminTab('trolls')">🎭 Тролль</button>
+<button class="admin-tab-btn" onclick="switchAdminTab('stats')">📊 Стат</button>
+<button class="admin-tab-btn" onclick="switchAdminTab('broadcast')">📢 Сообщение</button>
+<button class="admin-tab-btn" onclick="switchAdminTab('theme')">🎨 Тема</button>
+</div>
+
+<div class="admin-tab-pane active" id="tab-games">
 <button class="btn btn-primary" onclick="showAddGame()">➕ Добавить игру (для всех)</button>
 <button class="btn btn-secondary" onclick="showManageGames()">📋 Управление играми</button>
 <button class="btn btn-secondary" onclick="resetPassword()">🔑 Сменить пароль</button>
+</div>
 
-<div class="troll-section">
+<div class="admin-tab-pane" id="tab-trolls">
+<div class="troll-section" style="border-top:none;margin-top:0;padding-top:0">
 <h3>🎭 Тролль для ВСЕХ (в реальном времени)</h3>
 <p style="font-size:11px;color:#888;margin-bottom:8px;text-align:center">Нажми — и ВСЕ кто сейчас на сайте увидят это мгновенно!</p>
 <div class="troll-grid">
@@ -147,11 +183,53 @@ body{background:linear-gradient(135deg,#0f0c29 0%,#302b63 50%,#24243e 100%);min-
 <button class="btn-sm btn-troll" onclick="sendTroll('virus')">☠️ Фейк-вирус</button>
 <button class="btn-sm btn-troll" onclick="sendTroll('shake')">📳 Землетрясение</button>
 <button class="btn-sm btn-troll" onclick="sendTroll('confetti')">🎊 Конфетти</button>
-<button class="btn-sm btn-troll" onclick="sendTroll('runaway')">🏃 Убегающие карты</button>
-<button class="btn-sm btn-troll" onclick="sendTroll('rainbow')">🌈 Радуга текст</button>
+<button class="btn-sm btn-troll" onclick="sendTroll('runaway')">🏃 Убегающие</button>
+<button class="btn-sm btn-troll" onclick="sendTroll('rainbow')">🌈 Радуга</button>
 <button class="btn-sm btn-troll" onclick="sendTroll('gravity')">⬇️ Гравитация</button>
-<button class="btn-sm btn-troll" onclick="sendTroll('reset')">🔄 Сброс всем</button>
+<button class="btn-sm btn-troll" onclick="sendTroll('blur')">🌫️ Блюр</button>
+<button class="btn-sm btn-troll" onclick="sendTroll('zoom')">🔍 Пульс-зум</button>
+<button class="btn-sm btn-troll" onclick="sendTroll('ghost')">👻 Призрак</button>
+<button class="btn-sm btn-troll" onclick="sendTroll('glitch')">📺 Глитч</button>
+<button class="btn-sm btn-troll" onclick="sendTroll('snow')">❄️ Снег</button>
+<button class="btn-sm btn-troll" onclick="sendTroll('bubble')">🫧 Пузыри</button>
+<button class="btn-sm btn-troll" onclick="sendTroll('darkout')">🌑 Темнота</button>
+<button class="btn-sm btn-troll" onclick="sendTroll('cursor')">💩 Курсор</button>
+<button class="btn-sm btn-troll" onclick="sendTroll('typewriter')">⌨️ Хакер</button>
+<button class="btn-sm btn-troll" onclick="sendTroll('emojirain')">😂 Эмодзи-дождь</button>
+<button class="btn-sm btn-troll" onclick="sendTroll('bigtext')">💀 Большой текст</button>
+<button class="btn-sm btn-troll" onclick="sendTroll('upsidetext')">🔃 Текст вверх ногами</button>
+<button class="btn-sm btn-troll" onclick="sendTroll('slowmo')">🐢 Замедление</button>
+<button class="btn-sm btn-troll" onclick="sendTroll('scalecrazy')">📦 Безумный масштаб</button>
+<button class="btn-sm btn-troll" onclick="sendTroll('colorinvert')">🎭 Инверсия</button>
+<button class="btn-sm btn-danger" onclick="sendTroll('reset')" style="grid-column:1/-1">🔄 Сброс всем</button>
 </div>
+</div>
+</div>
+
+<div class="admin-tab-pane" id="tab-stats">
+<h3 style="color:#feca57;font-size:15px;margin-bottom:10px">📊 Статистика</h3>
+<div class="stat-row"><span>👁️ Посещений</span><span class="stat-val" id="stat-visits">—</span></div>
+<div class="stat-row"><span>🟢 Онлайн сейчас</span><span class="stat-val" id="stat-online">—</span></div>
+<div style="margin-top:10px">
+<div style="font-size:12px;color:#aaa;margin-bottom:6px">📜 Последние тролли:</div>
+<div id="stat-troll-log"></div>
+</div>
+<button class="btn btn-secondary" onclick="refreshStats()" style="margin-top:10px">🔁 Обновить</button>
+</div>
+
+<div class="admin-tab-pane" id="tab-broadcast">
+<h3 style="color:#48dbfb;font-size:15px;margin-bottom:10px">📢 Сообщение всем</h3>
+<label>Текст сообщения:</label>
+<textarea id="broadcast-text" placeholder="Привет всем! 👋" rows="3"></textarea>
+<button class="btn btn-primary" onclick="sendBroadcast()">📤 Отправить всем</button>
+</div>
+
+<div class="admin-tab-pane" id="tab-theme">
+<h3 style="color:#ff9ff3;font-size:15px;margin-bottom:10px">🎨 Тема для всех</h3>
+<p style="font-size:11px;color:#888;margin-bottom:12px;text-align:center">Меняет цветовую схему у всех посетителей</p>
+<button class="btn btn-secondary" onclick="setTheme('dark')" style="background:linear-gradient(135deg,#0f0c29,#302b63);border:1px solid #6c5ce7;margin-bottom:6px">🌑 Тёмная (по умолчанию)</button>
+<button class="btn btn-secondary" onclick="setTheme('neon')" style="background:linear-gradient(135deg,#0a0a1a,#001a33);border:1px solid #00ffcc;color:#00ffcc;margin-bottom:6px">🌈 Неон</button>
+<button class="btn btn-secondary" onclick="setTheme('retro')" style="background:linear-gradient(135deg,#2c1810,#4a2c1a);border:1px solid #ffd700;color:#ffd700">📼 Ретро</button>
 </div>
 </div>
 
@@ -409,6 +487,15 @@ function showAdminMain() {
   document.getElementById('manageGames').style.display = 'none';
 }
 
+function switchAdminTab(name) {
+  document.querySelectorAll('.admin-tab-pane').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.admin-tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-' + name).classList.add('active');
+  const idx = ['games','trolls','stats','broadcast','theme'].indexOf(name);
+  document.querySelectorAll('.admin-tab-btn')[idx].classList.add('active');
+  if (name === 'stats') refreshStats();
+}
+
 // --- ОТПРАВИТЬ ТРОЛЛЬ ВСЕМ В РЕАЛЬНОМ ВРЕМЕНИ ---
 function sendTroll(type) {
   if (type === 'reset') {
@@ -416,18 +503,12 @@ function sendTroll(type) {
     if (db) db.ref('trolls').set(null);
     return;
   }
-  // Выполнить у себя
   executeTroll(type);
-  // Отправить всем через Firebase
   if (db) {
-    db.ref('trolls').push({
-      type: type,
-      time: Date.now()
-    });
-    // Очистить через 10 сек (чтобы новые посетители не получали старые тролли)
-    setTimeout(() => {
-      db.ref('trolls').set(null);
-    }, 10000);
+    const now = Date.now();
+    db.ref('trolls').push({ type, time: now });
+    db.ref('trolls_log').push({ type, time: now });
+    setTimeout(() => { db.ref('trolls').set(null); }, 10000);
   }
 }
 
@@ -521,6 +602,10 @@ function deleteGame(id, index) {
 let matrixInterval = null;
 let discoTimeout = null;
 let runAwayActive = false;
+let _glitchInterval = null;
+let _typewriterInterval = null;
+let _bigtextTimeout = null;
+let _scaleCrazyInterval = null;
 
 function executeTroll(type) {
   switch(type) {
@@ -533,6 +618,21 @@ function executeTroll(type) {
     case 'runaway': trollRunAway(); break;
     case 'rainbow': trollRainbow(); break;
     case 'gravity': trollGravity(); break;
+    case 'blur': trollBlur(); break;
+    case 'zoom': trollZoom(); break;
+    case 'ghost': trollGhost(); break;
+    case 'glitch': trollGlitch(); break;
+    case 'snow': trollSnow(); break;
+    case 'bubble': trollBubble(); break;
+    case 'darkout': trollDarkout(); break;
+    case 'cursor': trollCursor(); break;
+    case 'typewriter': trollTypewriter(); break;
+    case 'emojirain': trollEmojiRain(); break;
+    case 'bigtext': trollBigText(); break;
+    case 'upsidetext': trollUpsideText(); break;
+    case 'slowmo': trollSlowMo(); break;
+    case 'scalecrazy': trollScaleCrazy(); break;
+    case 'colorinvert': trollColorInvert(); break;
     case 'reset': trollReset(); break;
   }
 }
@@ -659,17 +759,219 @@ function trollGravity() {
   }, 4000);
 }
 
+function trollBlur() {
+  document.body.style.filter = 'blur(8px)';
+  document.body.style.transition = 'filter .3s';
+  setTimeout(() => { document.body.style.filter = ''; }, 6000);
+}
+
+function trollZoom() {
+  let t = 0;
+  const int = setInterval(() => {
+    const s = 1 + 0.06 * Math.sin(t * 0.3);
+    document.body.style.transform = `scale(${s})`;
+    t++;
+  }, 50);
+  setTimeout(() => { clearInterval(int); document.body.style.transform = ''; }, 6000);
+}
+
+function trollGhost() {
+  let t = 0;
+  const int = setInterval(() => {
+    const o = 0.5 + 0.5 * Math.sin(t * 0.6);
+    document.body.style.opacity = Math.max(0.02, o).toString();
+    t++;
+  }, 40);
+  setTimeout(() => { clearInterval(int); document.body.style.opacity = ''; }, 5000);
+}
+
+function trollGlitch() {
+  const ov = document.getElementById('troll-glitch-overlay');
+  ov.style.display = 'block';
+  clearInterval(_glitchInterval);
+  _glitchInterval = setInterval(() => {
+    const bars = [];
+    for (let i = 0; i < 8; i++) {
+      const y = Math.random() * 100;
+      const h = Math.random() * 6 + 1;
+      const color = `hsl(${Math.random()*360},100%,50%)`;
+      const x = (Math.random() - 0.5) * 30;
+      bars.push(`<div style="position:absolute;top:${y}%;left:0;width:100%;height:${h}%;background:${color};opacity:0.55;transform:translateX(${x}px)"></div>`);
+    }
+    ov.innerHTML = bars.join('');
+  }, 80);
+  setTimeout(() => { clearInterval(_glitchInterval); ov.style.display = 'none'; ov.innerHTML = ''; }, 5000);
+}
+
+function trollSnow() {
+  const emojis = ['❄️','⛄','🌨️'];
+  for (let i = 0; i < 40; i++) {
+    setTimeout(() => {
+      const el = document.createElement('div');
+      el.className = 'troll-floating-el';
+      el.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+      el.style.left = Math.random() * 100 + 'vw';
+      el.style.top = '-40px';
+      el.style.fontSize = (20 + Math.random() * 20) + 'px';
+      el.style.animation = `trollFallDown ${3 + Math.random() * 4}s ease-in forwards`;
+      document.body.appendChild(el);
+      setTimeout(() => el.remove(), 8000);
+    }, Math.random() * 3000);
+  }
+}
+
+function trollBubble() {
+  const emojis = ['🫧','💫','🎈','✨'];
+  for (let i = 0; i < 35; i++) {
+    setTimeout(() => {
+      const el = document.createElement('div');
+      el.className = 'troll-floating-el';
+      el.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+      el.style.left = Math.random() * 100 + 'vw';
+      el.style.bottom = '-40px';
+      el.style.top = 'auto';
+      el.style.fontSize = (18 + Math.random() * 18) + 'px';
+      el.style.animation = `trollRiseUp ${2.5 + Math.random() * 3}s ease-out forwards`;
+      document.body.appendChild(el);
+      setTimeout(() => el.remove(), 6500);
+    }, Math.random() * 2500);
+  }
+}
+
+function trollDarkout() {
+  const ov = document.createElement('div');
+  ov.id = 'troll-darkout-el';
+  ov.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:#000;z-index:9999;pointer-events:none;opacity:0;transition:opacity 1.5s';
+  document.body.appendChild(ov);
+  requestAnimationFrame(() => { ov.style.opacity = '1'; });
+  setTimeout(() => { ov.style.opacity = '0'; }, 2000);
+  setTimeout(() => ov.remove(), 3600);
+}
+
+function trollCursor() {
+  const style = document.createElement('style');
+  style.id = 'troll-cursor-style';
+  style.textContent = '*{cursor:url("data:image/svg+xml,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'32\' height=\'32\'><text y=\'28\' font-size=\'28\'>💩</text></svg>") 16 16,auto !important}';
+  document.head.appendChild(style);
+  setTimeout(() => { style.remove(); }, 6000);
+}
+
+function trollTypewriter() {
+  const ov = document.getElementById('troll-typewriter-overlay');
+  const words = ['ACCESSING SYSTEM...','ROOT ACCESS GRANTED','DELETING SYSTEM32...','HACKING MAINFRAME...','BYPASSING FIREWALL...','UPLOADING VIRUS...','STEALING DATA...','ENCRYPTING FILES...','GAME OVER...','YOU HAVE BEEN PWNED'];
+  ov.textContent = '';
+  ov.style.display = 'block';
+  clearInterval(_typewriterInterval);
+  let text = '';
+  _typewriterInterval = setInterval(() => {
+    const word = words[Math.floor(Math.random() * words.length)];
+    text += word + '\n';
+    if (text.length > 600) text = text.slice(text.length - 600);
+    ov.textContent = text;
+  }, 120);
+  setTimeout(() => { clearInterval(_typewriterInterval); ov.style.display = 'none'; ov.textContent = ''; }, 6000);
+}
+
+function trollEmojiRain() {
+  const emojis = ['😂','🤣','💀','🔥','👀','😱','🤡','👾','💩','🐛','🎃','👻','🦠','☠️','🤮','😈','👽','🛸','🌝','🍆','🌈','🦄','🐸'];
+  for (let i = 0; i < 60; i++) {
+    setTimeout(() => {
+      const el = document.createElement('div');
+      el.className = 'troll-floating-el';
+      el.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+      el.style.left = Math.random() * 100 + 'vw';
+      el.style.top = '-40px';
+      el.style.fontSize = (16 + Math.random() * 24) + 'px';
+      el.style.animation = `trollFallDown ${1.5 + Math.random() * 3}s ease-in forwards`;
+      document.body.appendChild(el);
+      setTimeout(() => el.remove(), 5500);
+    }, Math.random() * 2000);
+  }
+}
+
+function trollBigText() {
+  const phrases = ['ТЫ ВЗЛОМАН 💀','ВСЁ ПРОПАЛО 😱','УДАЛЯЮ ДАННЫЕ...','ПРОЩАЙ, ДРУГ 👋','СЕРВЕР ВЗЛОМАН','ВИРУС АКТИВИРОВАН ☠️'];
+  const ov = document.getElementById('troll-bigtext-overlay');
+  const sp = document.getElementById('troll-bigtext-word');
+  ov.style.display = 'flex';
+  let i = 0;
+  sp.textContent = phrases[0];
+  clearTimeout(_bigtextTimeout);
+  function next() {
+    i++;
+    if (i >= phrases.length) { ov.style.display = 'none'; return; }
+    sp.textContent = phrases[i];
+    _bigtextTimeout = setTimeout(next, 900);
+  }
+  _bigtextTimeout = setTimeout(next, 900);
+  setTimeout(() => { ov.style.display = 'none'; clearTimeout(_bigtextTimeout); }, 6000);
+}
+
+function trollUpsideText() {
+  const style = document.createElement('style');
+  style.id = 'troll-upside-style';
+  style.textContent = 'p,h1,h2,h3,h4,span,a,button,label{transform:rotate(180deg) !important;display:inline-block !important}';
+  document.head.appendChild(style);
+  setTimeout(() => { style.remove(); }, 5000);
+}
+
+function trollSlowMo() {
+  const el = document.documentElement;
+  el.style.animationDuration = '500%';
+  el.style.transitionDuration = '500%';
+  setTimeout(() => { el.style.animationDuration = ''; el.style.transitionDuration = ''; }, 6000);
+}
+
+function trollScaleCrazy() {
+  clearInterval(_scaleCrazyInterval);
+  _scaleCrazyInterval = setInterval(() => {
+    const cards = document.querySelectorAll('.game-card');
+    if (!cards.length) return;
+    const card = cards[Math.floor(Math.random() * cards.length)];
+    card.style.transform = 'scale(1.5)';
+    card.style.zIndex = '200';
+    card.style.transition = 'transform .1s';
+    setTimeout(() => { card.style.transform = ''; card.style.zIndex = ''; }, 180);
+  }, 200);
+  setTimeout(() => { clearInterval(_scaleCrazyInterval); document.querySelectorAll('.game-card').forEach(c => { c.style.transform = ''; c.style.zIndex = ''; }); }, 5000);
+}
+
+function trollColorInvert() {
+  document.body.style.filter = 'invert(1)';
+  document.body.style.transition = 'filter .3s';
+  setTimeout(() => { document.body.style.filter = ''; }, 5000);
+}
+
 function trollReset() {
   document.body.style.transform = '';
+  document.body.style.filter = '';
+  document.body.style.opacity = '';
   document.body.classList.remove('disco-mode', 'shake-effect');
   document.getElementById('matrix-canvas').style.display = 'none';
   document.getElementById('fake-virus').style.display = 'none';
+  document.getElementById('troll-glitch-overlay').style.display = 'none';
+  document.getElementById('troll-glitch-overlay').innerHTML = '';
+  document.getElementById('troll-typewriter-overlay').style.display = 'none';
+  document.getElementById('troll-bigtext-overlay').style.display = 'none';
   clearInterval(matrixInterval);
   clearTimeout(discoTimeout);
+  clearInterval(_glitchInterval);
+  clearInterval(_typewriterInterval);
+  clearTimeout(_bigtextTimeout);
+  clearInterval(_scaleCrazyInterval);
   runAwayActive = false;
   document.removeEventListener('pointermove', runAwayHandler);
-  document.querySelectorAll('.game-card').forEach(c => { c.style.transform = ''; c.style.transition = ''; });
+  document.querySelectorAll('.game-card').forEach(c => { c.style.transform = ''; c.style.transition = ''; c.style.zIndex = ''; });
   document.querySelectorAll('.game-card h3').forEach(h => h.style.color = '');
+  document.querySelectorAll('.troll-floating-el').forEach(e => e.remove());
+  const darkEl = document.getElementById('troll-darkout-el');
+  if (darkEl) darkEl.remove();
+  const cursorStyle = document.getElementById('troll-cursor-style');
+  if (cursorStyle) cursorStyle.remove();
+  const upsideStyle = document.getElementById('troll-upside-style');
+  if (upsideStyle) upsideStyle.remove();
+  document.documentElement.style.animationDuration = '';
+  document.documentElement.style.transitionDuration = '';
 }
 
 // =======================================================
@@ -711,10 +1013,101 @@ const JOKES = [
 ];
 document.getElementById('joke').textContent = JOKES[Math.floor(Math.random()*JOKES.length)];
 
+// --- СТАТИСТИКА ---
+function refreshStats() {
+  if (!db) return;
+  db.ref('visits').once('value', s => {
+    document.getElementById('stat-visits').textContent = s.val() || 0;
+  });
+  db.ref('online').once('value', s => {
+    const data = s.val();
+    document.getElementById('stat-online').textContent = data ? Object.keys(data).length : 0;
+  });
+  db.ref('trolls_log').limitToLast(10).once('value', s => {
+    const el = document.getElementById('stat-troll-log');
+    el.innerHTML = '';
+    const data = s.val();
+    if (!data) { el.innerHTML = '<div class="log-item">Нет данных</div>'; return; }
+    const items = Object.values(data).reverse();
+    items.forEach(item => {
+      const d = document.createElement('div');
+      d.className = 'log-item';
+      d.textContent = `${item.type} — ${new Date(item.time).toLocaleTimeString()}`;
+      el.appendChild(d);
+    });
+  });
+}
+
+// --- BROADCAST ---
+function sendBroadcast() {
+  const text = document.getElementById('broadcast-text').value.trim();
+  if (!text) return alert('Введи текст!');
+  if (db) {
+    db.ref('broadcast').set({ text, time: Date.now() });
+    document.getElementById('broadcast-text').value = '';
+    alert('Сообщение отправлено всем!');
+  }
+}
+
+function listenForBroadcast() {
+  if (!db) return;
+  let lastBroadcast = Date.now();
+  db.ref('broadcast').on('value', snap => {
+    const data = snap.val();
+    if (!data || data.time <= lastBroadcast) return;
+    lastBroadcast = data.time;
+    const banner = document.getElementById('troll-broadcast-banner');
+    banner.textContent = '📢 ' + data.text;
+    banner.style.display = 'block';
+    setTimeout(() => { banner.style.display = 'none'; }, 8000);
+  });
+}
+
+// --- ТЕМА ---
+function setTheme(name) {
+  if (db) db.ref('theme').set(name);
+  applyTheme(name);
+}
+
+function applyTheme(name) {
+  const r = document.documentElement;
+  if (name === 'neon') {
+    r.style.setProperty('--bg-grad', 'linear-gradient(135deg,#0a0a1a 0%,#001a33 50%,#0a1a0a 100%)');
+    document.body.style.background = 'linear-gradient(135deg,#0a0a1a 0%,#001a33 50%,#0a1a0a 100%)';
+    document.body.style.color = '#00ffcc';
+  } else if (name === 'retro') {
+    document.body.style.background = 'linear-gradient(135deg,#2c1810 0%,#4a2c1a 50%,#3a2010 100%)';
+    document.body.style.color = '#ffd700';
+  } else {
+    document.body.style.background = '';
+    document.body.style.color = '';
+  }
+}
+
+function listenForTheme() {
+  if (!db) return;
+  db.ref('theme').on('value', snap => {
+    if (snap.val()) applyTheme(snap.val());
+  });
+}
+
+// --- СЧЁТЧИК ПОСЕЩЕНИЙ ---
+function incrementVisits() {
+  if (!db) return;
+  db.ref('visits').transaction(v => (v || 0) + 1);
+  const uid = 'u_' + Math.random().toString(36).slice(2);
+  const ref = db.ref('online/' + uid);
+  ref.set(true);
+  ref.onDisconnect().remove();
+}
+
 // --- СТАРТ ---
 renderGames();
 loadGamesFromFirebase();
 listenForTrolls();
+listenForBroadcast();
+listenForTheme();
+incrementVisits();
 </script>
 </body>
 </html>
