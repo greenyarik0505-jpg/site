@@ -90,7 +90,7 @@ const LEVELS = [
     movingPlats: [{ x:320, y:248, w:80, range:65, spd:80 }, { x:470, y:178, w:75, range:70, spd:92 }],
     spikes:  [[180,560],[203,560],[226,560],[350,560],[373,560],[396,560],[518,560],[541,560],[393,378],[416,378]],
     coins:   [{x:90,y:510},{x:128,y:510},{x:260,y:438},{x:298,y:438},{x:280,y:283},{x:440,y:208},{x:475,y:208},{x:598,y:278},{x:633,y:278},{x:682,y:148},{x:722,y:148}],
-    enemies: [{ x:30,y:528, range:80, spd:82 },{ x:407,y:388, range:50, spd:85 },{ x:645,y:168, range:100, spd:98 }],
+    enemies: [{ x:120,y:528, range:30, spd:82 },{ x:407,y:388, range:50, spd:85 },{ x:645,y:168, range:100, spd:98 }],
   },
   // ---------------------------------------------------------------
   //  Уровень 3 — Ночная крепость
@@ -105,7 +105,7 @@ const LEVELS = [
     movingPlats: [{ x:100, y:468, w:70, range:45, spd:100 }, { x:400, y:198, w:65, range:58, spd:112 }],
     spikes:  [[135,560],[158,560],[181,560],[277,560],[300,560],[440,560],[463,560],[486,560],[563,560],[586,560],[323,388],[346,388],[338,243],[361,243]],
     coins:   [{x:55,y:513},{x:222,y:446},{x:248,y:446},{x:358,y:378},{x:222,y:306},{x:248,y:306},{x:372,y:233},{x:398,y:233},{x:512,y:168},{x:644,y:233},{x:669,y:233},{x:680,y:108},{x:720,y:108}],
-    enemies: [{ x:15,y:533, range:58, spd:90 },{ x:205,y:465, range:42, spd:102 },{ x:338,y:398, range:45, spd:95 },{ x:490,y:188, range:43, spd:110 },{ x:622,y:128, range:118, spd:100 }],
+    enemies: [{ x:95,y:533, range:20, spd:90 },{ x:205,y:465, range:42, spd:102 },{ x:338,y:398, range:45, spd:95 },{ x:490,y:188, range:43, spd:110 },{ x:622,y:128, range:118, spd:100 }],
   },
   // ---------------------------------------------------------------
   //  Уровень 4 — Подземелье
@@ -125,7 +125,7 @@ const LEVELS = [
     ],
     spikes:  [[165,560],[188,560],[211,560],[300,560],[323,560],[346,560],[460,560],[483,560],[560,560],[583,560],[606,560],[355,410],[378,410],[225,220],[248,220],[355,155],[378,155]],
     coins:   [{x:70,y:513},{x:258,y:460},{x:398,y:400},{x:528,y:340},{x:388,y:270},{x:258,y:210},{x:388,y:145},{x:538,y:210},{x:670,y:145},{x:720,y:145}],
-    enemies: [{ x:20,y:533,range:60,spd:95 },{ x:228,y:478,range:40,spd:105 },{ x:368,y:418,range:42,spd:100 },{ x:358,y:288,range:42,spd:108 },{ x:630,y:163,range:115,spd:112 }],
+    enemies: [{ x:115,y:533,range:25,spd:95 },{ x:228,y:478,range:40,spd:105 },{ x:368,y:418,range:42,spd:100 },{ x:358,y:288,range:42,spd:108 },{ x:630,y:163,range:115,spd:112 }],
   },
   // ---------------------------------------------------------------
   //  Уровень 5 — Вулкан
@@ -145,7 +145,7 @@ const LEVELS = [
     ],
     spikes:  [[115,560],[138,560],[161,560],[255,560],[278,560],[395,560],[418,560],[520,560],[543,560],[566,560],[620,560],[300,410],[323,410],[170,220],[193,220],[300,160],[323,160],[430,220],[453,220],[560,160],[583,160]],
     coins:   [{x:55,y:518},{x:200,y:458},{x:330,y:398},{x:460,y:338},{x:330,y:268},{x:200,y:208},{x:330,y:148},{x:460,y:208},{x:590,y:268},{x:680,y:88},{x:730,y:88}],
-    enemies: [{ x:20,y:538,range:55,spd:100 },{ x:173,y:478,range:38,spd:110 },{ x:303,y:418,range:38,spd:108 },{ x:433,y:358,range:38,spd:115 },{ x:303,y:288,range:38,spd:112 },{ x:563,y:168,range:38,spd:118 },{ x:650,y:108,range:108,spd:110 }],
+    enemies: [{ x:78,y:538,range:18,spd:100 },{ x:173,y:478,range:38,spd:110 },{ x:303,y:418,range:38,spd:108 },{ x:433,y:358,range:38,spd:115 },{ x:303,y:288,range:38,spd:112 },{ x:563,y:168,range:38,spd:118 },{ x:650,y:108,range:108,spd:110 }],
   },
 ];
 
@@ -531,3 +531,275 @@ class GameScene extends Phaser.Scene {
       this.enemies.add(spr);
       this.enemyMeta.push({ spr, left:en.x-en.range, right:en.x+en.range+36, spd:en.spd });
     });
+
+    // ---- Финиш ----
+    this.finishStar = this.physics.add.staticImage(lvl.finish.x, lvl.finish.y, 'finish');
+    this.finishStar.body.setSize(26,26).setOffset(9,9); this.finishStar.refreshBody();
+    this.tweens.add({ targets:this.finishStar, scale:1.3, yoyo:true, repeat:-1, duration:560, ease:'Sine.easeInOut' });
+
+    // ---- Игрок ----
+    this.ball = this.physics.add.sprite(lvl.start.x, lvl.start.y, 'ball');
+    this.ball.setCollideWorldBounds(true).setBounce(0.08);
+    this.ball.body.setCircle(18, 2, 2);
+
+    // ---- Коллизии ----
+    this.physics.add.collider(this.ball, this.platforms);
+    this.physics.add.collider(this.ball, this.movPlatGroup);
+    this.physics.add.collider(this.enemies, this.platforms);
+    this.physics.add.collider(this.enemies, this.movPlatGroup);
+
+    this.physics.add.overlap(this.ball, this.finishStar, this._onFinish, null, this);
+    this.physics.add.overlap(this.ball, this.spikes,     this._onSpike,  null, this);
+    this.physics.add.overlap(this.ball, this.coins,      this._onCoin,   null, this);
+    this.physics.add.overlap(this.ball, this.enemies,    this._onEnemy,  null, this);
+
+    // ---- Ввод ----
+    this.keys = this.input.keyboard.addKeys({
+      left:  Phaser.Input.Keyboard.KeyCodes.LEFT,
+      right: Phaser.Input.Keyboard.KeyCodes.RIGHT,
+      up:    Phaser.Input.Keyboard.KeyCodes.UP,
+      a:     Phaser.Input.Keyboard.KeyCodes.A,
+      d:     Phaser.Input.Keyboard.KeyCodes.D,
+      w:     Phaser.Input.Keyboard.KeyCodes.W,
+      space: Phaser.Input.Keyboard.KeyCodes.SPACE,
+      esc:   Phaser.Input.Keyboard.KeyCodes.ESC,
+    });
+    this.keys.esc.on('down', () => this._togglePause());
+
+    // ---- HUD ----
+    this._createHUD();
+
+    // ---- Мобильные кнопки ----
+    this._createMobileControls();
+
+    // Подсказка на 1-м уровне
+    if (currentLevel === 0) {
+      const t = this.add.text(400, 20, '← → двигайся   ↑ прыгай   ⭐ финиш   прыгни на врага!',
+        { fontSize:'13px', color:'#ffffffcc' }).setOrigin(0.5, 0).setScrollFactor(0).setDepth(20);
+      this.time.delayedCall(4500, () => t && t.active && t.destroy());
+    }
+  }
+
+  // ----------------------------------------------------------------
+  _addDecor(lvl) {
+    if (currentLevel <= 1) {
+      [[100,55],[300,38],[540,62],[720,30]].forEach(([cx,cy]) => {
+        const g = this.add.graphics();
+        g.fillStyle(0xffffff, 0.55);
+        g.fillEllipse(cx,cy,72,36); g.fillEllipse(cx+24,cy-12,52,30); g.fillEllipse(cx-22,cy-8,44,26);
+      });
+    } else {
+      const g = this.add.graphics();
+      g.fillStyle(0xffffff, 0.8);
+      for (let i = 0; i < 75; i++) g.fillCircle(Phaser.Math.Between(0,800), Phaser.Math.Between(0,320), Phaser.Math.FloatBetween(0.5,2.1));
+      g.fillStyle(0xf5f5dc, 0.9); g.fillCircle(720, 55, 30);
+      g.fillStyle(lvl.sky);        g.fillCircle(731, 49, 23);
+    }
+  }
+
+  // ----------------------------------------------------------------
+  _createHUD() {
+    this.add.rectangle(400, 22, 800, 44, 0x000000, 0.5).setScrollFactor(0).setDepth(30);
+
+    this._hearts = [];
+    for (let i = 0; i < 3; i++) {
+      const h = this.add.image(22 + i * 28, 22, 'heart').setScrollFactor(0).setDepth(31).setScale(1.05);
+      this._hearts.push(h);
+    }
+    this._updateHearts();
+
+    this._lvlText = this.add.text(400, 13, LEVELS[currentLevel].name,
+      { fontSize:'16px', color:'#f1c40f', fontStyle:'bold' }).setOrigin(0.5, 0).setScrollFactor(0).setDepth(31);
+
+    this._scoreText = this.add.text(776, 13, `⭐ ${score}`,
+      { fontSize:'16px', color:'#fff', fontStyle:'bold' }).setOrigin(1, 0).setScrollFactor(0).setDepth(31);
+  }
+
+  _updateHearts() { this._hearts.forEach((h, i) => h.setAlpha(i < lives ? 1 : 0.2)); }
+  _updateScore()  { this._scoreText && this._scoreText.setText(`⭐ ${score}`); }
+
+  // ----------------------------------------------------------------
+  _createMobileControls() {
+    const a = 0.42, d = 45;
+
+    const mkBtn = (x, y, w, h, col, lbl, onDown, onUp) => {
+      const r = this.add.rectangle(x, y, w, h, col, a).setScrollFactor(0).setDepth(d).setInteractive();
+      this.add.text(x, y, lbl, { fontSize:'26px', color:'#fff' }).setOrigin(0.5).setScrollFactor(0).setDepth(d + 1);
+      r.on('pointerdown', onDown);
+      r.on('pointerup',   onUp);
+      r.on('pointerout',  onUp);
+      return r;
+    };
+
+    mkBtn(58,  548, 95, 68, 0x444444, '◀', () => { this.touchLeft  = true;  }, () => { this.touchLeft  = false; });
+    mkBtn(160, 548, 95, 68, 0x444444, '▶', () => { this.touchRight = true;  }, () => { this.touchRight = false; });
+    mkBtn(742, 548, 95, 68, 0xaa0000, '↑', () => { this.touchJump  = true;  }, () => { this.touchJump  = false; });
+
+    const pb = this.add.text(776, 38, '⏸', { fontSize:'18px', color:'#aaaaaa' })
+      .setOrigin(1, 0).setScrollFactor(0).setDepth(32).setInteractive({ useHandCursor: true });
+    pb.on('pointerdown', () => this._togglePause());
+  }
+
+  // ----------------------------------------------------------------
+  _togglePause() {
+    this.paused = !this.paused;
+    if (this.paused) {
+      this.physics.pause();
+      this._po = this.add.rectangle(400, 300, 800, 600, 0x000000, 0.72).setScrollFactor(0).setDepth(60);
+      this._pt = this.add.text(400, 240, 'ПАУЗА', { fontSize:'58px', fontStyle:'bold', color:'#fff', stroke:'#000', strokeThickness:8 }).setOrigin(0.5).setScrollFactor(0).setDepth(61);
+      this._pc = this.add.text(400, 318, 'ESC — продолжить', { fontSize:'22px', color:'#ccc' }).setOrigin(0.5).setScrollFactor(0).setDepth(61);
+      const mb = this.add.text(400, 385, '[ Главное меню ]', { fontSize:'22px', color:'#e74c3c' })
+        .setOrigin(0.5).setScrollFactor(0).setDepth(61).setInteractive({ useHandCursor: true });
+      mb.on('pointerdown', () => { this.physics.resume(); this.paused = false; this.scene.start('MenuScene'); });
+      this._pm = mb;
+    } else {
+      this.physics.resume();
+      [this._po, this._pt, this._pc, this._pm].forEach(o => o && o.destroy());
+    }
+  }
+
+  // ----------------------------------------------------------------
+  update() {
+    if (this.isDead || this.levelDone || this.paused) return;
+
+    const gr  = this.ball.body.blocked.down;
+    const gl  = this.keys.left.isDown  || this.keys.a.isDown || this.touchLeft;
+    const gR  = this.keys.right.isDown || this.keys.d.isDown || this.touchRight;
+    const jKb = Phaser.Input.Keyboard.JustDown(this.keys.up) ||
+                Phaser.Input.Keyboard.JustDown(this.keys.w)  ||
+                Phaser.Input.Keyboard.JustDown(this.keys.space);
+    const jTch = this.touchJump && !this._prevTJ && gr;
+    this._prevTJ = this.touchJump;
+
+    if (gl)       this.ball.setVelocityX(-238);
+    else if (gR)  this.ball.setVelocityX( 238);
+    else          this.ball.setVelocityX(this.ball.body.velocity.x * 0.74);
+
+    if ((jKb || jTch) && gr) { this.ball.setVelocityY(-535); SFX.jump(); }
+
+    this.ball.angle += this.ball.body.velocity.x * 0.011;
+
+    // Движущиеся платформы
+    this.movPlats.forEach(mp => {
+      const f = mp.sprites[0]; if (!f) return;
+      const newDir = f.x <= mp.left ? 1 : f.x >= mp.right ? -1 : mp.dir;
+      if (newDir !== mp.dir) { mp.dir = newDir; mp.sprites.forEach(s => s.body.setVelocityX(mp.spd * newDir)); }
+    });
+
+    // Враги
+    this.enemyMeta.forEach(em => {
+      if (!em.spr.active) return;
+      if (em.spr.x <= em.left)  { em.spr.body.setVelocityX( em.spd); em.spr.setFlipX(false); }
+      if (em.spr.x >= em.right) { em.spr.body.setVelocityX(-em.spd); em.spr.setFlipX(true);  }
+    });
+  }
+
+  // ----------------------------------------------------------------
+  _onFinish() {
+    if (this.levelDone) return;
+    this.levelDone = true;
+    SFX.finish();
+    this.cameras.main.flash(400, 255, 240, 80);
+    this.time.delayedCall(560, () => {
+      if (currentLevel > unlockedLevels) unlockedLevels = currentLevel;
+      currentLevel++;
+      if (currentLevel >= LEVELS.length) this._showVictory();
+      else this.scene.restart();
+    });
+  }
+
+  _loseLife() {
+    if (this.isDead || this.levelDone) return;
+    this.isDead = true;
+    SFX.die();
+    lives--;
+    this._updateHearts();
+    this.cameras.main.shake(290, 0.018);
+    this.cameras.main.flash(170, 255, 0, 0, false);
+    this.ball.setVelocityY(-340);
+    this.ball.setVelocityX(Phaser.Math.Between(-160, 160));
+    this.time.delayedCall(480, () => {
+      if (lives <= 0) { lives = 3; score = Math.max(0, score - 5); this._showGameOver(); }
+      else this.scene.restart();
+    });
+  }
+
+  _onSpike() { this._loseLife(); }
+
+  _onEnemy(ball, enemy) {
+    if (this.isDead || this.levelDone) return;
+    const falling = this.ball.body.velocity.y > 70;
+    const above   = this.ball.y < enemy.y - 6;
+    if (falling && above) {
+      SFX.stomp(); score += 3; this._updateScore();
+      this.cameras.main.shake(90, 0.007);
+      const idx = this.enemyMeta.findIndex(e => e.spr === enemy);
+      if (idx !== -1) this.enemyMeta.splice(idx, 1);
+      this.tweens.add({ targets:enemy, y:enemy.y+70, alpha:0, scaleY:0.15, duration:280, onComplete:() => enemy.destroy() });
+      this.ball.setVelocityY(-400);
+    } else {
+      this._loseLife();
+    }
+  }
+
+  _onCoin(ball, coin) {
+    SFX.coin(); score++; this._updateScore();
+    this.tweens.add({ targets:coin, y:coin.y-28, alpha:0, duration:230, onComplete:() => coin.destroy() });
+    coin.disableBody(false, false);
+  }
+
+  // ----------------------------------------------------------------
+  _showGameOver() {
+    this.add.rectangle(400, 300, 800, 600, 0x000000, 0.82).setDepth(10);
+    this.add.text(400, 180, '💀', { fontSize:'70px' }).setOrigin(0.5).setDepth(11);
+    this.add.text(400, 268, 'ИГРА ОКОНЧЕНА', { fontSize:'46px', fontStyle:'bold', color:'#e74c3c', stroke:'#000', strokeThickness:7 }).setOrigin(0.5).setDepth(11);
+    this.add.text(400, 335, `Монеты: ⭐${score}   Уровень: ${currentLevel + 1}`, { fontSize:'22px', color:'#eee' }).setOrigin(0.5).setDepth(11);
+    this.add.text(400, 375, '(–5 монет за поражение)', { fontSize:'14px', color:'#e74c3c' }).setOrigin(0.5).setDepth(11);
+    const rb = this.add.text(400, 435, '[ Попробовать снова ]', { fontSize:'26px', color:'#2ecc71', fontStyle:'bold' })
+      .setOrigin(0.5).setDepth(11).setInteractive({ useHandCursor: true });
+    rb.on('pointerdown', () => { currentLevel = 0; lives = 3; score = 0; this.scene.start('GameScene'); });
+    const mb = this.add.text(400, 490, '[ Главное меню ]', { fontSize:'22px', color:'#e74c3c' })
+      .setOrigin(0.5).setDepth(11).setInteractive({ useHandCursor: true });
+    mb.on('pointerdown', () => this.scene.start('MenuScene'));
+  }
+
+  _showVictory() {
+    if (score > hiBest) hiBest = score;
+    SFX.victory();
+    this.add.rectangle(400, 300, 800, 600, 0x000000, 0.80).setDepth(10);
+    this.add.text(400, 160, '🏆', { fontSize:'72px' }).setOrigin(0.5).setDepth(11);
+    this.add.text(400, 252, 'ПОБЕДА!', { fontSize:'58px', fontStyle:'bold', color:'#f1c40f', stroke:'#000', strokeThickness:8 }).setOrigin(0.5).setDepth(11);
+    this.add.text(400, 325, `Все ${LEVELS.length} уровней пройдены!`, { fontSize:'24px', color:'#ecf0f1' }).setOrigin(0.5).setDepth(11);
+    this.add.text(400, 365, `Монеты: ⭐${score}   Рекорд: ⭐${hiBest}`, { fontSize:'20px', color:'#f1c40f' }).setOrigin(0.5).setDepth(11);
+    const rb = this.add.text(400, 430, '[ Начать заново ]', { fontSize:'28px', color:'#2ecc71', fontStyle:'bold' })
+      .setOrigin(0.5).setDepth(11).setInteractive({ useHandCursor: true });
+    rb.on('pointerdown', () => { currentLevel = 0; lives = 3; score = 0; this.scene.start('GameScene'); });
+    const mb = this.add.text(400, 488, '[ Главное меню ]', { fontSize:'22px', color:'#e74c3c' })
+      .setOrigin(0.5).setDepth(11).setInteractive({ useHandCursor: true });
+    mb.on('pointerdown', () => this.scene.start('MenuScene'));
+  }
+}
+
+// =================================================================
+//  КОНФИГУРАЦИЯ И ЗАПУСК
+// =================================================================
+new Phaser.Game({
+  type: Phaser.AUTO,
+  width: 800,
+  height: 600,
+  parent: document.body,
+  scale: {
+    mode: Phaser.Scale.FIT,
+    autoCenter: Phaser.Scale.CENTER_BOTH,
+    width: 800,
+    height: 600,
+  },
+  physics: {
+    default: 'arcade',
+    arcade: { gravity: { y: 625 }, debug: false },
+  },
+  scene: [MenuScene, LevelSelectScene, SettingsScene, GameScene],
+});
+</script>
+</body>
+</html>
