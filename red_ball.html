@@ -7,8 +7,8 @@
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@700;900&display=swap');
     *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
-    html, body { width:100%; height:100%; overflow:hidden; background:#0a0a1a; display:flex; align-items:center; justify-content:center; touch-action:none; font-family:'Nunito',sans-serif; }
-    canvas { display:block; border-radius: 0 !important; width:100vw !important; height:100vh !important; }
+    html, body { width:100%; height:100%; overflow:hidden; background:#0d0d30; display:flex; align-items:center; justify-content:center; touch-action:none; font-family:'Nunito',sans-serif; }
+    canvas { display:block; }
   </style>
 </head>
 <body>
@@ -336,23 +336,31 @@ function buildTextures(scene) {
 // =================================================================
 //  ВСПОМОГАТЕЛЬНАЯ ФУНКЦИЯ: стильная кнопка
 // =================================================================
-function makeTextBtn(scene, x, y, icon, label, fontSize, colors, cb) {
-  const w = fontSize === '36px' ? 320 : 300;
-  const h = fontSize === '36px' ? 62 : 52;
+function makeTextBtn(scene, x, y, icon, label, fontSize, colors, cb, btnW, btnH) {
+  const w = btnW || (fontSize === '36px' ? 340 : 320);
+  const h = btnH || (fontSize === '36px' ? 64 : 54);
+  const r = 18;
 
   const gfx = scene.add.graphics();
-  gfx.fillStyle(colors.bg, 0.9);
-  gfx.fillRoundedRect(x - w/2, y - h/2, w, h, 16);
-  gfx.fillGradientStyle(colors.top, colors.top, colors.bg, colors.bg, 0.3, 0.3, 0, 0);
-  gfx.fillRect(x - w/2 + 2, y - h/2 + 2, w - 4, h/2 - 2);
+  gfx.fillStyle(colors.bg, 1);
+  gfx.fillRoundedRect(x - w/2, y - h/2, w, h, r);
+  gfx.fillGradientStyle(colors.top, colors.top, colors.bg, colors.bg, 0.5, 0.5, 0, 0);
+  gfx.fillRoundedRect(x - w/2 + 2, y - h/2 + 2, w - 4, h/2 - 2, { tl: r-2, tr: r-2, bl: 0, br: 0 });
+  gfx.lineStyle(1.5, 0xffffff, 0.12);
+  gfx.strokeRoundedRect(x - w/2, y - h/2, w, h, r);
 
   const txt = scene.add.text(x, y, `${icon}  ${label}`, {
     fontSize, fontFamily: 'Nunito, sans-serif', fontStyle: 'bold', color: '#fff',
+    shadow: { offsetX: 0, offsetY: 2, color: '#00000066', blur: 4, fill: true },
   }).setOrigin(0.5);
 
   const hitZone = scene.add.zone(x, y, w, h).setInteractive({ useHandCursor: true });
-  hitZone.on('pointerover', () => { txt.setAlpha(0.85); gfx.setAlpha(0.85); });
-  hitZone.on('pointerout', () => { txt.setAlpha(1); gfx.setAlpha(1); });
+  hitZone.on('pointerover', () => {
+    scene.tweens.add({ targets: [gfx, txt], scaleX: 1.03, scaleY: 1.03, duration: 80, ease: 'Sine.easeOut' });
+  });
+  hitZone.on('pointerout', () => {
+    scene.tweens.add({ targets: [gfx, txt], scaleX: 1, scaleY: 1, duration: 80, ease: 'Sine.easeOut' });
+  });
   hitZone.on('pointerdown', () => { SFX.click(); cb(); });
   return { gfx, txt, hitZone };
 }
@@ -364,89 +372,113 @@ class MenuScene extends Phaser.Scene {
   constructor() { super({ key: 'MenuScene' }); }
 
   create() {
-    this.cameras.main.fadeIn(500, 0, 0, 0);
+    this.cameras.main.fadeIn(600, 0, 0, 0);
     buildTextures(this);
 
-    // Фон — градиент
-    const bg = this.add.graphics();
-    bg.fillGradientStyle(0x0d0d30, 0x0d0d30, 0x1a1a50, 0x1a1a50, 1);
-    bg.fillRect(0, 0, 800, 600);
+    const W = 800, H = 600;
 
-    // Звёзды
+    // Фон — глубокий градиент
+    const bg = this.add.graphics();
+    bg.fillGradientStyle(0x06061a, 0x06061a, 0x141438, 0x141438, 1);
+    bg.fillRect(0, 0, W, H);
+
+    // Звёзды — 3 слоя
     const sg = this.add.graphics();
-    for (let i = 0; i < 120; i++) {
-      const a = 0.2 + Math.random() * 0.7;
-      const r = 0.5 + Math.random() * 2;
-      sg.fillStyle(0xffffff, a);
-      sg.fillCircle(Phaser.Math.Between(0, 800), Phaser.Math.Between(0, 420), r);
+    for (let i = 0; i < 60; i++) {
+      sg.fillStyle(0xffffff, 0.12 + Math.random() * 0.25);
+      sg.fillCircle(Phaser.Math.Between(0, W), Phaser.Math.Between(0, H * 0.75), 0.5 + Math.random() * 1);
+    }
+    for (let i = 0; i < 40; i++) {
+      sg.fillStyle(0xaaccff, 0.3 + Math.random() * 0.5);
+      sg.fillCircle(Phaser.Math.Between(0, W), Phaser.Math.Between(0, H * 0.75), 1 + Math.random() * 1.5);
+    }
+    for (let i = 0; i < 10; i++) {
+      const cx = Phaser.Math.Between(30, W - 30);
+      const cy = Phaser.Math.Between(20, H * 0.6);
+      sg.fillStyle(0xffffff, 0.8);
+      sg.fillCircle(cx, cy, 2);
+      sg.fillStyle(0xffffff, 0.15);
+      sg.fillCircle(cx, cy, 5);
     }
 
-    // Луна с свечением
-    sg.fillStyle(0xf5f5dc, 0.08); sg.fillCircle(700, 70, 55);
-    sg.fillStyle(0xf5f5dc, 0.15); sg.fillCircle(700, 70, 42);
-    sg.fillStyle(0xf5f5dc, 0.8); sg.fillCircle(700, 70, 32);
-    sg.fillStyle(0x0d0d30); sg.fillCircle(712, 62, 26);
+    // Луна
+    const mx = 665, my = 72;
+    sg.fillStyle(0x8899ff, 0.06); sg.fillCircle(mx, my, 58);
+    sg.fillStyle(0xccddff, 0.12); sg.fillCircle(mx, my, 44);
+    sg.fillStyle(0xeeeeff, 0.18); sg.fillCircle(mx, my, 36);
+    sg.fillStyle(0xf8f8ee, 1);    sg.fillCircle(mx, my, 30);
+    sg.fillStyle(0x06061a);       sg.fillCircle(mx + 11, my - 8, 24);
 
-    // Мяч анимированный
-    const ballImg = this.add.image(100, 490, 'ball').setScale(2.2);
-    this.tweens.add({ targets: ballImg, x: 700, yoyo: true, repeat: -1, duration: 3200, ease: 'Sine.easeInOut',
-      onUpdate: () => { ballImg.angle += 1.5; } });
+    // Декоративный шарик — катится по нижней части
+    const ballImg = this.add.image(130, 500, 'ball').setScale(1.9).setAlpha(0.85);
+    this.tweens.add({
+      targets: ballImg, x: 640, yoyo: true, repeat: -1, duration: 3400,
+      ease: 'Sine.easeInOut',
+      onUpdate: () => { ballImg.angle += 1.4; },
+    });
+    // тень под шариком
+    const ballShadow = this.add.graphics().setAlpha(0.25);
+    ballShadow.fillStyle(0x000000);
+    ballShadow.fillEllipse(130, 530, 60, 12);
+    this.tweens.add({ targets: ballShadow, x: 510, yoyo: true, repeat: -1, duration: 3400, ease: 'Sine.easeInOut' });
 
-    // Заголовок с тенью
-    this.add.text(402, 82, 'RED BALL 3', {
-      fontSize: '72px', fontFamily: 'Nunito, sans-serif', fontStyle: '900', color: '#000',
-    }).setOrigin(0.5).setAlpha(0.3);
-    this.add.text(400, 80, 'RED BALL 3', {
-      fontSize: '72px', fontFamily: 'Nunito, sans-serif', fontStyle: '900', color: '#ff2222',
-      stroke: '#cc0000', strokeThickness: 3,
+    // Заголовок
+    this.add.text(W/2 + 2, 77, 'RED BALL 3', {
+      fontSize: '74px', fontFamily: 'Nunito, sans-serif', fontStyle: '900', color: '#000',
+    }).setOrigin(0.5).setAlpha(0.35);
+    const title = this.add.text(W/2, 75, 'RED BALL 3', {
+      fontSize: '74px', fontFamily: 'Nunito, sans-serif', fontStyle: '900', color: '#ff2222',
+      stroke: '#880000', strokeThickness: 4,
+    }).setOrigin(0.5);
+    this.tweens.add({ targets: title, scaleX: 1.02, scaleY: 1.02, yoyo: true, repeat: -1, duration: 1800, ease: 'Sine.easeInOut' });
+
+    this.add.text(W/2, 147, '— 5 уровней  •  враги  •  монеты  •  трамплины —', {
+      fontSize: '14px', fontFamily: 'Nunito, sans-serif', color: '#667799',
     }).setOrigin(0.5);
 
-    this.add.text(400, 148, '— платформер —', {
-      fontSize: '18px', fontFamily: 'Nunito, sans-serif', color: '#8899cc'
-    }).setOrigin(0.5);
+    if (hiBest > 0) {
+      this.add.text(W/2, 172, `⭐ Рекорд: ${hiBest}`, {
+        fontSize: '15px', fontFamily: 'Nunito, sans-serif', fontStyle: 'bold', color: '#f1c40f',
+      }).setOrigin(0.5);
+    }
 
     // Кнопки
-    makeTextBtn(this, 400, 230, '▶', 'ИГРАТЬ', '36px', { bg: 0xcc0000, top: 0xff4444 }, () => {
+    const btnX = W / 2;
+    makeTextBtn(this, btnX, 240, '▶', 'ИГРАТЬ', '34px', { bg: 0xbb0000, top: 0xff3333 }, () => {
       SFX.resume(); currentLevel = 0; lives = 3; score = 0;
-      this.cameras.main.fade(320, 0, 0, 0);
-      this.time.delayedCall(320, () => this.scene.start('GameScene'));
-    });
+      this.cameras.main.fade(300, 0, 0, 0);
+      this.time.delayedCall(300, () => this.scene.start('GameScene'));
+    }, 340, 62);
 
-    makeTextBtn(this, 400, 310, '☰', 'ВЫБОР УРОВНЯ', '24px', { bg: 0x1a5276, top: 0x2980b9 }, () => {
-      this.cameras.main.fade(280, 0, 0, 0);
-      this.time.delayedCall(280, () => this.scene.start('LevelSelectScene'));
-    });
+    makeTextBtn(this, btnX, 320, '☰', 'ВЫБОР УРОВНЯ', '22px', { bg: 0x154360, top: 0x1f618d }, () => {
+      this.cameras.main.fade(250, 0, 0, 0);
+      this.time.delayedCall(250, () => this.scene.start('LevelSelectScene'));
+    }, 340, 54);
 
-    makeTextBtn(this, 400, 378, '⚙', 'НАСТРОЙКИ', '24px', { bg: 0x2e4053, top: 0x566e80 }, () => {
-      this.cameras.main.fade(280, 0, 0, 0);
-      this.time.delayedCall(280, () => this.scene.start('SettingsScene'));
-    });
+    makeTextBtn(this, btnX, 390, '⚙', 'НАСТРОЙКИ', '22px', { bg: 0x212f3c, top: 0x2c3e50 }, () => {
+      this.cameras.main.fade(250, 0, 0, 0);
+      this.time.delayedCall(250, () => this.scene.start('SettingsScene'));
+    }, 340, 54);
 
-    // Разделитель
-    const divG = this.add.graphics();
-    divG.fillGradientStyle(0x000000, 0x335577, 0x335577, 0x000000, 0, 0.6, 0.6, 0);
-    divG.fillRect(150, 425, 500, 1);
+    // Нижняя линия + кнопка Назад
+    const footG = this.add.graphics();
+    footG.fillGradientStyle(0x000000, 0x223355, 0x223355, 0x000000, 0, 0.5, 0.5, 0);
+    footG.fillRect(80, 456, W - 160, 1);
 
-    this.add.text(400, 445, `${LEVELS.length} уровней  •  враги  •  монеты  •  трамплины  •  мобильное управление`, {
-      fontSize: '12px', fontFamily: 'Nunito, sans-serif', color: '#556688'
-    }).setOrigin(0.5);
-
-    if (hiBest > 0)
-      this.add.text(400, 472, `Лучший счёт: ⭐ ${hiBest}`, {
-        fontSize: '16px', fontFamily: 'Nunito, sans-serif', color: '#f1c40f'
-      }).setOrigin(0.5);
-
-    // Кнопка "Назад на хаб"
-    const backBtn = this.add.text(20, 570, '← Назад', {
-      fontSize: '14px', fontFamily: 'Nunito, sans-serif', color: '#445566',
+    const backBtn = this.add.text(22, 576, '← Назад', {
+      fontSize: '13px', fontFamily: 'Nunito, sans-serif', color: '#3a4a5a',
     }).setInteractive({ useHandCursor: true });
-    backBtn.on('pointerover', () => backBtn.setColor('#8899bb'));
-    backBtn.on('pointerout',  () => backBtn.setColor('#445566'));
+    backBtn.on('pointerover', () => backBtn.setColor('#6688aa'));
+    backBtn.on('pointerout',  () => backBtn.setColor('#3a4a5a'));
     backBtn.on('pointerdown', () => { window.location.href = 'index.html'; });
 
-    this.add.text(400, 570, 'Phaser 3 · HTML5', {
-      fontSize: '11px', fontFamily: 'Nunito, sans-serif', color: '#334455'
+    this.add.text(W/2, 576, 'Phaser 3 · HTML5', {
+      fontSize: '11px', fontFamily: 'Nunito, sans-serif', color: '#2a3a4a',
     }).setOrigin(0.5);
+
+    this.add.text(W - 22, 576, 'v1.0', {
+      fontSize: '11px', fontFamily: 'Nunito, sans-serif', color: '#2a3a4a',
+    }).setOrigin(1, 0);
   }
 }
 
@@ -1219,15 +1251,13 @@ class GameScene extends Phaser.Scene {
 // =================================================================
 new Phaser.Game({
   type: Phaser.AUTO,
-  width: 800,
-  height: 600,
+  backgroundColor: '#0d0d30',
   parent: document.body,
   scale: {
-    mode: Phaser.Scale.ENVELOP,
+    mode: Phaser.Scale.FIT,
     autoCenter: Phaser.Scale.CENTER_BOTH,
     width: 800,
     height: 600,
-    expandParent: true,
   },
   physics: {
     default: 'arcade',
