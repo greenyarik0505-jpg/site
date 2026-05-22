@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YARIK0505 | Игровой Хаб</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        body {
+            background-color: #0b0e14;
+            color: #f0f3f5;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            margin-top: 20px;
+        }
+
+        header h1 {
+            font-size: 2.5rem;
+            color: #00ffcc;
+            text-shadow: 0 0 15px rgba(0, 255, 204, 0.4);
+            margin-bottom: 5px;
+        }
+
+        header p {
+            color: #8a99ad;
+            font-size: 1.1rem;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 900px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 25px;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .card {
+            background: #151a24;
+            border: 1px solid #222d3d;
+            border-radius: 16px;
+            padding: 25px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .card h2 {
+            font-size: 1.5rem;
+            margin-bottom: 15px;
+            color: #ff007f;
+            border-bottom: 2px solid #222d3d;
+            padding-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        /* Стиль кликера */
+        .clicker-box {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            flex-grow: 1;
+            padding: 10px 0;
+        }
+
+        .stats {
+            font-size: 1.8rem;
+            font-weight: bold;
+            margin-bottom: 5px;
+            color: #fff;
+        }
+
+        .sub-stats {
+            color: #8a99ad;
+            margin-bottom: 20px;
+            font-size: 0.9rem;
+        }
+
+        .click-btn {
+            width: 160px;
+            height: 160px;
+            border-radius: 50%;
+            border: none;
+            background: linear-gradient(135deg, #00ffcc, #0077ff);
+            color: #fff;
+            font-size: 1.3rem;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 0 25px rgba(0, 255, 204, 0.5);
+            transition: transform 0.1s, box-shadow 0.2s;
+            outline: none;
+            user-select: none;
+        }
+
+        .click-btn:active {
+            transform: scale(0.92);
+            box-shadow: 0 0 15px rgba(0, 255, 204, 0.7);
+        }
+
+        .upgrades-list {
+            margin-top: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .upgrade-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #1c2331;
+            padding: 12px 15px;
+            border-radius: 10px;
+            border: 1px solid #2a374d;
+        }
+
+        .upgrade-info p {
+            font-weight: bold;
+            font-size: 0.95rem;
+        }
+
+        .upgrade-info span {
+            font-size: 0.8rem;
+            color: #8a99ad;
+        }
+
+        .upg-btn {
+            background: #ff007f;
+            color: white;
+            border: none;
+            padding: 8px 14px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background 0.2s;
+        }
+
+        .upg-btn:hover {
+            background: #e0006c;
+        }
+
+        .upg-btn:disabled {
+            background: #3a414d;
+            color: #727b8a;
+            cursor: not-allowed;
+        }
+
+        /* Стиль списка проектов */
+        .project-link {
+            display: flex;
+            align-items: center;
+            background: #1c2331;
+            border: 1px solid #2a374d;
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 12px;
+            text-decoration: none;
+            color: inherit;
+            transition: transform 0.2s, border-color 0.2s;
+        }
+
+        .project-link:hover {
+            transform: translateX(5px);
+            border-color: #00ffcc;
+        }
+
+        .project-icon {
+            font-size: 2rem;
+            margin-right: 15px;
+        }
+
+        .project-text h3 {
+            font-size: 1.1rem;
+            color: #fff;
+            margin-bottom: 3px;
+        }
+
+        .project-text p {
+            font-size: 0.85rem;
+            color: #8a99ad;
+        }
+
+        .reset-btn {
+            background: none;
+            border: 1px solid #3a414d;
+            color: #727b8a;
+            padding: 5px 10px;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            cursor: pointer;
+            margin-top: auto;
+            align-self: flex-end;
+            transition: color 0.2s, border-color 0.2s;
+        }
+
+        .reset-btn:hover {
+            color: #ff4444;
+            border-color: #ff4444;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>YARIK0505 HUB</h1>
+        <p>Мой личный игровой стенд и полезные инструменты</p>
+    </header>
+
+    <div class="container">
+        
+        <div class="card">
+            <h2>Неоновый Кликер <span id="level-display" style="font-size: 1rem; color: #00ffcc;">Ур. 1</span></h2>
+            
+            <div class="clicker-box">
+                <div class="stats" id="score-display">0 🪙</div>
+                <div class="sub-stats" id="cps-display">В секунду: 0</div>
+                <button class="click-btn" id="click-trigger">КЛИК!</button>
+            </div>
+
+            <div class="upgrades-list">
+                <div class="upgrade-item">
+                    <div class="upgrade-info">
+                        <p>🔥 Мощный Клик</p>
+                        <span id="upg1-desc">+1 за клик (Всего: 1)</span>
+                    </div>
+                    <button class="upg-btn" id="upg1-btn">ЦЕНА: 15</button>
+                </div>
+                <div class="upgrade-item">
+                    <div class="upgrade-info">
+                        <p>🤖 Авто-Бот</p>
+                        <span id="upg2-desc">+1 в сек (Всего: 0)</span>
+                    </div>
+                    <button class="upg-btn" id="upg2-btn">ЦЕНА: 50</button>
+                </div>
+            </div>
+            
+            <button class="reset-btn" id="reset-trigger">Сбросить прогресс</button>
+        </div>
+
+        <div class="card">
+            <h2>Мои проекты & Ссылки</h2>
+            
+            <a href="https://t.me/" target="_blank" class="project-link">
+                <div class="project-icon">🤖</div>
+                <div class="project-text">
+                    <h3>Мой Telegram Бот</h3>
+                    <p>Крутой бот на Python для автоматизации задач и фана.</p>
+                </div>
+            </a>
+
+            <a href="https://github.com/" target="_blank" class="project-link">
+                <div class="project-icon">💻</div>
+                <div class="project-text">
+                    <h3>Мой GitHub</h3>
+                    <p>Репозитории с кодом, скриптами и моими наработками.</p>
+                </div>
+            </a>
+
+            <a href="mailto:admin@yarik0505.eu.cc" class="project-link">
+                <div class="project-icon">✉️</div>
+                <div class="project-text">
+                    <h3>Связаться со мной</h3>
+                    <p>admin@yarik0505.eu.cc — моя рабочая доменная почта.</p>
+                </div>
+            </a>
+        </div>
+
+    </div>
+
+    <script>
+        // Инициализация данных
+        let gameData = {
+            score: 0,
+            clickPower: 1,
+            autoCps: 0,
+            level: 1,
+            upg1Cost: 15,
+            upg2Cost: 50
+        };
+
+        // Загрузка сохранений
+        if (localStorage.getItem('yarik_hub_save')) {
+            gameData = JSON.parse(localStorage.getItem('yarik_hub_save'));
+        }
+
+        // Элементы DOM
+        const scoreEl = document.getElementById('score-display');
+        const cpsEl = document.getElementById('cps-display');
+        const lvlEl = document.getElementById('level-display');
+        const clickBtn = document.getElementById('click-trigger');
+        const upg1Btn = document.getElementById('upg1-btn');
+        const upg2Btn = document.getElementById('upg2-btn');
+        const upg1Desc = document.getElementById('upg1-desc');
+        const upg2Desc = document.getElementById('upg2-desc');
+        const resetBtn = document.getElementById('reset-trigger');
+
+        // Обновление интерфейса
+        function updateUI() {
+            scoreEl.innerText = Math.floor(gameData.score) + ' 🪙';
+            cpsEl.innerText = 'В секунду: ' + gameData.autoCps;
+            lvlEl.innerText = 'Ур. ' + gameData.level;
+            
+            upg1Btn.innerText = 'ЦЕНА: ' + gameData.upg1Cost;
+            upg1Desc.innerText = '+1 за клик (Всего: ' + gameData.clickPower + ')';
+            upg1Btn.disabled = gameData.score < gameData.upg1Cost;
+
+            upg2Btn.innerText = 'ЦЕНА: ' + gameData.upg2Cost;
+            upg2Desc.innerText = '+1 в сек (Всего: ' + gameData.autoCps + ')';
+            upg2Btn.disabled = gameData.score < gameData.upg2Cost;
+        }
+
+        // Функция сохранения
+        function saveGame() {
+            localStorage.setItem('yarik_hub_save', JSON.stringify(gameData));
+        }
+
+        // Клик!
+        clickBtn.addEventListener('click', () => {
+            gameData.score += gameData.clickPower;
+            // Расчет уровня на основе накопленных сил
+            gameData.level = Math.floor((gameData.clickPower + gameData.autoCps) / 2) + 1;
+            updateUI();
+            saveGame();
+        });
+
+        // Покупка Апгрейда 1 (+клик)
+        upg1Btn.addEventListener('click', () => {
+            if (gameData.score >= gameData.upg1Cost) {
+                gameData.score -= gameData.upg1Cost;
+                gameData.clickPower += 1;
+                gameData.upg1Cost = Math.style = Math.floor(gameData.upg1Cost * 1.5);
+                updateUI();
+                saveGame();
+            }
+        });
+
+        // Покупка Апгрейда 2 (автокликер)
+        upg2Btn.addEventListener('click', () => {
+            if (gameData.score >= gameData.upg2Cost) {
+                gameData.score -= gameData.upg2Cost;
+                gameData.autoCps += 1;
+                gameData.upg2Cost = Math.floor(gameData.upg2Cost * 1.6);
+                updateUI();
+                saveGame();
+            }
+        });
+
+        // Сброс прогресса
+        resetBtn.addEventListener('click', () => {
+            if (confirm('Реально сбросить весь прогресс кликера?')) {
+                gameData = { score: 0, clickPower: 1, autoCps: 0, level: 1, upg1Cost: 15, upg2Cost: 50 };
+                updateUI();
+                saveGame();
+            }
+        });
+
+        // Цикл автокликера (10 раз в секунду для плавности)
+        setInterval(() => {
+            if (gameData.autoCps > 0) {
+                gameData.score += gameData.autoCps / 10;
+                updateUI();
+            }
+        }, 100);
+
+        // Каждую минуту автосохранение на всякий случай
+        setInterval(saveGame, 60000);
+
+        // Первое включение
+        updateUI();
+    </script>
+</body>
+</html>
