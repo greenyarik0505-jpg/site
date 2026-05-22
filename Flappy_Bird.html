@@ -1,0 +1,584 @@
+<!-- START OF FILE Flapi_Bird.html -->
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Flappy Nature + Menu</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=VT323&display=swap');
+
+        body {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            background-color: #333;
+            font-family: 'VT323', monospace;
+            touch-action: none;
+            user-select: none;
+        }
+
+        #game-container {
+            position: relative;
+            width: 100%;
+            height: 100vh;
+            background-color: #70c5ce;
+            overflow: hidden;
+        }
+
+        canvas {
+            display: block;
+            width: 100%;
+            height: 100%;
+        }
+
+        /* --- КНОПКА ПАУЗЫ (HUD) --- */
+        #hud-layer {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 0; /* Чтобы не перекрывать клики по игре */
+            z-index: 20;
+        }
+
+        .btn-pause-icon {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            width: 50px;
+            height: 50px;
+            background: #e08021;
+            border: 3px solid #fff;
+            border-radius: 8px;
+            color: white;
+            font-size: 24px;
+            font-family: 'VT323', monospace;
+            cursor: pointer;
+            box-shadow: 0 4px 0 #a0500a;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            pointer-events: auto; /* Включаем клики для кнопки */
+        }
+        .btn-pause-icon:active {
+            transform: translateY(4px);
+            box-shadow: none;
+        }
+
+        /* --- ЭКРАНЫ UI --- */
+        .ui-layer {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none; /* Пропускаем клики сквозь пустые места */
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 30;
+        }
+
+        /* Общий стиль для коробок меню */
+        .menu-box {
+            background: #ded895;
+            border: 4px solid #543847;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            width: 280px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.3);
+            pointer-events: auto; /* Включаем клики внутри меню */
+        }
+
+        h1 {
+            font-size: 3rem;
+            margin: 0 0 10px 0;
+            color: #e08021;
+            text-shadow: 2px 2px 0 #000;
+            line-height: 1;
+        }
+
+        .score-live {
+            position: absolute;
+            top: 10%;
+            width: 100%;
+            text-align: center;
+            font-size: 5rem;
+            color: white;
+            text-shadow: 3px 3px 0 #000;
+            z-index: 5;
+            pointer-events: none;
+        }
+
+        /* Кнопки в меню */
+        .btn {
+            display: block;
+            width: 100%;
+            margin: 10px 0;
+            background: #73bf2e;
+            border: 2px solid #fff;
+            color: white;
+            font-family: 'VT323', monospace;
+            font-size: 1.8rem;
+            padding: 10px;
+            cursor: pointer;
+            box-shadow: 0 4px 0 #4a801b;
+            text-transform: uppercase;
+        }
+        .btn:active {
+            transform: translateY(4px);
+            box-shadow: none;
+        }
+        .btn-red {
+            background: #e02121;
+            box-shadow: 0 4px 0 #8a1010;
+        }
+        
+        .stat-row {
+            display: flex;
+            justify-content: space-between;
+            font-size: 1.5rem;
+            color: #543847;
+            margin: 5px 0;
+            border-bottom: 2px dashed #bba968;
+        }
+
+        .hidden { display: none !important; }
+
+    </style>
+</head>
+<body>
+
+<div id="game-container">
+    <!-- Кнопка паузы в углу -->
+    <div id="hud-layer" class="hidden">
+        <button id="pause-btn" class="btn-pause-icon">||</button>
+    </div>
+
+    <!-- Счет во время игры -->
+    <div id="score-val" class="score-live hidden">0</div>
+
+    <div id="ui-layer" class="ui-layer">
+        
+        <!-- Главное меню -->
+        <div id="start-screen" class="menu-box">
+            <h1>FLAPPY NATURE</h1>
+            <p style="font-size: 1.4rem; color: #543847;">Нажми кнопку ниже или<br>коснись экрана</p>
+            <button class="btn" id="start-btn-menu">НАЧАТЬ</button>
+        </div>
+
+        <!-- Меню Паузы -->
+        <div id="pause-menu" class="menu-box hidden">
+            <h1 style="color: #543847;">ПАУЗА</h1>
+            <button class="btn" id="resume-btn">ПРОДОЛЖИТЬ</button>
+            <button class="btn" id="restart-pause-btn">ЗАНОВО</button>
+            <button class="btn btn-red" id="exit-btn">В МЕНЮ</button>
+        </div>
+
+        <!-- Экран проигрыша -->
+        <div id="game-over-screen" class="menu-box hidden">
+            <h1 style="color: #e02121;">ОЙ-ОЙ!</h1>
+            
+            <div style="margin: 20px 0;">
+                <div class="stat-row">
+                    <span>СЧЕТ:</span>
+                    <span id="end-score">0</span>
+                </div>
+                <div class="stat-row">
+                    <span>РЕКОРД:</span>
+                    <span id="best-score">0</span>
+                </div>
+            </div>
+
+            <button class="btn" id="restart-btn">ИГРАТЬ СНОВА</button>
+            <button class="btn btn-red" id="menu-over-btn">В МЕНЮ</button>
+        </div>
+    </div>
+
+    <canvas id="gameCanvas"></canvas>
+</div>
+
+<script>
+    const canvas = document.getElementById('gameCanvas');
+    const ctx = canvas.getContext('2d');
+
+    // Элементы интерфейса
+    const hudLayer = document.getElementById('hud-layer');
+    const pauseBtn = document.getElementById('pause-btn');
+    const scoreEl = document.getElementById('score-val');
+    
+    // Экраны
+    const startScreen = document.getElementById('start-screen');
+    const pauseMenu = document.getElementById('pause-menu');
+    const gameOverScreen = document.getElementById('game-over-screen');
+
+    // Кнопки
+    const startBtnMenu = document.getElementById('start-btn-menu');
+    const resumeBtn = document.getElementById('resume-btn');
+    const restartPauseBtn = document.getElementById('restart-pause-btn');
+    const exitBtn = document.getElementById('exit-btn');
+    const restartBtn = document.getElementById('restart-btn');
+    const menuOverBtn = document.getElementById('menu-over-btn');
+
+    // Переменные игры
+    let frames = 0;
+    let score = 0;
+    let bestScore = localStorage.getItem('flappy_best') || 0;
+    let gameSpeed = 3;
+    let groundHeight = 110;
+    let isPaused = false;
+
+    // Состояния игры
+    const state = {
+        current: 0,
+        getReady: 0,
+        game: 1,
+        over: 2
+    };
+
+    function resize() {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+        groundHeight = canvas.height > 600 ? 120 : 80;
+    }
+    window.addEventListener('resize', resize);
+    resize();
+
+    // --- ОБЪЕКТЫ ---
+
+    class Bird {
+        constructor() {
+            this.x = 50;
+            this.y = 150;
+            this.width = 34;
+            this.height = 24;
+            this.velocity = 0;
+            this.gravity = 0.25;
+            this.jump = 5.5;
+            this.rotation = 0;
+        }
+
+        draw() {
+            ctx.save();
+            ctx.translate(this.x, this.y);
+            
+            // Поворот
+            if (this.velocity < 0) this.rotation = -25 * Math.PI / 180;
+            else {
+                this.rotation += 2 * Math.PI / 180;
+                if (this.rotation > 90 * Math.PI / 180) this.rotation = 90 * Math.PI / 180;
+            }
+            if(state.current === state.getReady || isPaused) this.rotation = 0;
+            
+            ctx.rotate(this.rotation);
+
+            // Тело
+            ctx.fillStyle = "#f4ce42";
+            ctx.beginPath(); ctx.ellipse(0, 0, 17, 12, 0, 0, Math.PI * 2); ctx.fill();
+            ctx.strokeStyle = "#543847"; ctx.lineWidth = 2; ctx.stroke();
+
+            // Глаз
+            ctx.fillStyle = "#fff"; ctx.beginPath(); ctx.arc(6, -6, 6, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+            ctx.fillStyle = "#000"; ctx.beginPath(); ctx.arc(8, -6, 2, 0, Math.PI * 2); ctx.fill();
+
+            // Клюв
+            ctx.fillStyle = "#e08021"; ctx.beginPath(); ctx.moveTo(8, 2); ctx.lineTo(20, 6); ctx.lineTo(8, 10); ctx.fill(); ctx.stroke();
+
+            // Крыло
+            ctx.fillStyle = "#fcfbe3"; 
+            ctx.beginPath();
+            let wingY = (frames % 10 < 5) ? -2 : 4; 
+            if(state.current === state.game && !isPaused) wingY = (this.velocity < 0) ? 4 : -5;
+            ctx.ellipse(-5, wingY, 8, 5, 0, 0, Math.PI*2); ctx.fill(); ctx.stroke();
+
+            ctx.restore();
+        }
+
+        update() {
+            if(isPaused) return;
+
+            this.velocity += this.gravity;
+            this.y += this.velocity;
+
+            if (this.y + 12 >= canvas.height - groundHeight) {
+                this.y = canvas.height - groundHeight - 12;
+                gameOver();
+            }
+            if (this.y - 12 <= 0) this.y = 12;
+        }
+
+        flap() {
+            if(isPaused) return;
+            this.velocity = -this.jump;
+        }
+        
+        reset() {
+            this.x = canvas.width < 500 ? 50 : 100;
+            this.y = canvas.height / 2;
+            this.velocity = 0;
+            this.rotation = 0;
+        }
+    }
+
+    class Pipe {
+        constructor() {
+            this.x = canvas.width;
+            this.width = 65;
+            this.gap = 160;
+            let minPipe = 50;
+            let maxPipe = canvas.height - groundHeight - minPipe - this.gap;
+            this.topHeight = Math.floor(Math.random() * (maxPipe - minPipe + 1) + minPipe);
+            this.passed = false;
+        }
+
+        draw() {
+            let pipeColor = '#73bf2e';
+            let highlight = '#9ce659';
+            let border = '#543847';
+            ctx.lineWidth = 2; ctx.strokeStyle = border;
+
+            // Верх
+            ctx.fillStyle = pipeColor; ctx.fillRect(this.x, 0, this.width, this.topHeight);
+            ctx.strokeRect(this.x, -2, this.width, this.topHeight + 2);
+            ctx.fillStyle = highlight; ctx.fillRect(this.x + 5, 0, 5, this.topHeight); // Блик
+            
+            // Шапка верха
+            ctx.fillStyle = pipeColor; ctx.fillRect(this.x - 4, this.topHeight - 24, this.width + 8, 24);
+            ctx.strokeRect(this.x - 4, this.topHeight - 24, this.width + 8, 24);
+
+            // Низ
+            let botY = this.topHeight + this.gap;
+            let botH = canvas.height - groundHeight - botY;
+            ctx.fillStyle = pipeColor; ctx.fillRect(this.x, botY, this.width, botH);
+            ctx.strokeRect(this.x, botY, this.width, botH);
+            ctx.fillStyle = highlight; ctx.fillRect(this.x + 5, botY + 24, 5, botH - 24); // Блик
+
+            // Шапка низа
+            ctx.fillStyle = pipeColor; ctx.fillRect(this.x - 4, botY, this.width + 8, 24);
+            ctx.strokeRect(this.x - 4, botY, this.width + 8, 24);
+        }
+
+        update() {
+            if(isPaused) return;
+            this.x -= gameSpeed;
+
+            // Коллизия
+            let bL = bird.x - 12, bR = bird.x + 12, bT = bird.y - 12, bB = bird.y + 12;
+            let pL = this.x, pR = this.x + this.width;
+            
+            if (bR > pL && bL < pR) {
+                if (bT < this.topHeight || bB > this.topHeight + this.gap) gameOver();
+            }
+
+            if (this.x + this.width < bird.x && !this.passed) {
+                score++;
+                scoreEl.innerText = score;
+                this.passed = true;
+            }
+        }
+    }
+
+    // Фон
+    const bg = {
+        gX: 0,
+        draw: function() {
+            // Земля
+            ctx.fillStyle = '#ded895';
+            ctx.fillRect(0, canvas.height - groundHeight, canvas.width, groundHeight);
+            ctx.fillStyle = '#73bf2e'; // Трава
+            ctx.fillRect(0, canvas.height - groundHeight, canvas.width, 15);
+            ctx.beginPath(); ctx.moveTo(0, canvas.height - groundHeight + 15); 
+            ctx.lineTo(canvas.width, canvas.height - groundHeight + 15);
+            ctx.strokeStyle = '#543847'; ctx.stroke();
+
+            if (!isPaused && state.current !== state.over) {
+                this.gX -= gameSpeed;
+                if (this.gX <= -20) this.gX = 0;
+            }
+
+            ctx.fillStyle = '#cbb968';
+            for (let i = this.gX; i < canvas.width; i += 20) {
+                ctx.beginPath();
+                ctx.moveTo(i, canvas.height - groundHeight + 20);
+                ctx.lineTo(i - 10, canvas.height);
+                ctx.lineTo(i - 5, canvas.height);
+                ctx.lineTo(i + 5, canvas.height - groundHeight + 20);
+                ctx.fill();
+            }
+
+            // Облака
+            ctx.fillStyle = "rgba(255, 255, 255, 0.4)";
+            let off = Math.floor(frames / 10);
+            let cx = (canvas.width - off) % (canvas.width + 200) - 100;
+            if (cx < -100) cx = canvas.width;
+            ctx.beginPath(); ctx.arc(cx, 100, 30, 0, Math.PI*2); ctx.arc(cx+40, 110, 40, 0, Math.PI*2); ctx.fill();
+        }
+    }
+
+    // --- ЛОГИКА ---
+
+    const bird = new Bird();
+    let pipes = [];
+
+    function resetGameLogic() {
+        bird.reset();
+        pipes = [];
+        score = 0;
+        frames = 0;
+        isPaused = false;
+        scoreEl.innerText = score;
+    }
+
+    function showStartScreen() {
+        state.current = state.getReady;
+        resetGameLogic();
+        startScreen.classList.remove('hidden');
+        hudLayer.classList.add('hidden');
+        scoreEl.classList.add('hidden');
+        pauseMenu.classList.add('hidden');
+        gameOverScreen.classList.add('hidden');
+    }
+
+    function startGame() {
+        state.current = state.game;
+        
+        // --- ИСПРАВЛЕНИЕ: ПРЯЧЕМ ВСЕ МЕНЮ ---
+        startScreen.classList.add('hidden');
+        gameOverScreen.classList.add('hidden'); // Прячем экран проигрыша
+        pauseMenu.classList.add('hidden');      // Прячем меню паузы
+        
+        hudLayer.classList.remove('hidden'); // Показываем кнопку паузы
+        scoreEl.classList.remove('hidden');
+        bird.flap();
+    }
+
+    function gameOver() {
+        if(state.current === state.over) return;
+        state.current = state.over;
+        
+        hudLayer.classList.add('hidden'); // Прячем паузу
+        if(score > bestScore) {
+            bestScore = score;
+            localStorage.setItem('flappy_best', bestScore);
+        }
+        document.getElementById('end-score').innerText = score;
+        document.getElementById('best-score').innerText = bestScore;
+        
+        scoreEl.classList.add('hidden');
+        gameOverScreen.classList.remove('hidden');
+    }
+
+    function togglePause(e) {
+        if(e) e.stopPropagation(); // Чтобы не прыгало при нажатии
+        if (state.current !== state.game) return;
+
+        isPaused = !isPaused;
+        
+        if (isPaused) {
+            pauseMenu.classList.remove('hidden');
+            scoreEl.classList.add('hidden');
+        } else {
+            pauseMenu.classList.add('hidden');
+            scoreEl.classList.remove('hidden');
+        }
+    }
+
+    // --- ЦИКЛ ---
+
+    function animate() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        
+        // Генерация труб
+        if (state.current === state.game && !isPaused) {
+            if (frames % 100 === 0) pipes.push(new Pipe());
+            frames++;
+        }
+
+        for (let i = 0; i < pipes.length; i++) {
+            pipes[i].draw();
+            pipes[i].update();
+            if (pipes[i].x + pipes[i].width < 0) {
+                pipes.shift();
+                i--;
+            }
+        }
+
+        bg.draw();
+        bird.draw();
+        
+        if (!isPaused) {
+            if (state.current === state.game) bird.update();
+            else if (state.current === state.getReady) {
+                bird.y = (canvas.height/2) + Math.cos(Date.now()/200)*5;
+                frames++;
+            } else if (state.current === state.over) {
+                if(bird.y < canvas.height - groundHeight - 12) {
+                    bird.y += 10;
+                    bird.rotation = 90 * Math.PI/180;
+                }
+            }
+        }
+
+        requestAnimationFrame(animate);
+    }
+
+    // --- СОБЫТИЯ ---
+
+    // Клики по кнопкам
+    startBtnMenu.addEventListener('click', (e) => { e.stopPropagation(); startGame(); });
+    pauseBtn.addEventListener('click', togglePause);
+    
+    resumeBtn.addEventListener('click', (e) => { e.stopPropagation(); togglePause(); });
+    
+    restartPauseBtn.addEventListener('click', (e) => { 
+        e.stopPropagation(); 
+        resetGameLogic(); 
+        startGame(); 
+    });
+
+    exitBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        showStartScreen();
+    });
+
+    restartBtn.addEventListener('click', (e) => { 
+        e.stopPropagation(); 
+        resetGameLogic(); 
+        startGame(); 
+    });
+    
+    menuOverBtn.addEventListener('click', (e) => { e.stopPropagation(); showStartScreen(); });
+
+    // Управление игрой (прыжок)
+    const action = (e) => {
+        // Если клик был по кнопке или меню - игнорируем
+        if (e.target.tagName === 'BUTTON' || isPaused) return;
+        
+        if (state.current === state.getReady) startGame();
+        else if (state.current === state.game) bird.flap();
+    };
+
+    window.addEventListener('keydown', (e) => {
+        if (e.code === 'Space') action(e);
+        if (e.code === 'Escape' && state.current === state.game) togglePause();
+    });
+    
+    // Касание к экрану / клик мышкой
+    window.addEventListener('mousedown', action);
+    window.addEventListener('touchstart', (e) => {
+        if (e.target.tagName !== 'BUTTON') {
+             e.preventDefault(); // чтобы не зумило, кроме кнопок
+             action(e);
+        }
+    }, {passive: false});
+
+    // Старт
+    showStartScreen();
+    animate();
+
+</script>
+</body>
+</html>
