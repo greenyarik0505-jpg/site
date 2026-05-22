@@ -53,13 +53,6 @@ body{background:linear-gradient(135deg,#0f0c29 0%,#302b63 50%,#24243e 100%);min-
 .troll-section{border-top:1px solid #333;margin-top:16px;padding-top:14px}
 .troll-section h3{color:#ff9ff3;font-size:16px;margin-bottom:10px;text-align:center}
 .troll-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-.troll-auto-section{border-top:1px solid #333;margin-top:14px;padding-top:14px}
-.troll-auto-section h4{color:#48dbfb;font-size:14px;margin-bottom:8px;text-align:center}
-.troll-auto-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px}
-.troll-check{display:flex;align-items:center;gap:6px;font-size:12px;color:#ccc;padding:4px 8px;background:rgba(255,255,255,.05);border-radius:8px}
-.troll-check input{width:16px;height:16px;accent-color:#ff9ff3}
-
-.link-output{background:#16213e;border:1px solid #444;border-radius:10px;padding:10px;margin-top:10px;font-size:12px;color:#48dbfb;word-break:break-all;cursor:pointer;user-select:all}
 
 .flip-effect{animation:flipIt .5s forwards}
 @keyframes flipIt{to{transform:rotate(180deg)}}
@@ -82,12 +75,17 @@ body{background:linear-gradient(135deg,#0f0c29 0%,#302b63 50%,#24243e 100%);min-
 .running-away{transition:transform .3s ease-out !important}
 
 .footer{position:relative;z-index:10;text-align:center;padding:20px;color:#555;font-size:11px}
+
+.fb-status{position:fixed;top:8px;right:8px;width:10px;height:10px;border-radius:50%;z-index:50;opacity:0.5}
+.fb-status.online{background:#00b894}
+.fb-status.offline{background:#ff6b6b}
 </style>
 </head>
 <body>
 
 <canvas id="particles"></canvas>
 <canvas id="matrix-canvas"></canvas>
+<div class="fb-status" id="fbStatus"></div>
 
 <div id="fake-virus" onclick="this.style.display='none'">
 <h1>⚠️ ВНИМАНИЕ ⚠️<br>ОБНАРУЖЕН ВИРУС!!!<br>ВСЕ ДАННЫЕ УДАЛЕНЫ!</h1>
@@ -135,51 +133,32 @@ body{background:linear-gradient(135deg,#0f0c29 0%,#302b63 50%,#24243e 100%);min-
 <h2>🛠 Админ-панель</h2>
 
 <div id="adminMain">
-<button class="btn btn-primary" onclick="showAddGame()">➕ Добавить игру</button>
+<button class="btn btn-primary" onclick="showAddGame()">➕ Добавить игру (для всех)</button>
 <button class="btn btn-secondary" onclick="showManageGames()">📋 Управление играми</button>
-<button class="btn btn-export" onclick="exportForAll()">📤 Экспорт для всех</button>
 <button class="btn btn-secondary" onclick="resetPassword()">🔑 Сменить пароль</button>
 
 <div class="troll-section">
-<h3>🎭 Тролль-панель (только ты видишь)</h3>
+<h3>🎭 Тролль для ВСЕХ (в реальном времени)</h3>
+<p style="font-size:11px;color:#888;margin-bottom:8px;text-align:center">Нажми — и ВСЕ кто сейчас на сайте увидят это мгновенно!</p>
 <div class="troll-grid">
-<button class="btn-sm btn-troll" onclick="trollFlip()">🙃 Перевернуть</button>
-<button class="btn-sm btn-troll" onclick="trollMatrix()">💚 Матрица</button>
-<button class="btn-sm btn-troll" onclick="trollDisco()">🪩 Дискотека</button>
-<button class="btn-sm btn-troll" onclick="trollVirus()">☠️ Фейк-вирус</button>
-<button class="btn-sm btn-troll" onclick="trollShake()">📳 Землетрясение</button>
-<button class="btn-sm btn-troll" onclick="trollConfetti()">🎊 Конфетти</button>
-<button class="btn-sm btn-troll" onclick="trollRunAway()">🏃 Убегающие карты</button>
-<button class="btn-sm btn-troll" onclick="trollRainbow()">🌈 Радуга текст</button>
-<button class="btn-sm btn-troll" onclick="trollGravity()">⬇️ Гравитация</button>
-<button class="btn-sm btn-troll" onclick="trollReset()">🔄 Сброс эффектов</button>
+<button class="btn-sm btn-troll" onclick="sendTroll('flip')">🙃 Перевернуть</button>
+<button class="btn-sm btn-troll" onclick="sendTroll('matrix')">💚 Матрица</button>
+<button class="btn-sm btn-troll" onclick="sendTroll('disco')">🪩 Дискотека</button>
+<button class="btn-sm btn-troll" onclick="sendTroll('virus')">☠️ Фейк-вирус</button>
+<button class="btn-sm btn-troll" onclick="sendTroll('shake')">📳 Землетрясение</button>
+<button class="btn-sm btn-troll" onclick="sendTroll('confetti')">🎊 Конфетти</button>
+<button class="btn-sm btn-troll" onclick="sendTroll('runaway')">🏃 Убегающие карты</button>
+<button class="btn-sm btn-troll" onclick="sendTroll('rainbow')">🌈 Радуга текст</button>
+<button class="btn-sm btn-troll" onclick="sendTroll('gravity')">⬇️ Гравитация</button>
+<button class="btn-sm btn-troll" onclick="sendTroll('reset')">🔄 Сброс всем</button>
 </div>
-</div>
-
-<div class="troll-auto-section">
-<h4>🌍 Тролль ДЛЯ ВСЕХ посетителей</h4>
-<p style="font-size:11px;color:#888;margin-bottom:8px;text-align:center">Выбери что увидят ВСЕ кто зайдёт на сайт:</p>
-<div class="troll-auto-grid">
-<label class="troll-check"><input type="checkbox" data-troll="flip"> 🙃 Перевернуть</label>
-<label class="troll-check"><input type="checkbox" data-troll="matrix"> 💚 Матрица</label>
-<label class="troll-check"><input type="checkbox" data-troll="disco"> 🪩 Дискотека</label>
-<label class="troll-check"><input type="checkbox" data-troll="virus"> ☠️ Вирус</label>
-<label class="troll-check"><input type="checkbox" data-troll="shake"> 📳 Тряска</label>
-<label class="troll-check"><input type="checkbox" data-troll="confetti"> 🎊 Конфетти</label>
-<label class="troll-check"><input type="checkbox" data-troll="runaway"> 🏃 Убегание</label>
-<label class="troll-check"><input type="checkbox" data-troll="rainbow"> 🌈 Радуга</label>
-<label class="troll-check"><input type="checkbox" data-troll="gravity"> ⬇️ Гравитация</label>
-</div>
-<button class="btn btn-troll" onclick="saveTrollsForAll()" style="margin-top:10px">💾 Сохранить для всех</button>
-<button class="btn btn-secondary" onclick="generateTrollLink()" style="margin-top:6px">🔗 Сгенерировать тролль-ссылку</button>
-<div id="trollLinkOutput" class="link-output" style="display:none" onclick="copyTrollLink()"></div>
 </div>
 </div>
 
 <!-- ДОБАВИТЬ ИГРУ -->
 <div id="addGameForm" style="display:none">
 <button class="btn-sm btn-secondary" onclick="showAdminMain()" style="margin-bottom:10px">← Назад</button>
-<h3 style="margin-bottom:10px">Добавить игру</h3>
+<h3 style="margin-bottom:10px">Добавить игру (видят все)</h3>
 <label>Иконка (эмоджи):</label>
 <input type="text" id="addIcon" placeholder="🎮" maxlength="4">
 <label>Название:</label>
@@ -193,7 +172,7 @@ body{background:linear-gradient(135deg,#0f0c29 0%,#302b63 50%,#24243e 100%);min-
 </select>
 <div id="addLinkDiv">
 <label>URL файла (.html):</label>
-<input type="text" id="addUrl" placeholder="my_game.html">
+<input type="text" id="addUrl" placeholder="my_game.html или https://...">
 </div>
 <div id="addCodeDiv" style="display:none">
 <label>HTML код игры:</label>
@@ -201,7 +180,7 @@ body{background:linear-gradient(135deg,#0f0c29 0%,#302b63 50%,#24243e 100%);min-
 </div>
 <label>Бейдж (необязательно):</label>
 <input type="text" id="addBadge" placeholder="NEW" maxlength="12">
-<button class="btn btn-primary" onclick="saveNewGame()">💾 Сохранить</button>
+<button class="btn btn-primary" onclick="saveNewGame()">💾 Сохранить и опубликовать</button>
 </div>
 
 <!-- УПРАВЛЕНИЕ ИГРАМИ -->
@@ -214,9 +193,44 @@ body{background:linear-gradient(135deg,#0f0c29 0%,#302b63 50%,#24243e 100%);min-
 </div>
 </div>
 
+<!-- FIREBASE SDK -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+
 <script>
 // =======================================================
-//  БАЗОВЫЕ ИГРЫ (встроенные, нельзя удалить)
+//  FIREBASE КОНФИГ
+//  Создай бесплатный проект: https://console.firebase.google.com
+//  1. Создай проект → 2. Realtime Database → 3. Скопируй конфиг сюда
+// =======================================================
+const FIREBASE_CONFIG = {
+  apiKey: "YOUR_API_KEY",
+  authDomain: "YOUR_PROJECT.firebaseapp.com",
+  databaseURL: "https://YOUR_PROJECT-default-rtdb.firebaseio.com",
+  projectId: "YOUR_PROJECT",
+  storageBucket: "YOUR_PROJECT.appspot.com",
+  messagingSenderId: "000000000000",
+  appId: "YOUR_APP_ID"
+};
+
+// Инициализация Firebase
+let db = null;
+let fbConnected = false;
+try {
+  if (FIREBASE_CONFIG.apiKey !== "YOUR_API_KEY") {
+    firebase.initializeApp(FIREBASE_CONFIG);
+    db = firebase.database();
+    fbConnected = true;
+    document.getElementById('fbStatus').classList.add('online');
+  } else {
+    document.getElementById('fbStatus').classList.add('offline');
+  }
+} catch(e) {
+  document.getElementById('fbStatus').classList.add('offline');
+}
+
+// =======================================================
+//  БАЗОВЫЕ ИГРЫ (встроенные)
 // =======================================================
 const DEFAULT_GAMES = [
   { id:'redball', icon:'🔴', name:'Red Ball 3', desc:'Платформер с шариком', url:'red_ball.html', badge:'ХИТ', type:'link', builtin:true },
@@ -226,27 +240,15 @@ const DEFAULT_GAMES = [
 ];
 
 // =======================================================
-//  ХРАНИЛИЩЕ
+//  ХРАНИЛИЩЕ ИГР (Firebase + localStorage fallback)
 // =======================================================
-function getCustomGames() {
-  try { return JSON.parse(localStorage.getItem('portal_custom_games')) || []; } catch(e) { return []; }
-}
-function saveCustomGames(arr) { localStorage.setItem('portal_custom_games', JSON.stringify(arr)); }
-function getAllGames() { return [...DEFAULT_GAMES, ...getCustomGames()]; }
+let customGames = [];
 
-// Тролль-настройки для всех (хранятся в localStorage админа)
-function getGlobalTrolls() {
-  try { return JSON.parse(localStorage.getItem('portal_global_trolls')) || []; } catch(e) { return []; }
-}
-function saveGlobalTrolls(arr) { localStorage.setItem('portal_global_trolls', JSON.stringify(arr)); }
-
-// =======================================================
-//  РЕНДЕР КАРТОЧЕК
-// =======================================================
 function renderGames() {
   const grid = document.getElementById('gamesGrid');
   grid.innerHTML = '';
-  getAllGames().forEach((g, i) => {
+  const all = [...DEFAULT_GAMES, ...customGames];
+  all.forEach(g => {
     const card = document.createElement('div');
     card.className = 'game-card' + (g.builtin ? '' : ' custom-game');
     card.innerHTML = `
@@ -270,8 +272,23 @@ function openGame(g) {
   }
 }
 
+// Загрузка кастомных игр из Firebase (видны ВСЕМ)
+function loadGamesFromFirebase() {
+  if (!db) {
+    // Фоллбэк на localStorage
+    try { customGames = JSON.parse(localStorage.getItem('portal_custom_games')) || []; } catch(e) { customGames = []; }
+    renderGames();
+    return;
+  }
+  db.ref('games').on('value', snap => {
+    const data = snap.val();
+    customGames = data ? Object.values(data) : [];
+    renderGames();
+  });
+}
+
 // =======================================================
-//  ПАРОЛЬ (SHA-256 хеш в localStorage)
+//  ПАРОЛЬ (SHA-256 хранится в Firebase — один на ВСЕ устройства)
 // =======================================================
 async function hashPass(str) {
   const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
@@ -279,8 +296,28 @@ async function hashPass(str) {
 }
 
 let adminUnlocked = false;
+let adminHashCached = null; // кеш хеша из Firebase
 
-// Секретная кнопка: 5 быстрых тапов
+// Загрузить хеш пароля из Firebase (или localStorage как фоллбэк)
+async function getAdminHash() {
+  if (adminHashCached) return adminHashCached;
+  if (db) {
+    const snap = await db.ref('admin_hash').once('value');
+    adminHashCached = snap.val();
+    return adminHashCached;
+  }
+  return localStorage.getItem('portal_admin_hash');
+}
+
+// Сохранить хеш пароля в Firebase (и localStorage)
+async function saveAdminHash(hash) {
+  adminHashCached = hash;
+  localStorage.setItem('portal_admin_hash', hash);
+  if (db) {
+    await db.ref('admin_hash').set(hash);
+  }
+}
+
 let tapCount = 0, tapTimer = null;
 document.getElementById('adminTrigger').addEventListener('click', () => {
   tapCount++;
@@ -292,13 +329,15 @@ document.getElementById('adminTrigger').addEventListener('click', () => {
   }
 });
 
-function openAdminAuth() {
-  const hash = localStorage.getItem('portal_admin_hash');
+async function openAdminAuth() {
+  const hash = await getAdminHash();
   document.getElementById('passOverlay').classList.add('show');
   if (!hash) {
+    // Пароль ещё не задан — показать форму создания
     document.getElementById('passSetup').style.display = 'block';
     document.getElementById('passLogin').style.display = 'none';
   } else {
+    // Пароль уже есть — показать форму входа
     document.getElementById('passSetup').style.display = 'none';
     document.getElementById('passLogin').style.display = 'block';
     document.getElementById('passError').style.display = 'none';
@@ -307,11 +346,19 @@ function openAdminAuth() {
 }
 
 async function setupPassword() {
+  // Проверить что пароль ещё не задан (защита от гонки)
+  const existingHash = await getAdminHash();
+  if (existingHash) {
+    alert('Пароль уже задан! Введи существующий пароль.');
+    closeAll();
+    openAdminAuth();
+    return;
+  }
   const p1 = document.getElementById('newPass').value;
   const p2 = document.getElementById('newPass2').value;
   if (!p1 || p1.length < 3) return alert('Минимум 3 символа!');
   if (p1 !== p2) return alert('Пароли не совпадают!');
-  localStorage.setItem('portal_admin_hash', await hashPass(p1));
+  await saveAdminHash(await hashPass(p1));
   closeAll();
   adminUnlocked = true;
   openAdmin();
@@ -320,7 +367,8 @@ async function setupPassword() {
 async function checkPassword() {
   const p = document.getElementById('loginPass').value;
   const hash = await hashPass(p);
-  if (hash === localStorage.getItem('portal_admin_hash')) {
+  const storedHash = await getAdminHash();
+  if (hash === storedHash) {
     document.getElementById('passError').style.display = 'none';
     closeAll();
     adminUnlocked = true;
@@ -330,9 +378,11 @@ async function checkPassword() {
   }
 }
 
-function resetPassword() {
-  if (confirm('Сменить пароль?')) {
+async function resetPassword() {
+  if (confirm('Сменить пароль? Потребуется задать новый.')) {
+    adminHashCached = null;
     localStorage.removeItem('portal_admin_hash');
+    if (db) await db.ref('admin_hash').remove();
     closeAll();
     adminUnlocked = false;
     openAdminAuth();
@@ -346,7 +396,6 @@ function openAdmin() {
   if (!adminUnlocked) return;
   document.getElementById('adminOverlay').classList.add('show');
   showAdminMain();
-  loadTrollCheckboxes();
 }
 
 function closeAll() {
@@ -359,78 +408,41 @@ function showAdminMain() {
   document.getElementById('manageGames').style.display = 'none';
 }
 
-// --- ТРОЛЛЬ ЧЕКБОКСЫ ДЛЯ ВСЕХ ---
-function loadTrollCheckboxes() {
-  const active = getGlobalTrolls();
-  document.querySelectorAll('[data-troll]').forEach(cb => {
-    cb.checked = active.includes(cb.dataset.troll);
-  });
-}
-
-function saveTrollsForAll() {
-  const selected = [];
-  document.querySelectorAll('[data-troll]').forEach(cb => {
-    if (cb.checked) selected.push(cb.dataset.troll);
-  });
-  saveGlobalTrolls(selected);
-  alert('Сохранено! При следующем экспорте эти тролли будут включены для всех.');
-}
-
-function generateTrollLink() {
-  const selected = [];
-  document.querySelectorAll('[data-troll]').forEach(cb => {
-    if (cb.checked) selected.push(cb.dataset.troll);
-  });
-  if (selected.length === 0) return alert('Выбери хотя бы один тролль!');
-  const base = window.location.href.split('?')[0].split('#')[0];
-  const link = base + '?troll=' + selected.join(',');
-  const output = document.getElementById('trollLinkOutput');
-  output.style.display = 'block';
-  output.textContent = link;
-}
-
-function copyTrollLink() {
-  const text = document.getElementById('trollLinkOutput').textContent;
-  navigator.clipboard.writeText(text).then(() => alert('Ссылка скопирована!')).catch(() => {});
-}
-
-// --- ЭКСПОРТ ДЛЯ ВСЕХ ---
-function exportForAll() {
-  const trolls = getGlobalTrolls();
-  const customs = getCustomGames();
-  let exportHtml = document.documentElement.outerHTML;
-
-  // Вставляем кастомные игры в DEFAULT_GAMES
-  if (customs.length > 0) {
-    const gamesStr = customs.map(g => {
-      const obj = { id:g.id, icon:g.icon, name:g.name, desc:g.desc, url:g.url||'', code:g.code||'', badge:g.badge||'', type:g.type, builtin:false };
-      return '  ' + JSON.stringify(obj);
-    }).join(',\n');
-    exportHtml = exportHtml.replace(
-      /const DEFAULT_GAMES = \[[\s\S]*?\];/,
-      function(match) {
-        return match.replace('];', ',\n' + gamesStr + '\n];');
-      }
-    );
+// --- ОТПРАВИТЬ ТРОЛЛЬ ВСЕМ В РЕАЛЬНОМ ВРЕМЕНИ ---
+function sendTroll(type) {
+  if (type === 'reset') {
+    trollReset();
+    if (db) db.ref('trolls').set(null);
+    return;
   }
-
-  // Вставляем авто-тролль скрипт
-  if (trolls.length > 0) {
-    const trollScript = `\n// AUTO-TROLLS FOR ALL VISITORS\nconst AUTO_TROLLS = ${JSON.stringify(trolls)};\n`;
-    exportHtml = exportHtml.replace('// --- СТАРТ ---', trollScript + '// --- СТАРТ ---');
+  // Выполнить у себя
+  executeTroll(type);
+  // Отправить всем через Firebase
+  if (db) {
+    db.ref('trolls').push({
+      type: type,
+      time: Date.now()
+    });
+    // Очистить через 10 сек (чтобы новые посетители не получали старые тролли)
+    setTimeout(() => {
+      db.ref('trolls').set(null);
+    }, 10000);
   }
-
-  // Скачать файл
-  const blob = new Blob([exportHtml], { type: 'text/html' });
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
-  a.download = 'index.html';
-  a.click();
-  URL.revokeObjectURL(a.href);
-  alert('Файл скачан! Загрузи его на GitHub чтобы все видели изменения.');
 }
 
-// --- ДОБАВИТЬ ИГРУ ---
+// --- СЛУШАТЬ ТРОЛЛИ ОТ АДМИНА (для всех посетителей) ---
+let lastTrollTime = Date.now();
+function listenForTrolls() {
+  if (!db) return;
+  db.ref('trolls').on('child_added', snap => {
+    const data = snap.val();
+    if (data && data.time > lastTrollTime) {
+      executeTroll(data.type);
+    }
+  });
+}
+
+// --- ДОБАВИТЬ ИГРУ (видна ВСЕМ через Firebase) ---
 function showAddGame() {
   document.getElementById('adminMain').style.display = 'none';
   document.getElementById('addGameForm').style.display = 'block';
@@ -461,12 +473,15 @@ function saveNewGame() {
     badge: document.getElementById('addBadge').value,
     builtin: false,
   };
-  const arr = getCustomGames();
-  arr.push(game);
-  saveCustomGames(arr);
-  renderGames();
+  if (db) {
+    db.ref('games/' + game.id).set(game);
+  } else {
+    customGames.push(game);
+    localStorage.setItem('portal_custom_games', JSON.stringify(customGames));
+    renderGames();
+  }
   showAdminMain();
-  alert('Игра добавлена! Нажми "Экспорт для всех" чтобы она появилась у всех.');
+  alert('Игра добавлена! Все посетители увидят её сразу.');
 }
 
 // --- УПРАВЛЕНИЕ ИГРАМИ ---
@@ -475,44 +490,59 @@ function showManageGames() {
   document.getElementById('manageGames').style.display = 'block';
   const list = document.getElementById('adminGameList');
   list.innerHTML = '';
-  const customs = getCustomGames();
-  if (customs.length === 0) {
+  if (customGames.length === 0) {
     list.innerHTML = '<p style="color:#888;font-size:13px;text-align:center">Нет пользовательских игр</p>';
     return;
   }
-  customs.forEach((g, i) => {
+  customGames.forEach((g, i) => {
     const item = document.createElement('div');
     item.className = 'admin-game-item';
-    item.innerHTML = `<span>${g.icon} ${g.name}</span><div><button class="btn-sm btn-danger" onclick="deleteGame(${i})">🗑</button></div>`;
+    item.innerHTML = `<span>${g.icon} ${g.name}</span><div><button class="btn-sm btn-danger" onclick="deleteGame('${g.id}',${i})">🗑</button></div>`;
     list.appendChild(item);
   });
 }
 
-function deleteGame(index) {
+function deleteGame(id, index) {
   if (!confirm('Удалить эту игру?')) return;
-  const arr = getCustomGames();
-  arr.splice(index, 1);
-  saveCustomGames(arr);
-  renderGames();
+  if (db) {
+    db.ref('games/' + id).remove();
+  } else {
+    customGames.splice(index, 1);
+    localStorage.setItem('portal_custom_games', JSON.stringify(customGames));
+    renderGames();
+  }
   showManageGames();
 }
 
 // =======================================================
-//  ТРОЛЛЬ ФИЧИ 🎭
+//  ТРОЛЛЬ ФИЧИ — ИСПОЛНЕНИЕ
 // =======================================================
 let matrixInterval = null;
 let discoTimeout = null;
 let runAwayActive = false;
 
+function executeTroll(type) {
+  switch(type) {
+    case 'flip': trollFlip(); break;
+    case 'matrix': trollMatrix(); break;
+    case 'disco': trollDisco(); break;
+    case 'virus': trollVirus(); break;
+    case 'shake': trollShake(); break;
+    case 'confetti': trollConfetti(); break;
+    case 'runaway': trollRunAway(); break;
+    case 'rainbow': trollRainbow(); break;
+    case 'gravity': trollGravity(); break;
+    case 'reset': trollReset(); break;
+  }
+}
+
 function trollFlip() {
-  closeAll();
   document.body.style.transform = 'rotate(180deg)';
   document.body.style.transition = 'transform 1s';
   setTimeout(() => { document.body.style.transform = ''; }, 5000);
 }
 
 function trollMatrix() {
-  closeAll();
   const mc = document.getElementById('matrix-canvas');
   mc.style.display = 'block';
   const mctx = mc.getContext('2d');
@@ -538,19 +568,16 @@ function trollMatrix() {
 }
 
 function trollDisco() {
-  closeAll();
   document.body.classList.add('disco-mode');
   clearTimeout(discoTimeout);
   discoTimeout = setTimeout(() => document.body.classList.remove('disco-mode'), 5000);
 }
 
 function trollVirus() {
-  closeAll();
   document.getElementById('fake-virus').style.display = 'flex';
 }
 
 function trollShake() {
-  closeAll();
   let count = 0;
   const int = setInterval(() => {
     document.body.style.transform = `translate(${(Math.random()-.5)*30}px, ${(Math.random()-.5)*20}px)`;
@@ -560,7 +587,6 @@ function trollShake() {
 }
 
 function trollConfetti() {
-  closeAll();
   const colors = ['#ff6b6b','#feca57','#48dbfb','#ff9ff3','#6c5ce7','#00b894','#fd79a8'];
   for (let i = 0; i < 80; i++) {
     const c = document.createElement('div');
@@ -577,10 +603,14 @@ function trollConfetti() {
 }
 
 function trollRunAway() {
-  closeAll();
   runAwayActive = !runAwayActive;
   if (runAwayActive) {
     document.addEventListener('pointermove', runAwayHandler);
+    setTimeout(() => {
+      runAwayActive = false;
+      document.removeEventListener('pointermove', runAwayHandler);
+      document.querySelectorAll('.game-card').forEach(c => c.style.transform = '');
+    }, 8000);
   } else {
     document.removeEventListener('pointermove', runAwayHandler);
     document.querySelectorAll('.game-card').forEach(c => c.style.transform = '');
@@ -597,9 +627,7 @@ function runAwayHandler(e) {
     const dist = Math.sqrt(dx * dx + dy * dy);
     if (dist < 200) {
       const force = (200 - dist) / 2;
-      const ax = (dx / dist) * force;
-      const ay = (dy / dist) * force;
-      card.style.transform = `translate(${ax}px, ${ay}px)`;
+      card.style.transform = `translate(${(dx/dist)*force}px, ${(dy/dist)*force}px)`;
     } else {
       card.style.transform = '';
     }
@@ -607,7 +635,6 @@ function runAwayHandler(e) {
 }
 
 function trollRainbow() {
-  closeAll();
   const cards = document.querySelectorAll('.game-card h3');
   const colors = ['#ff0000','#ff8800','#ffff00','#00ff00','#0088ff','#8800ff','#ff00ff'];
   let idx = 0;
@@ -619,7 +646,6 @@ function trollRainbow() {
 }
 
 function trollGravity() {
-  closeAll();
   const cards = document.querySelectorAll('.game-card');
   cards.forEach((c, i) => {
     c.style.transition = 'transform 1s ease-in';
@@ -633,7 +659,6 @@ function trollGravity() {
 }
 
 function trollReset() {
-  closeAll();
   document.body.style.transform = '';
   document.body.classList.remove('disco-mode', 'shake-effect');
   document.getElementById('matrix-canvas').style.display = 'none';
@@ -644,44 +669,6 @@ function trollReset() {
   document.removeEventListener('pointermove', runAwayHandler);
   document.querySelectorAll('.game-card').forEach(c => { c.style.transform = ''; c.style.transition = ''; });
   document.querySelectorAll('.game-card h3').forEach(h => h.style.color = '');
-}
-
-// =======================================================
-//  АВТО-ТРОЛЛЬ: URL параметры + глобальные настройки
-// =======================================================
-function runAutoTrolls(trollList) {
-  trollList.forEach(t => {
-    setTimeout(() => {
-      switch(t) {
-        case 'flip': trollFlip(); break;
-        case 'matrix': trollMatrix(); break;
-        case 'disco': trollDisco(); break;
-        case 'virus': trollVirus(); break;
-        case 'shake': trollShake(); break;
-        case 'confetti': trollConfetti(); break;
-        case 'runaway': trollRunAway(); break;
-        case 'rainbow': trollRainbow(); break;
-        case 'gravity': trollGravity(); break;
-      }
-    }, 1500);
-  });
-}
-
-// Проверка URL параметров (?troll=flip,disco,matrix)
-function checkUrlTrolls() {
-  const params = new URLSearchParams(window.location.search);
-  const trollParam = params.get('troll');
-  if (trollParam) {
-    const trolls = trollParam.split(',').filter(t => t.trim());
-    if (trolls.length > 0) runAutoTrolls(trolls);
-  }
-}
-
-// Проверка AUTO_TROLLS (вшитых при экспорте)
-function checkAutoTrolls() {
-  if (typeof AUTO_TROLLS !== 'undefined' && AUTO_TROLLS.length > 0) {
-    runAutoTrolls(AUTO_TROLLS);
-  }
 }
 
 // =======================================================
@@ -709,16 +696,14 @@ function checkAutoTrolls() {
 })();
 
 // =======================================================
-//  ПРИКОЛЫ - РАНДОМНЫЕ ШУТКИ
+//  ШУТКИ
 // =======================================================
 const JOKES = [
-  '💡 Совет: попробуй нажать 5 раз в правый нижний угол...',
   '🎮 Факт: 99% игроков не могут пройти 5-й уровень Red Ball',
   '🤔 А ты знал? Flappy Bird создали за один вечер',
   '🧠 Если игра лагает — это не баг, это фича!',
   '🏆 Рекорд мира в Flappy Bird: 999 очков. Можешь побить?',
   '🔥 Песочница — лучшее место для экспериментов!',
-  '😎 Ты уже нашёл секретную функцию?',
   '🎯 Шарики POP — проверь свой глазомер!',
   '🌟 Заходи каждый день — будут новые игры!',
   '🤖 Этот портал создан с помощью ИИ и любви',
@@ -727,9 +712,8 @@ document.getElementById('joke').textContent = JOKES[Math.floor(Math.random()*JOK
 
 // --- СТАРТ ---
 renderGames();
-checkUrlTrolls();
-checkAutoTrolls();
+loadGamesFromFirebase();
+listenForTrolls();
 </script>
 </body>
 </html>
-
