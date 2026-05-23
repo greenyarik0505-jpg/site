@@ -274,6 +274,7 @@ body{background:linear-gradient(135deg,#0f0c29 0%,#302b63 50%,#24243e 100%);min-
 <!-- FIREBASE SDK -->
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
 
 <script>
 // =======================================================
@@ -281,6 +282,8 @@ body{background:linear-gradient(135deg,#0f0c29 0%,#302b63 50%,#24243e 100%);min-
 //  Создай бесплатный проект: https://console.firebase.google.com
 //  1. Создай проект → 2. Realtime Database → 3. Скопируй конфиг сюда
 // =======================================================
+const ADMIN_EMAIL = "greenyarik0505@gmail.com";
+
 const FIREBASE_CONFIG = {
   apiKey: "AIzaSyCgtdub04BI7T_Wst-SNEzBGpHXHo6egDI",
   authDomain: "site-2171d.firebaseapp.com",
@@ -294,11 +297,17 @@ const FIREBASE_CONFIG = {
 
 // Инициализация Firebase
 let db = null;
+let auth = null;
+let currentAdminUser = null;
 let fbConnected = false;
 try {
   if (FIREBASE_CONFIG.apiKey !== "YOUR_API_KEY") {
     firebase.initializeApp(FIREBASE_CONFIG);
     db = firebase.database();
+    auth = firebase.auth();
+    auth.onAuthStateChanged(user => {
+      currentAdminUser = user && user.email === ADMIN_EMAIL ? user : null;
+    });
     fbConnected = true;
     document.getElementById('fbStatus').classList.add('online');
   } else {
@@ -368,6 +377,30 @@ function loadGamesFromFirebase() {
 }
 
 // =======================================================
+//  GOOGLE AUTH + ПАРОЛЬ (SHA-256 хранится в Firebase)
+// =======================================================
+async function ensureAdminSignedIn() {
+  if (!auth) return true;
+  if (currentAdminUser && currentAdminUser.email === ADMIN_EMAIL) return true;
+  try {
+    const provider = new firebase.auth.GoogleAuthProvider();
+    provider.setCustomParameters({ prompt: 'select_account' });
+    const result = await auth.signInWithPopup(provider);
+    const user = result.user;
+    if (!user || user.email !== ADMIN_EMAIL) {
+      await auth.signOut();
+      alert('Этот Google аккаунт не является админом сайта.');
+      return false;
+    }
+    currentAdminUser = user;
+    return true;
+  } catch (e) {
+    alert('Вход через Google не выполнен.');
+    return false;
+  }
+}
+
+// =======================================================
 //  ПАРОЛЬ (SHA-256 хранится в Firebase — один на ВСЕ устройства)
 // =======================================================
 async function hashPass(str) {
@@ -410,6 +443,7 @@ document.getElementById('adminTrigger').addEventListener('click', () => {
 });
 
 async function openAdminAuth() {
+  if (!(await ensureAdminSignedIn())) return;
   const hash = await getAdminHash();
   document.getElementById('passOverlay').classList.add('show');
   if (!hash) {
