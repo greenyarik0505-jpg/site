@@ -60,9 +60,30 @@ body{background:#0d1117;color:#e6edf3;font-family:system-ui,sans-serif;min-heigh
 #close-shop{align-self:flex-end;padding:6px 14px;border-radius:5px;border:1px solid #f85149;background:transparent;color:#f85149;font-size:13px;cursor:pointer}
 #msg-bar{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#21262d;border:1px solid #30363d;border-radius:20px;padding:8px 18px;font-size:13px;pointer-events:none;opacity:0;transition:opacity .3s;z-index:100;white-space:nowrap}
 #msg-bar.show{opacity:1}
+
+
+.portal-home-btn{
+  position:fixed;
+  top:12px;
+  left:12px;
+  z-index:10050;
+  border:1px solid rgba(255,255,255,.35);
+  background:rgba(0,0,0,.58);
+  color:#fff;
+  padding:9px 14px;
+  border-radius:14px;
+  font:800 13px Arial,sans-serif;
+  text-decoration:none;
+  box-shadow:0 6px 18px rgba(0,0,0,.28);
+  backdrop-filter:blur(8px);
+}
+.portal-home-btn:active{transform:scale(.96)}
+
 </style>
 </head>
 <body>
+<a class="portal-home-btn" href="index.html">Главное меню</a>
+
 <div id="hud">
   <h1>☕ Моё Кафе</h1>
   <div class="hud-stat">💰 <span id="coins-disp">0</span></div>

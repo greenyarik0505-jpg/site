@@ -20,9 +20,30 @@ body{background:#0d1117;color:#e6edf3;font-family:system-ui,sans-serif;display:f
 #fps{color:#8b949e;font-size:11px;margin-left:auto}
 #cw{flex:1;overflow:hidden;display:flex}
 canvas{display:block;cursor:crosshair;touch-action:none}
+
+
+.portal-home-btn{
+  position:fixed;
+  top:12px;
+  left:12px;
+  z-index:10050;
+  border:1px solid rgba(255,255,255,.35);
+  background:rgba(0,0,0,.58);
+  color:#fff;
+  padding:9px 14px;
+  border-radius:14px;
+  font:800 13px Arial,sans-serif;
+  text-decoration:none;
+  box-shadow:0 6px 18px rgba(0,0,0,.28);
+  backdrop-filter:blur(8px);
+}
+.portal-home-btn:active{transform:scale(.96)}
+
 </style>
 </head>
 <body>
+<a class="portal-home-btn" href="index.html">Главное меню</a>
+
 <div id="ui">
   <div id="el-panel"></div>
   <div id="ctrl-row">

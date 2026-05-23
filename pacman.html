@@ -3,346 +3,73 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
-<title>Песочница</title>
+<title>Pac-Man</title>
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@700;900&display=swap');
-*{margin:0;padding:0;box-sizing:border-box}
-html,body{width:100%;height:100%;overflow:hidden;font-family:'Nunito',sans-serif;background:#1a1a2e;touch-action:none;user-select:none;-webkit-user-select:none}
-canvas{display:block;width:100%;height:100%}
-
-/* ПАНЕЛЬ ИНСТРУМЕНТОВ */
-.toolbar{position:fixed;bottom:0;left:0;width:100%;display:flex;justify-content:center;align-items:center;gap:6px;padding:10px 8px;background:rgba(0,0,0,.75);backdrop-filter:blur(8px);z-index:20;flex-wrap:wrap}
-.tool-btn{width:46px;height:46px;border-radius:14px;border:2px solid rgba(255,255,255,.15);background:rgba(255,255,255,.08);color:#fff;font-size:20px;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .15s}
-.tool-btn.active{border-color:#feca57;background:rgba(254,202,87,.2);box-shadow:0 0 12px rgba(254,202,87,.3)}
-.tool-btn:active{transform:scale(.9)}
-
-/* ЦВЕТОВАЯ ПАЛИТРА */
-.color-btn{width:32px;height:32px;border-radius:50%;border:3px solid transparent;cursor:pointer;transition:transform .15s}
-.color-btn.active{border-color:#fff;transform:scale(1.2)}
-
-/* ВЕРХНЯЯ ПАНЕЛЬ */
-.top-bar{position:fixed;top:0;left:0;width:100%;display:flex;justify-content:space-between;align-items:center;padding:10px 14px;z-index:20;pointer-events:none}
-.top-bar>*{pointer-events:auto}
-.back-btn{background:rgba(0,0,0,.5);border:1px solid rgba(255,255,255,.2);color:#fff;padding:8px 16px;border-radius:12px;font-size:14px;font-family:inherit;font-weight:700;cursor:pointer}
-.obj-count{color:rgba(255,255,255,.5);font-size:13px}
-
-/* ПОДСКАЗКА */
-.hint{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);color:rgba(255,255,255,.15);font-size:clamp(16px,4vw,22px);text-align:center;pointer-events:none;z-index:5}
+*{box-sizing:border-box}
+html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#050511;color:#fff;font-family:Arial,sans-serif;touch-action:none;user-select:none}
+body{display:flex;align-items:center;justify-content:center;background:radial-gradient(circle at 50% 15%,#10135a,#050511 58%)}
+.portal-home-btn{position:fixed;top:12px;left:12px;z-index:10050;border:1px solid rgba(255,255,255,.35);background:rgba(0,0,0,.58);color:#fff;padding:9px 14px;border-radius:14px;font:800 13px Arial,sans-serif;text-decoration:none;box-shadow:0 6px 18px rgba(0,0,0,.28);backdrop-filter:blur(8px)}
+.wrap{width:min(94vmin,640px);display:grid;gap:12px;justify-items:center}
+.hud{width:100%;display:flex;justify-content:space-between;align-items:center;padding:0 4px;font-weight:900}
+.title{font-size:clamp(24px,7vw,44px);color:#ffe66d;text-shadow:0 0 16px rgba(255,230,109,.55)}
+.score{font-size:18px;color:#67e8f9}
+canvas{width:100%;aspect-ratio:1;border:3px solid #2737ff;border-radius:18px;background:#000;box-shadow:0 20px 50px rgba(0,0,0,.5)}
+.controls{display:grid;grid-template-columns:64px 64px 64px;grid-template-rows:54px 54px;gap:8px;justify-content:center}
+.controls button,.start{border:0;border-radius:14px;background:#ffe66d;color:#191300;font-weight:900;font-size:22px;box-shadow:0 6px 0 #a88a00}
+.controls button:active,.start:active{transform:translateY(4px);box-shadow:0 2px 0 #a88a00}
+.up{grid-column:2}.left{grid-column:1;grid-row:2}.down{grid-column:2;grid-row:2}.right{grid-column:3;grid-row:2}
+.start{padding:12px 24px;font-size:16px}
+.note{color:rgba(255,255,255,.65);font-size:13px;text-align:center}
 </style>
 </head>
 <body>
-
-<canvas id="c"></canvas>
-
-<div class="top-bar">
-<button class="back-btn" onclick="location.href='index.html'">Главное меню</button>
-<span class="obj-count" id="objCount">0 объектов</span>
-</div>
-
-<div class="hint" id="hint">Выбери инструмент и нажми на экран!</div>
-
-<div class="toolbar">
-<button class="tool-btn active" data-tool="circle" title="Круг">⚫</button>
-<button class="tool-btn" data-tool="box" title="Квадрат">⬛</button>
-<button class="tool-btn" data-tool="triangle" title="Треугольник">🔺</button>
-<button class="tool-btn" data-tool="star" title="Звезда">⭐</button>
-<button class="tool-btn" data-tool="draw" title="Рисование">✏️</button>
-<button class="tool-btn" data-tool="drag" title="Перетаскивание">✋</button>
-<button class="tool-btn" data-tool="bomb" title="Бомба">💣</button>
-<button class="tool-btn" data-tool="gravity" title="Гравитация вкл/выкл">🌍</button>
-<button class="tool-btn" data-tool="clear" title="Очистить">🗑️</button>
-
-<div style="display:flex;gap:4px;align-items:center;margin-left:6px">
-<div class="color-btn active" data-color="#ff6b6b" style="background:#ff6b6b"></div>
-<div class="color-btn" data-color="#feca57" style="background:#feca57"></div>
-<div class="color-btn" data-color="#48dbfb" style="background:#48dbfb"></div>
-<div class="color-btn" data-color="#6c5ce7" style="background:#6c5ce7"></div>
-<div class="color-btn" data-color="#00b894" style="background:#00b894"></div>
-<div class="color-btn" data-color="#fd79a8" style="background:#fd79a8"></div>
-<div class="color-btn" data-color="#ffffff" style="background:#ffffff"></div>
-</div>
-</div>
-
+<a class="portal-home-btn" href="index.html">Главное меню</a>
+<main class="wrap">
+  <div class="hud"><div class="title">Pac-Man</div><div class="score">Счет: <span id="score">0</span></div></div>
+  <canvas id="game" width="460" height="460"></canvas>
+  <button class="start" id="startBtn">Старт / заново</button>
+  <div class="controls" aria-label="Управление">
+    <button class="up" data-dir="up">▲</button>
+    <button class="left" data-dir="left">◀</button>
+    <button class="down" data-dir="down">▼</button>
+    <button class="right" data-dir="right">▶</button>
+  </div>
+  <div class="note">Собери все точки и избегай призраков.</div>
+</main>
 <script>
-const canvas = document.getElementById('c');
-const ctx = canvas.getContext('2d');
-const hint = document.getElementById('hint');
-const objCountEl = document.getElementById('objCount');
-
-let W, H;
-function resize() { W = canvas.width = window.innerWidth; H = canvas.height = window.innerHeight; }
-window.addEventListener('resize', resize); resize();
-
-// --- СОСТОЯНИЕ ---
-let tool = 'circle';
-let color = '#ff6b6b';
-let gravity = true;
-let objects = [];
-let drawPoints = [];
-let isDrawing = false;
-let dragObj = null;
-let dragOff = {x:0,y:0};
-
-const G = 0.35;
-const BOUNCE = 0.6;
-const FRICTION = 0.99;
-const TOOLBAR_H = 80;
-
-// --- ИНСТРУМЕНТЫ ---
-document.querySelectorAll('.tool-btn').forEach(btn => {
-  btn.addEventListener('click', () => {
-    const t = btn.dataset.tool;
-    if (t === 'gravity') { gravity = !gravity; btn.style.opacity = gravity ? 1 : 0.4; return; }
-    if (t === 'clear') { objects = []; drawPoints = []; updateCount(); return; }
-    document.querySelectorAll('.tool-btn').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-    tool = t;
-    hint.style.display = 'none';
-  });
-});
-
-document.querySelectorAll('.color-btn').forEach(btn => {
-  btn.addEventListener('click', () => {
-    document.querySelectorAll('.color-btn').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-    color = btn.dataset.color;
-  });
-});
-
-// --- ЗВУКИ ---
-let audioCtx;
-function initAudio() { if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)(); if (audioCtx.state==='suspended') audioCtx.resume(); }
-function playTone(f1,f2,dur,type='sine',vol=0.1) {
-  if(!audioCtx)return;try{
-  const o=audioCtx.createOscillator(),g=audioCtx.createGain();o.connect(g);g.connect(audioCtx.destination);
-  o.type=type;const t=audioCtx.currentTime;o.frequency.setValueAtTime(f1,t);o.frequency.exponentialRampToValueAtTime(f2,t+dur);
-  g.gain.setValueAtTime(vol,t);g.gain.exponentialRampToValueAtTime(.001,t+dur);o.start(t);o.stop(t+dur);}catch(e){}
-}
-function sndPlace(){playTone(400,600,.1)}
-function sndBoom(){playTone(100,30,.4,'sawtooth',.2)}
-function sndBounce(){playTone(300,500,.05,'sine',.05)}
-
-// --- ОБЪЕКТЫ ---
-function createObj(x, y, type) {
-  initAudio(); sndPlace();
-  const size = 18 + Math.random() * 18;
-  objects.push({
-    x, y, vx: (Math.random()-.5)*3, vy: -2,
-    size, type, color,
-    rotation: 0, rotSpeed: (Math.random()-.5)*.1,
-    mass: size * size,
-  });
-  updateCount();
-}
-
-function updateCount() {
-  objCountEl.textContent = objects.length + ' объект' + (objects.length%10===1&&objects.length%100!==11?'':'ов');
-}
-
-// --- ВВОД ---
-function getPos(e) {
-  const t = e.touches ? e.touches[0] : e;
-  return { x: t.clientX, y: t.clientY };
-}
-
-canvas.addEventListener('pointerdown', e => {
-  initAudio();
-  const p = { x: e.clientX, y: e.clientY };
-  if (p.y > H - TOOLBAR_H) return;
-  hint.style.display = 'none';
-
-  if (tool === 'draw') {
-    isDrawing = true;
-    drawPoints.push({ points:[p], color });
-    return;
-  }
-  if (tool === 'drag') {
-    for (let i = objects.length-1; i >= 0; i--) {
-      const o = objects[i];
-      const dist = Math.hypot(o.x-p.x, o.y-p.y);
-      if (dist < o.size + 10) {
-        dragObj = o;
-        dragOff = { x: o.x - p.x, y: o.y - p.y };
-        return;
-      }
-    }
-    return;
-  }
-  if (tool === 'bomb') {
-    initAudio(); sndBoom();
-    const radius = 120;
-    for (let i = objects.length-1; i >= 0; i--) {
-      const o = objects[i];
-      const dist = Math.hypot(o.x-p.x, o.y-p.y);
-      if (dist < radius) {
-        const force = (radius - dist) / radius * 20;
-        const angle = Math.atan2(o.y-p.y, o.x-p.x);
-        o.vx += Math.cos(angle) * force;
-        o.vy += Math.sin(angle) * force;
-      }
-    }
-    // Визуальный взрыв
-    for (let i = 0; i < 20; i++) {
-      const angle = Math.random()*Math.PI*2;
-      const spd = 3+Math.random()*8;
-      objects.push({
-        x:p.x, y:p.y, vx:Math.cos(angle)*spd, vy:Math.sin(angle)*spd,
-        size:3+Math.random()*5, type:'circle', color:'#ff6b6b',
-        rotation:0, rotSpeed:0, mass:10, life:60,
-      });
-    }
-    updateCount();
-    return;
-  }
-  createObj(p.x, p.y, tool);
-});
-
-canvas.addEventListener('pointermove', e => {
-  const p = { x: e.clientX, y: e.clientY };
-  if (isDrawing && drawPoints.length > 0) {
-    drawPoints[drawPoints.length-1].points.push(p);
-    return;
-  }
-  if (dragObj) {
-    dragObj.x = p.x + dragOff.x;
-    dragObj.y = p.y + dragOff.y;
-    dragObj.vx = 0; dragObj.vy = 0;
-  }
-});
-
-canvas.addEventListener('pointerup', () => { isDrawing = false; dragObj = null; });
-canvas.addEventListener('pointercancel', () => { isDrawing = false; dragObj = null; });
-
-// --- ФИЗИКА ---
-function updatePhysics() {
-  const floor = H - TOOLBAR_H - 5;
-  for (let i = objects.length-1; i >= 0; i--) {
-    const o = objects[i];
-
-    if (o.life !== undefined) { o.life--; if (o.life <= 0) { objects.splice(i,1); continue; } }
-
-    if (gravity) o.vy += G;
-    o.x += o.vx; o.y += o.vy;
-    o.vx *= FRICTION;
-    o.rotation += o.rotSpeed;
-
-    // Стены
-    if (o.x - o.size < 0) { o.x = o.size; o.vx = Math.abs(o.vx)*BOUNCE; sndBounce(); }
-    if (o.x + o.size > W) { o.x = W - o.size; o.vx = -Math.abs(o.vx)*BOUNCE; sndBounce(); }
-    // Потолок
-    if (o.y - o.size < 0) { o.y = o.size; o.vy = Math.abs(o.vy)*BOUNCE; }
-    // Пол
-    if (o.y + o.size > floor) {
-      o.y = floor - o.size;
-      if (Math.abs(o.vy) > 1) sndBounce();
-      o.vy = -Math.abs(o.vy) * BOUNCE;
-      if (Math.abs(o.vy) < 0.5) o.vy = 0;
-      o.vx *= 0.95;
-    }
-
-    // Столкновения
-    for (let j = i+1; j < objects.length; j++) {
-      const b = objects[j];
-      const dx = b.x - o.x, dy = b.y - o.y;
-      const dist = Math.sqrt(dx*dx+dy*dy);
-      const minD = o.size + b.size;
-      if (dist < minD && dist > 0) {
-        const nx = dx/dist, ny = dy/dist;
-        const overlap = minD - dist;
-        const totalMass = o.mass + b.mass;
-        o.x -= nx * overlap * (b.mass/totalMass);
-        o.y -= ny * overlap * (b.mass/totalMass);
-        b.x += nx * overlap * (o.mass/totalMass);
-        b.y += ny * overlap * (o.mass/totalMass);
-        const dvx = o.vx-b.vx, dvy = o.vy-b.vy;
-        const dot = dvx*nx+dvy*ny;
-        if (dot > 0) {
-          o.vx -= dot*nx*(b.mass/totalMass)*1.5;
-          o.vy -= dot*ny*(b.mass/totalMass)*1.5;
-          b.vx += dot*nx*(o.mass/totalMass)*1.5;
-          b.vy += dot*ny*(o.mass/totalMass)*1.5;
-        }
-      }
-    }
-  }
-}
-
-// --- РЕНДЕР ---
-function drawStar(cx,cy,r,rot) {
-  ctx.beginPath();
-  for (let i=0;i<5;i++) {
-    const a = rot + (i*4*Math.PI/5) - Math.PI/2;
-    const method = i===0?'moveTo':'lineTo';
-    ctx[method](cx+Math.cos(a)*r, cy+Math.sin(a)*r);
-    const a2 = a + 2*Math.PI/5;
-    ctx.lineTo(cx+Math.cos(a2)*r*.4, cy+Math.sin(a2)*r*.4);
-  }
-  ctx.closePath(); ctx.fill();
-}
-
-function render() {
-  ctx.fillStyle = '#1a1a2e';
-  ctx.fillRect(0,0,W,H);
-
-  // Пол
-  ctx.fillStyle = 'rgba(255,255,255,.04)';
-  ctx.fillRect(0, H-TOOLBAR_H-5, W, 5);
-
-  // Рисунки
-  drawPoints.forEach(dp => {
-    if (dp.points.length < 2) return;
-    ctx.strokeStyle = dp.color;
-    ctx.lineWidth = 3;
-    ctx.lineCap = 'round';
-    ctx.lineJoin = 'round';
-    ctx.beginPath();
-    ctx.moveTo(dp.points[0].x, dp.points[0].y);
-    for (let i=1;i<dp.points.length;i++) ctx.lineTo(dp.points[i].x, dp.points[i].y);
-    ctx.stroke();
-  });
-
-  // Объекты
-  objects.forEach(o => {
-    ctx.save();
-    ctx.translate(o.x, o.y);
-    ctx.rotate(o.rotation);
-    ctx.fillStyle = o.color;
-    if (o.life !== undefined) ctx.globalAlpha = Math.max(0, o.life/60);
-
-    if (o.type === 'circle') {
-      ctx.beginPath(); ctx.arc(0,0,o.size,0,Math.PI*2); ctx.fill();
-      ctx.fillStyle = 'rgba(255,255,255,.25)';
-      ctx.beginPath(); ctx.arc(-o.size*.3,-o.size*.3,o.size*.3,0,Math.PI*2); ctx.fill();
-    } else if (o.type === 'box') {
-      ctx.fillRect(-o.size,-o.size,o.size*2,o.size*2);
-      ctx.fillStyle = 'rgba(255,255,255,.15)';
-      ctx.fillRect(-o.size,-o.size,o.size*2,o.size*.4);
-    } else if (o.type === 'triangle') {
-      ctx.beginPath();
-      ctx.moveTo(0,-o.size);
-      ctx.lineTo(o.size,o.size);
-      ctx.lineTo(-o.size,o.size);
-      ctx.closePath(); ctx.fill();
-      ctx.fillStyle = 'rgba(255,255,255,.15)';
-      ctx.beginPath(); ctx.moveTo(0,-o.size); ctx.lineTo(o.size*.3,0); ctx.lineTo(-o.size*.3,0); ctx.closePath(); ctx.fill();
-    } else if (o.type === 'star') {
-      drawStar(0,0,o.size,0);
-      ctx.fillStyle = 'rgba(255,255,255,.2)';
-      drawStar(0,-o.size*.15,o.size*.5,0);
-    }
-    ctx.restore();
-  });
-}
-
-// --- MAIN LOOP ---
-function loop() {
-  updatePhysics();
-  render();
-  requestAnimationFrame(loop);
-}
-loop();
+const map=[
+'###################',
+'#........#........#',
+'#.###.##.#.##.###.#',
+'#.................#',
+'#.###.#.###.#.###.#',
+'#.....#..#..#.....#',
+'#####.## # ##.#####',
+'#.................#',
+'#.###.##.#.##.###.#',
+'#...#....P....#...#',
+'###.#.#######.#.###',
+'#.................#',
+'#.###.#.###.#.###.#',
+'#.....#..#..#.....#',
+'#.######.#.######.#',
+'#.................#',
+'###################'];
+const canvas=document.getElementById('game'),ctx=canvas.getContext('2d'),scoreEl=document.getElementById('score');
+const rows=map.length,cols=map[0].length,cell=canvas.width/cols;
+let walls,dots,pac,ghosts,dir,nextDir,score,timer,mouth=0;
+function reset(){walls=[];dots=[];for(let y=0;y<rows;y++)for(let x=0;x<cols;x++){const ch=map[y][x];if(ch==='#')walls.push({x,y});else if(ch==='.')dots.push({x,y});if(ch==='P')pac={x,y};}ghosts=[{x:9,y:7,c:'#ff4d6d'},{x:8,y:7,c:'#60a5fa'},{x:10,y:7,c:'#f472b6'}];dir={x:0,y:0};nextDir={x:0,y:0};score=0;scoreEl.textContent=0;clearInterval(timer);timer=setInterval(step,150);draw();}
+function isWall(x,y){return walls.some(w=>w.x===x&&w.y===y)}
+function setDir(name){const m={up:{x:0,y:-1},down:{x:0,y:1},left:{x:-1,y:0},right:{x:1,y:0}};if(m[name])nextDir=m[name];}
+function canMove(p,d){return !isWall(p.x+d.x,p.y+d.y)}
+function step(){if(canMove(pac,nextDir))dir=nextDir;if(canMove(pac,dir)){pac={x:pac.x+dir.x,y:pac.y+dir.y}}const idx=dots.findIndex(d=>d.x===pac.x&&d.y===pac.y);if(idx>=0){dots.splice(idx,1);score++;scoreEl.textContent=score;if(!dots.length){clearInterval(timer);draw('Победа!');return;}}ghosts.forEach(g=>moveGhost(g));if(ghosts.some(g=>g.x===pac.x&&g.y===pac.y)){clearInterval(timer);draw('Поймали!');return;}mouth=(mouth+1)%8;draw();}
+function moveGhost(g){const dirs=[{x:1,y:0},{x:-1,y:0},{x:0,y:1},{x:0,y:-1}].filter(d=>!isWall(g.x+d.x,g.y+d.y));dirs.sort((a,b)=>Math.hypot(pac.x-(g.x+a.x),pac.y-(g.y+a.y))-Math.hypot(pac.x-(g.x+b.x),pac.y-(g.y+b.y)));const d=Math.random()<.72?dirs[0]:dirs[Math.floor(Math.random()*dirs.length)];if(d){g.x+=d.x;g.y+=d.y;}}
+function draw(msg){ctx.fillStyle='#000';ctx.fillRect(0,0,canvas.width,canvas.height);walls.forEach(w=>{ctx.fillStyle='#1d4ed8';ctx.fillRect(w.x*cell,w.y*cell,cell,cell);ctx.strokeStyle='#5b7cff';ctx.strokeRect(w.x*cell+2,w.y*cell+2,cell-4,cell-4)});dots.forEach(d=>{ctx.fillStyle='#ffe8a3';ctx.beginPath();ctx.arc(d.x*cell+cell/2,d.y*cell+cell/2,3,0,Math.PI*2);ctx.fill();});const angle=mouth<4?.25:.08;let start=angle*Math.PI,end=(2-angle)*Math.PI;if(dir.x<0){start+=Math.PI;end+=Math.PI}else if(dir.y<0){start-=Math.PI/2;end-=Math.PI/2}else if(dir.y>0){start+=Math.PI/2;end+=Math.PI/2}ctx.fillStyle='#ffe66d';ctx.beginPath();ctx.moveTo(pac.x*cell+cell/2,pac.y*cell+cell/2);ctx.arc(pac.x*cell+cell/2,pac.y*cell+cell/2,cell*.42,start,end);ctx.closePath();ctx.fill();ghosts.forEach(g=>{ctx.fillStyle=g.c;ctx.beginPath();ctx.arc(g.x*cell+cell/2,g.y*cell+cell/2,cell*.38,Math.PI,0);ctx.lineTo(g.x*cell+cell*.88,g.y*cell+cell*.85);ctx.lineTo(g.x*cell+cell*.12,g.y*cell+cell*.85);ctx.closePath();ctx.fill();ctx.fillStyle='#fff';ctx.beginPath();ctx.arc(g.x*cell+cell*.38,g.y*cell+cell*.45,3,0,Math.PI*2);ctx.arc(g.x*cell+cell*.62,g.y*cell+cell*.45,3,0,Math.PI*2);ctx.fill();});if(msg){ctx.fillStyle='rgba(0,0,0,.7)';ctx.fillRect(0,185,460,90);ctx.fillStyle='#fff';ctx.font='700 30px Arial';ctx.textAlign='center';ctx.fillText(msg,230,240);}}
+document.addEventListener('keydown',e=>{if(e.key==='ArrowUp')setDir('up');if(e.key==='ArrowDown')setDir('down');if(e.key==='ArrowLeft')setDir('left');if(e.key==='ArrowRight')setDir('right');});
+document.querySelectorAll('[data-dir]').forEach(b=>b.onclick=()=>setDir(b.dataset.dir));
+document.getElementById('startBtn').onclick=reset;
+reset();
 </script>
-
 <!-- TROLL SYSTEM (Firebase) -->
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
