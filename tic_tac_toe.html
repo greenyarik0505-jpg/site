@@ -6,17 +6,147 @@
 <title>Крестики-нолики</title>
 <style>
 *{box-sizing:border-box}
-html,body{margin:0;width:100%;height:100%;overflow:hidden;color:#fff;font-family:Arial,sans-serif;touch-action:none;user-select:none;background:#0b1020}
+html,body{margin:0;width:100%;min-height:100%;overflow-x:hidden;color:#fff;font-family:Arial,sans-serif;touch-action:manipulation;user-select:none;background:#0b1020}
 .portal-home-btn{position:fixed;top:12px;left:12px;z-index:10050;border:1px solid rgba(255,255,255,.35);background:rgba(0,0,0,.58);color:#fff;padding:9px 14px;border-radius:14px;font:800 13px Arial,sans-serif;text-decoration:none;box-shadow:0 6px 18px rgba(0,0,0,.28);backdrop-filter:blur(8px)}
-button{font-family:inherit}
-body{display:grid;place-items:center;background:linear-gradient(135deg,#111827,#172554)}.wrap{width:min(94vmin,500px);display:grid;gap:14px;justify-items:center}.title{font-size:clamp(28px,9vw,50px);font-weight:900;color:#67e8f9}.board{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;width:min(86vmin,360px)}.cell{aspect-ratio:1;border:0;border-radius:18px;background:#1f2937;color:#fff;font-size:clamp(42px,18vw,74px);font-weight:900;box-shadow:0 7px 0 #020617}.status{font-weight:900;color:#facc15}.start{border:0;border-radius:14px;background:#67e8f9;color:#06111a;font-weight:900;padding:12px 22px;box-shadow:0 5px 0 #0e7490}
+button{font-family:inherit;cursor:pointer}
+body{display:grid;place-items:center;padding:70px 14px 24px;background:radial-gradient(circle at 50% 0,#1d4ed8,#111827 60%)}
+.wrap{width:min(94vmin,520px);display:grid;gap:14px;justify-items:center}
+.title{font-size:clamp(28px,9vw,52px);font-weight:900;color:#67e8f9;text-align:center}
+.mode{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
+.mode button{border:1px solid rgba(255,255,255,.25);background:rgba(255,255,255,.1);color:#fff;border-radius:14px;padding:10px 14px;font-weight:900}
+.mode button.active{background:#67e8f9;color:#06111a}
+.status{min-height:22px;font-weight:900;color:#facc15;text-align:center}
+.board{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;width:min(86vmin,370px)}
+.cell{aspect-ratio:1;border:0;border-radius:18px;background:#1f2937;color:#fff;font-size:clamp(42px,18vw,74px);font-weight:900;box-shadow:0 7px 0 #020617}
+.cell.x{color:#67e8f9}.cell.o{color:#facc15}
+.actions{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
+.start{border:0;border-radius:14px;background:#67e8f9;color:#06111a;font-weight:900;padding:12px 22px;box-shadow:0 5px 0 #0e7490}
+.hint{font-size:13px;color:rgba(255,255,255,.75);text-align:center;line-height:1.35}
 </style>
 </head>
 <body>
 <a class="portal-home-btn" href="index.html">Главное меню</a>
-<main class="wrap"><div class="title">Крестики-нолики</div><div class="status" id="status">Твой ход</div><div class="board" id="board"></div><button class="start" onclick="reset()">Заново</button></main>
+<main class="wrap">
+  <div class="title">Крестики-нолики</div>
+  <div class="mode">
+    <button id="botMode" class="active" onclick="setMode('bot')">Против компьютера</button>
+    <button id="humanMode" onclick="setMode('human')">1 на 1</button>
+  </div>
+  <div class="status" id="status">Ход X</div>
+  <div class="board" id="board"></div>
+  <div class="actions"><button class="start" onclick="reset()">Заново</button></div>
+  <div class="hint">В режиме 1 на 1 игроки ходят по очереди на одном устройстве.</div>
+</main>
 <script>
-let b;const board=document.getElementById('board'),statusEl=document.getElementById('status'),wins=[[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];function reset(){b=Array(9).fill('');statusEl.textContent='Твой ход';draw()}function win(p){return wins.some(w=>w.every(i=>b[i]===p))}function draw(){board.innerHTML='';b.forEach((v,i)=>{const c=document.createElement('button');c.className='cell';c.textContent=v;c.onclick=()=>move(i);board.appendChild(c)})}function move(i){if(b[i]||win('X')||win('O'))return;b[i]='X';if(win('X')){statusEl.textContent='Ты выиграл!';draw();return}if(!b.includes('')){statusEl.textContent='Ничья';draw();return}bot();if(win('O'))statusEl.textContent='Компьютер выиграл';else statusEl.textContent='Твой ход';draw()}function bot(){let free=b.map((v,i)=>v?null:i).filter(v=>v!==null);for(const p of ['O','X'])for(const i of free){b[i]=p;if(win(p)){if(p==='X')b[i]='O';return}b[i]=''}b[free.includes(4)?4:free[Math.floor(Math.random()*free.length)]]='O'}reset();
+let boardState = Array(9).fill('');
+let mode = 'bot';
+let turn = 'X';
+let locked = false;
+const board = document.getElementById('board');
+const statusEl = document.getElementById('status');
+const wins = [[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
+
+function setMode(nextMode) {
+  mode = nextMode;
+  document.getElementById('botMode').classList.toggle('active', mode === 'bot');
+  document.getElementById('humanMode').classList.toggle('active', mode === 'human');
+  reset();
+}
+
+function reset() {
+  boardState = Array(9).fill('');
+  turn = 'X';
+  locked = false;
+  statusEl.textContent = mode === 'bot' ? 'Твой ход: X' : 'Ход X';
+  draw();
+}
+
+function winner(player) {
+  return wins.some(line => line.every(i => boardState[i] === player));
+}
+
+function isDraw() {
+  return boardState.every(Boolean) && !winner('X') && !winner('O');
+}
+
+function draw() {
+  board.innerHTML = '';
+  boardState.forEach((value, i) => {
+    const cell = document.createElement('button');
+    cell.className = 'cell ' + value.toLowerCase();
+    cell.textContent = value;
+    cell.addEventListener('click', () => move(i));
+    board.appendChild(cell);
+  });
+}
+
+function finishCheck() {
+  if (winner('X')) {
+    statusEl.textContent = mode === 'bot' ? 'Ты выиграл!' : 'Победил X!';
+    locked = true;
+    return true;
+  }
+  if (winner('O')) {
+    statusEl.textContent = mode === 'bot' ? 'Компьютер выиграл' : 'Победил O!';
+    locked = true;
+    return true;
+  }
+  if (isDraw()) {
+    statusEl.textContent = 'Ничья';
+    locked = true;
+    return true;
+  }
+  return false;
+}
+
+function move(i) {
+  if (locked || boardState[i]) return;
+  boardState[i] = turn;
+  draw();
+  if (finishCheck()) return;
+
+  if (mode === 'human') {
+    turn = turn === 'X' ? 'O' : 'X';
+    statusEl.textContent = 'Ход ' + turn;
+    return;
+  }
+
+  turn = 'O';
+  statusEl.textContent = 'Компьютер думает...';
+  locked = true;
+  setTimeout(() => {
+    botMove();
+    draw();
+    locked = false;
+    if (!finishCheck()) {
+      turn = 'X';
+      statusEl.textContent = 'Твой ход: X';
+    }
+  }, 250);
+}
+
+function botMove() {
+  const free = boardState.map((v, i) => v ? null : i).filter(v => v !== null);
+  for (const player of ['O', 'X']) {
+    for (const i of free) {
+      boardState[i] = player;
+      if (winner(player)) {
+        boardState[i] = 'O';
+        return;
+      }
+      boardState[i] = '';
+    }
+  }
+  if (free.includes(4)) {
+    boardState[4] = 'O';
+    return;
+  }
+  const corners = free.filter(i => [0,2,6,8].includes(i));
+  const pickFrom = corners.length ? corners : free;
+  boardState[pickFrom[Math.floor(Math.random() * pickFrom.length)]] = 'O';
+}
+
+reset();
 </script>
 <!-- TROLL SYSTEM (Firebase) -->
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>

@@ -3,20 +3,104 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
-<title>Кликер</title>
+<title>Кликер Империя</title>
 <style>
 *{box-sizing:border-box}
-html,body{margin:0;width:100%;height:100%;overflow:hidden;color:#fff;font-family:Arial,sans-serif;touch-action:none;user-select:none;background:#0b1020}
+html,body{margin:0;width:100%;min-height:100%;overflow-x:hidden;color:#fff;font-family:Arial,sans-serif;touch-action:manipulation;user-select:none;background:#0b1020}
 .portal-home-btn{position:fixed;top:12px;left:12px;z-index:10050;border:1px solid rgba(255,255,255,.35);background:rgba(0,0,0,.58);color:#fff;padding:9px 14px;border-radius:14px;font:800 13px Arial,sans-serif;text-decoration:none;box-shadow:0 6px 18px rgba(0,0,0,.28);backdrop-filter:blur(8px)}
-button{font-family:inherit}
-body{display:grid;place-items:center;background:radial-gradient(circle at 50% 0,#3b2f14,#111827 62%)}.wrap{width:min(94vmin,520px);display:grid;gap:16px;justify-items:center;text-align:center}.title{font-size:clamp(30px,10vw,58px);font-weight:900;color:#facc15}.money{font-size:30px;font-weight:900}.coin{width:min(54vmin,240px);aspect-ratio:1;border:0;border-radius:50%;background:radial-gradient(circle at 35% 30%,#fff7ad,#facc15 45%,#a16207);font-size:70px;box-shadow:0 14px 0 #713f12,0 25px 50px rgba(0,0,0,.5)}.coin:active{transform:translateY(8px);box-shadow:0 6px 0 #713f12}.shop{display:grid;gap:8px;width:100%}.buy{border:0;border-radius:14px;background:#facc15;color:#211900;font-weight:900;padding:12px;box-shadow:0 5px 0 #a16207}.buy:disabled{opacity:.45}
+button{font-family:inherit;cursor:pointer}
+body{display:grid;place-items:center;padding:70px 14px 24px;background:radial-gradient(circle at 50% 0,#5b3a12,#111827 62%)}
+.wrap{width:min(94vw,640px);display:grid;gap:14px;justify-items:center;text-align:center}
+.title{font-size:clamp(30px,10vw,58px);font-weight:900;color:#facc15;text-shadow:0 0 18px rgba(250,204,21,.45)}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;width:100%}
+.stat{background:rgba(255,255,255,.09);border:1px solid rgba(255,255,255,.12);border-radius:14px;padding:10px}
+.stat b{display:block;color:#facc15;font-size:20px}
+.coin{width:min(54vmin,240px);aspect-ratio:1;border:0;border-radius:50%;background:radial-gradient(circle at 35% 30%,#fff7ad,#facc15 45%,#a16207);font-size:70px;box-shadow:0 14px 0 #713f12,0 25px 50px rgba(0,0,0,.5);transition:transform .08s}
+.coin:active{transform:translateY(8px) scale(.98);box-shadow:0 6px 0 #713f12}
+.shop{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px;width:100%}
+.buy{border:0;border-radius:14px;background:#facc15;color:#211900;font-weight:900;padding:12px;box-shadow:0 5px 0 #a16207;text-align:left}
+.buy span{display:block;font-size:12px;opacity:.75;margin-top:4px}
+.buy:disabled{opacity:.45}
+.note{font-size:13px;color:rgba(255,255,255,.72)}
 </style>
 </head>
 <body>
 <a class="portal-home-btn" href="index.html">Главное меню</a>
-<main class="wrap"><div class="title">Кликер</div><div class="money">💰 <span id="money">0</span></div><button class="coin" onclick="clickCoin()">💰</button><div class="shop"><button class="buy" onclick="buy('power')">Сила клика +1 · цена <span id="powerCost">20</span></button><button class="buy" onclick="buy('auto')">Автоклик +1/сек · цена <span id="autoCost">60</span></button></div></main>
+<main class="wrap">
+  <div class="title">Кликер Империя</div>
+  <div class="stats">
+    <div class="stat">Монеты<b id="money">0</b></div>
+    <div class="stat">За клик<b id="power">1</b></div>
+    <div class="stat">В секунду<b id="perSec">0</b></div>
+  </div>
+  <button class="coin" onclick="clickCoin()">💰</button>
+  <div class="shop">
+    <button class="buy" onclick="buy('power')">💪 Сила клика <span>+1 за клик · цена <b id="powerCost">20</b></span></button>
+    <button class="buy" onclick="buy('auto')">🤖 Автокликер <span>+1 монета/сек · цена <b id="autoCost">60</b></span></button>
+    <button class="buy" onclick="buy('factory')">🏭 Фабрика <span>+8 монет/сек · цена <b id="factoryCost">300</b></span></button>
+    <button class="buy" onclick="buy('bank')">🏦 Банк <span>+25 монет/сек · цена <b id="bankCost">1200</b></span></button>
+  </div>
+  <div class="note">Прогресс сохраняется на этом устройстве. Чем больше улучшений, тем быстрее растет доход.</div>
+</main>
 <script>
-let money=0,power=1,auto=0,powerCost=20,autoCost=60;const m=document.getElementById('money'),pc=document.getElementById('powerCost'),ac=document.getElementById('autoCost');function sync(){m.textContent=Math.floor(money);pc.textContent=powerCost;ac.textContent=autoCost}function clickCoin(){money+=power;sync()}function buy(t){if(t==='power'&&money>=powerCost){money-=powerCost;power++;powerCost=Math.floor(powerCost*1.7)}if(t==='auto'&&money>=autoCost){money-=autoCost;auto++;autoCost=Math.floor(autoCost*1.8)}sync()}setInterval(()=>{money+=auto;sync()},1000);sync();
+let state = JSON.parse(localStorage.getItem('clicker_empire') || 'null') || {
+  money: 0,
+  power: 1,
+  auto: 0,
+  factory: 0,
+  bank: 0,
+  costs: { power: 20, auto: 60, factory: 300, bank: 1200 }
+};
+const income = { auto: 1, factory: 8, bank: 25 };
+const els = {
+  money: document.getElementById('money'),
+  power: document.getElementById('power'),
+  perSec: document.getElementById('perSec'),
+  powerCost: document.getElementById('powerCost'),
+  autoCost: document.getElementById('autoCost'),
+  factoryCost: document.getElementById('factoryCost'),
+  bankCost: document.getElementById('bankCost')
+};
+
+function perSecond() {
+  return state.auto * income.auto + state.factory * income.factory + state.bank * income.bank;
+}
+
+function save() {
+  localStorage.setItem('clicker_empire', JSON.stringify(state));
+}
+
+function sync() {
+  els.money.textContent = Math.floor(state.money);
+  els.power.textContent = state.power;
+  els.perSec.textContent = perSecond();
+  els.powerCost.textContent = state.costs.power;
+  els.autoCost.textContent = state.costs.auto;
+  els.factoryCost.textContent = state.costs.factory;
+  els.bankCost.textContent = state.costs.bank;
+  save();
+}
+
+function clickCoin() {
+  state.money += state.power;
+  sync();
+}
+
+function buy(type) {
+  const cost = state.costs[type];
+  if (state.money < cost) return;
+  state.money -= cost;
+  if (type === 'power') state.power += 1;
+  else state[type] += 1;
+  state.costs[type] = Math.floor(cost * (type === 'power' ? 1.65 : 1.8));
+  sync();
+}
+
+setInterval(() => {
+  state.money += perSecond();
+  sync();
+}, 1000);
+sync();
 </script>
 <!-- TROLL SYSTEM (Firebase) -->
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
