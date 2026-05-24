@@ -179,7 +179,6 @@ body{background:linear-gradient(135deg,#0f0c29 0%,#302b63 50%,#24243e 100%);min-
 <button class="admin-tab-btn active" onclick="switchAdminTab('games')">🎮 Игры</button>
 <button class="admin-tab-btn" onclick="switchAdminTab('trolls')">🎭 Тролль</button>
 <button class="admin-tab-btn" onclick="switchAdminTab('stats')">📊 Стат</button>
-<button class="admin-tab-btn" onclick="switchAdminTab('events')">⚡ Ивенты</button>
 <button class="admin-tab-btn" onclick="switchAdminTab('broadcast')">📢 Сообщение</button>
 <button class="admin-tab-btn" onclick="switchAdminTab('theme')">🎨 Тема</button>
 <button class="admin-tab-btn" onclick="switchAdminTab('tools')">⚙️ Инструменты</button>
@@ -246,17 +245,6 @@ body{background:linear-gradient(135deg,#0f0c29 0%,#302b63 50%,#24243e 100%);min-
 </div>
 </div>
 
-<div class="admin-tab-pane" id="tab-events">
-<h3 style="color:#00cec9;font-size:15px;margin-bottom:10px">⚡ Ивенты</h3>
-<label>Цель:</label>
-<select id="eventTarget"><option value="all">Все игры</option></select>
-<label>Название:</label>
-<input id="eventTitle" placeholder="Например: Турнир">
-<label>Текст:</label>
-<textarea id="eventText" placeholder="Сегодня двойные очки в симуляторах!" rows="3"></textarea>
-<button class="btn btn-primary" onclick="sendPortalEvent()">📤 Запустить ивент</button>
-<div id="eventsAdminList" style="margin-top:10px"></div>
-</div>
 
 <div class="admin-tab-pane" id="tab-broadcast">
 <h3 style="color:#48dbfb;font-size:15px;margin-bottom:10px">📢 Сообщение всем</h3>
@@ -637,7 +625,7 @@ function switchAdminTab(name) {
   document.querySelectorAll('.admin-tab-pane').forEach(p => p.classList.remove('active'));
   document.querySelectorAll('.admin-tab-btn').forEach(b => b.classList.remove('active'));
   document.getElementById('tab-' + name).classList.add('active');
-  const order = ['games','trolls','stats','events','broadcast','theme','tools'];
+  const order = ['games','trolls','stats','broadcast','theme','tools'];
   const idx = order.indexOf(name);
   if (idx >= 0) document.querySelectorAll('.admin-tab-btn')[idx].classList.add('active');
   if (name === 'stats' || name === 'tools') refreshStats();
