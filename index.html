@@ -438,7 +438,7 @@ function renderGames() {
     const games = groups[category];
     if (!games || !games.length) return;
     const section = document.createElement('section');
-    section.className = 'category-section closed';
+    section.className = 'category-section';
     section.innerHTML = `<h2 class="category-title">${CATEGORY_LABELS[category] || category} <span>${games.length}</span></h2><div class="category-grid"></div>`;
     section.querySelector('.category-title').addEventListener('click', () => {
       section.classList.toggle('closed');
