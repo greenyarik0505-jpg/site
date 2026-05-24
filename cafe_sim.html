@@ -5,390 +5,668 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Моё Кафе</title>
 <style>
-*{margin:0;padding:0;box-sizing:border-box}
-body{background:#0d1117;color:#e6edf3;font-family:system-ui,sans-serif;min-height:100vh;display:flex;flex-direction:column;overflow-x:hidden}
-#hud{background:#161b22;border-bottom:1px solid #30363d;padding:10px 16px;display:flex;align-items:center;gap:16px;flex-wrap:wrap;flex-shrink:0}
-#hud h1{font-size:18px;color:#f0c040}
-.hud-stat{display:flex;align-items:center;gap:6px;font-size:14px}
-.hud-stat span{font-weight:700;color:#f0c040}
-#rep-stars{font-size:18px;letter-spacing:2px}
-#shop-btn{margin-left:auto;background:#1f3a5f;border:1px solid #58a6ff;color:#58a6ff;padding:6px 14px;border-radius:6px;font-size:13px;cursor:pointer;transition:background .15s}
-#shop-btn:hover{background:#2a4f80}
-#cafe-area{flex:1;display:flex;flex-direction:column;padding:12px;gap:12px;overflow-y:auto}
-#queue-zone{background:#161b22;border:1px solid #30363d;border-radius:10px;padding:10px;min-height:64px}
-#queue-zone h3{font-size:12px;color:#8b949e;margin-bottom:8px}
-#queue-row{display:flex;flex-wrap:wrap;gap:8px;min-height:40px}
-#tables-zone{display:flex;flex-wrap:wrap;gap:12px;justify-content:center}
-.table-card{background:#161b22;border:1px solid #30363d;border-radius:10px;padding:12px;width:140px;min-height:110px;display:flex;flex-direction:column;align-items:center;gap:6px;position:relative;transition:border-color .2s,box-shadow .2s}
-.table-card.occupied{border-color:#58a6ff;box-shadow:0 0 10px rgba(88,166,255,.2)}
-.table-card.angry{border-color:#f85149;box-shadow:0 0 10px rgba(248,81,73,.25);animation:shake .4s infinite}
-@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-3px)}75%{transform:translateX(3px)}}
-.table-icon{font-size:28px}
-.table-label{font-size:11px;color:#8b949e}
-.table-order{font-size:22px;line-height:1}
-.table-timer{width:100%;height:4px;background:#30363d;border-radius:2px;overflow:hidden;margin-top:4px}
-.table-timer-bar{height:100%;background:#3fb950;border-radius:2px;transition:width .5s linear,background .5s}
-.guest-chip{background:#21262d;border:1px solid #30363d;border-radius:20px;padding:4px 10px;font-size:13px;cursor:pointer;transition:background .15s,border-color .15s;display:flex;align-items:center;gap:5px;animation:popIn .2s ease-out}
-@keyframes popIn{from{transform:scale(0.7);opacity:0}to{transform:scale(1);opacity:1}}
-.guest-chip:hover{background:#30363d}
-.action-btn{padding:5px 10px;border-radius:5px;border:1px solid #3fb950;background:#1a3320;color:#3fb950;font-size:12px;cursor:pointer;transition:background .15s}
-.action-btn:hover{background:#234d2e}
-.action-btn.serve{border-color:#f0c040;color:#f0c040;background:#332a00}
-.action-btn.serve:hover{background:#4a3d00}
-.coin-pop{position:fixed;pointer-events:none;font-size:18px;font-weight:700;color:#f0c040;text-shadow:0 0 8px #f0c040;animation:coinRise 1.2s ease-out forwards;z-index:999}
-@keyframes coinRise{0%{opacity:1;transform:translateY(0)}100%{opacity:0;transform:translateY(-60px)}}
-#barista-zone{background:#161b22;border:1px solid #30363d;border-radius:10px;padding:10px;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
-#barista-zone h3{font-size:12px;color:#8b949e;white-space:nowrap}
-#barista-queue{display:flex;flex-wrap:wrap;gap:6px}
-.brew-card{background:#21262d;border:1px solid #30363d;border-radius:8px;padding:6px 10px;display:flex;align-items:center;gap:6px;font-size:13px;cursor:pointer;transition:all .15s;animation:popIn .2s ease-out}
-.brew-card:hover{border-color:#3fb950;background:#1a2d1e}
-.brew-card .brew-progress{width:60px;height:5px;background:#30363d;border-radius:3px;overflow:hidden}
-.brew-card .brew-bar{height:100%;background:#3fb950;border-radius:3px;transition:width .2s linear}
-.brew-card.ready{border-color:#f0c040;background:#332a00}
-.brew-card.ready:hover{background:#4a3d00}
-#shop-modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:200;justify-content:center;align-items:center}
-#shop-modal.open{display:flex}
-#shop-box{background:#161b22;border:1px solid #30363d;border-radius:12px;padding:20px;max-width:360px;width:90%;display:flex;flex-direction:column;gap:12px}
-#shop-box h2{color:#f0c040;font-size:16px}
-.upgrade-card{background:#21262d;border:1px solid #30363d;border-radius:8px;padding:10px 14px;display:flex;justify-content:space-between;align-items:center;gap:10px}
-.upgrade-card.bought{border-color:#3fb950;opacity:.7}
-.upgrade-info{display:flex;flex-direction:column;gap:3px}
-.upgrade-name{font-size:13px;font-weight:600}
-.upgrade-desc{font-size:11px;color:#8b949e}
-.upgrade-buy{padding:5px 12px;border-radius:5px;border:1px solid #58a6ff;background:#1f3a5f;color:#58a6ff;font-size:12px;cursor:pointer;white-space:nowrap}
-.upgrade-buy:disabled{opacity:.4;cursor:default}
-#close-shop{align-self:flex-end;padding:6px 14px;border-radius:5px;border:1px solid #f85149;background:transparent;color:#f85149;font-size:13px;cursor:pointer}
-#msg-bar{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#21262d;border:1px solid #30363d;border-radius:20px;padding:8px 18px;font-size:13px;pointer-events:none;opacity:0;transition:opacity .3s;z-index:100;white-space:nowrap}
-#msg-bar.show{opacity:1}
-
-
+*{box-sizing:border-box}
+:root{
+  --bg:#16110d;
+  --panel:#fff7ec;
+  --panel-2:#fffdf8;
+  --ink:#342016;
+  --muted:#816554;
+  --line:#ead8c4;
+  --coffee:#7b3f24;
+  --coffee-2:#a65f34;
+  --mint:#0f8f69;
+  --rose:#d94f70;
+  --gold:#f2b84b;
+  --shadow:0 18px 45px rgba(66,35,18,.22);
+}
+body{
+  margin:0;
+  min-height:100vh;
+  font-family:Inter,system-ui,-apple-system,Segoe UI,Arial,sans-serif;
+  color:var(--ink);
+  background:
+    radial-gradient(circle at top left, rgba(242,184,75,.22), transparent 30%),
+    linear-gradient(135deg,#ffe9c8 0%,#f7cf9f 38%,#b87143 100%);
+  overflow-x:hidden;
+}
+button{font:inherit}
 .portal-home-btn{
   position:fixed;
   top:12px;
   left:12px;
   z-index:10050;
-  border:1px solid rgba(255,255,255,.35);
-  background:rgba(0,0,0,.58);
+  border:1px solid rgba(255,255,255,.55);
+  background:rgba(58,31,20,.72);
   color:#fff;
-  padding:9px 14px;
-  border-radius:14px;
-  font:800 13px Arial,sans-serif;
+  padding:10px 14px;
+  border-radius:12px;
+  font-weight:900;
+  font-size:13px;
   text-decoration:none;
-  box-shadow:0 6px 18px rgba(0,0,0,.28);
-  backdrop-filter:blur(8px);
+  box-shadow:0 10px 26px rgba(43,22,12,.28);
+  backdrop-filter:blur(10px);
 }
-.portal-home-btn:active{transform:scale(.96)}
-
+.app{width:min(1180px,100%);margin:0 auto;padding:72px 14px 22px}
+.topbar{
+  background:rgba(255,253,248,.88);
+  border:1px solid rgba(255,255,255,.75);
+  border-radius:8px;
+  box-shadow:var(--shadow);
+  padding:14px;
+  display:grid;
+  grid-template-columns:1.2fr 1fr;
+  gap:14px;
+  backdrop-filter:blur(16px);
+}
+.brand{display:flex;align-items:center;gap:12px;min-width:0}
+.logo{
+  width:54px;height:54px;border-radius:8px;
+  background:linear-gradient(145deg,#7b3f24,#d99852);
+  display:grid;place-items:center;color:#fff;font-size:30px;
+  box-shadow:inset 0 -10px 18px rgba(0,0,0,.18);
+  flex:0 0 auto;
+}
+h1{margin:0;font-size:clamp(24px,4vw,42px);line-height:1;letter-spacing:0}
+.subtitle{color:var(--muted);font-weight:700;margin-top:5px;font-size:13px}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.stat{
+  background:#fff;
+  border:1px solid var(--line);
+  border-radius:8px;
+  padding:10px;
+  min-width:0;
+}
+.stat b{display:block;font-size:18px;color:var(--coffee)}
+.stat span{font-size:11px;color:var(--muted);font-weight:800;text-transform:uppercase}
+.layout{display:grid;grid-template-columns:1fr 320px;gap:14px;margin-top:14px}
+.main,.side{
+  background:rgba(255,253,248,.9);
+  border:1px solid rgba(255,255,255,.8);
+  border-radius:8px;
+  box-shadow:var(--shadow);
+  backdrop-filter:blur(14px);
+}
+.main{padding:14px}
+.side{padding:14px;display:flex;flex-direction:column;gap:12px}
+.section-title{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px}
+.section-title h2{margin:0;font-size:16px}
+.pill{background:#fff;border:1px solid var(--line);border-radius:999px;padding:5px 9px;color:var(--muted);font-size:12px;font-weight:900}
+.queue{display:flex;gap:8px;overflow-x:auto;padding-bottom:8px;min-height:64px}
+.guest{
+  min-width:112px;
+  background:#fff;
+  border:1px solid var(--line);
+  border-radius:8px;
+  padding:8px;
+  cursor:pointer;
+  box-shadow:0 8px 18px rgba(66,35,18,.08);
+}
+.guest:hover{border-color:var(--coffee-2);transform:translateY(-1px)}
+.guest .face{font-size:25px}
+.guest .name{font-weight:900;font-size:13px}
+.guest .hint{color:var(--muted);font-size:11px;margin-top:2px}
+.room{display:grid;grid-template-columns:repeat(auto-fit,minmax(155px,1fr));gap:10px;margin-top:10px}
+.table{
+  position:relative;
+  min-height:178px;
+  background:linear-gradient(180deg,#fff,#fff5e7);
+  border:1px solid var(--line);
+  border-radius:8px;
+  padding:10px;
+  display:flex;
+  flex-direction:column;
+  gap:7px;
+  box-shadow:0 10px 24px rgba(66,35,18,.10);
+}
+.table.empty{align-items:center;justify-content:center;color:var(--muted);font-weight:900}
+.table.late{border-color:var(--rose);box-shadow:0 0 0 3px rgba(217,79,112,.12),0 10px 24px rgba(66,35,18,.10)}
+.table-head{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.avatar{font-size:26px}
+.table-name{font-weight:900;font-size:13px}
+.order{background:#fff;border:1px dashed #d7b690;border-radius:8px;padding:8px}
+.order-main{display:flex;align-items:center;justify-content:space-between;gap:6px;font-weight:900}
+.order small{display:block;color:var(--muted);font-size:11px;margin-top:3px}
+.timer{height:8px;background:#ead8c4;border-radius:999px;overflow:hidden}
+.timer i{display:block;height:100%;background:var(--mint);border-radius:inherit;transition:width .25s linear,background .25s}
+.actions{display:flex;gap:6px;margin-top:auto}
+.btn{
+  border:0;
+  border-radius:8px;
+  padding:9px 10px;
+  cursor:pointer;
+  font-weight:900;
+  font-size:12px;
+  color:#fff;
+  background:var(--coffee);
+  box-shadow:0 8px 16px rgba(123,63,36,.22);
+}
+.btn:hover{filter:brightness(1.05)}
+.btn:active{transform:scale(.98)}
+.btn.secondary{background:var(--mint)}
+.btn.ghost{background:#fff;color:var(--coffee);border:1px solid var(--line);box-shadow:none}
+.btn.danger{background:var(--rose)}
+.btn:disabled{opacity:.45;cursor:default;transform:none}
+.cook-list,.stock-list,.upgrade-list{display:flex;flex-direction:column;gap:8px}
+.cook,.stock,.upgrade{
+  background:#fff;
+  border:1px solid var(--line);
+  border-radius:8px;
+  padding:9px;
+}
+.cook{display:grid;grid-template-columns:auto 1fr auto;gap:8px;align-items:center}
+.cook-icon{font-size:24px}
+.cook b,.upgrade b{font-size:13px}
+.cook small,.upgrade small,.stock small{display:block;color:var(--muted);font-size:11px;margin-top:2px}
+.progress{height:7px;background:#ead8c4;border-radius:999px;overflow:hidden;margin-top:6px}
+.progress i{display:block;height:100%;background:var(--gold);border-radius:inherit}
+.stock{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.stock strong{font-size:18px;color:var(--coffee)}
+.upgrade{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:center}
+.log{
+  min-height:44px;
+  background:#362017;
+  color:#fff4e8;
+  border-radius:8px;
+  padding:10px;
+  font-size:13px;
+  font-weight:800;
+}
+.shift{
+  background:linear-gradient(135deg,#fff,#ffe9c8);
+  border:1px solid var(--line);
+  border-radius:8px;
+  padding:10px;
+}
+.shift-row{display:flex;justify-content:space-between;gap:8px;font-size:13px;font-weight:900;margin-bottom:7px}
+.meter{height:10px;background:#ead8c4;border-radius:999px;overflow:hidden}
+.meter i{display:block;height:100%;background:linear-gradient(90deg,var(--mint),var(--gold));border-radius:inherit}
+.floating-tip{
+  position:fixed;
+  pointer-events:none;
+  z-index:80;
+  color:#fff;
+  background:rgba(54,32,23,.9);
+  border-radius:999px;
+  padding:6px 10px;
+  font-weight:1000;
+  animation:floatUp 1s ease-out forwards;
+}
+@keyframes floatUp{to{opacity:0;transform:translateY(-52px)}}
+@media(max-width:860px){
+  .topbar,.layout{grid-template-columns:1fr}
+  .stats{grid-template-columns:repeat(2,1fr)}
+  .app{padding-top:68px}
+}
 </style>
 </head>
 <body>
 <a class="portal-home-btn" href="index.html">Главное меню</a>
+<main class="app">
+  <section class="topbar">
+    <div class="brand">
+      <div class="logo">☕</div>
+      <div>
+        <h1>Моё Кафе</h1>
+        <div class="subtitle">Сажай гостей, готовь заказы, следи за складом и прокачивай зал.</div>
+      </div>
+    </div>
+    <div class="stats">
+      <div class="stat"><b id="money">0</b><span>монеты</span></div>
+      <div class="stat"><b id="rating">3.0</b><span>рейтинг</span></div>
+      <div class="stat"><b id="served">0</b><span>гостей</span></div>
+      <div class="stat"><b id="combo">x1</b><span>комбо</span></div>
+    </div>
+  </section>
 
-<div id="hud">
-  <h1>☕ Моё Кафе</h1>
-  <div class="hud-stat">💰 <span id="coins-disp">0</span></div>
-  <div class="hud-stat">⭐ <span id="rep-stars">★★★☆☆</span></div>
-  <div class="hud-stat" style="font-size:12px;color:#8b949e">Репутация: <span id="rep-num" style="color:#e6edf3">3.0</span></div>
-  <button id="shop-btn" onclick="openShop()">🛒 Улучшения</button>
-</div>
-<div id="cafe-area">
-  <div id="queue-zone">
-    <h3>👥 Очередь посетителей</h3>
-    <div id="queue-row"></div>
-  </div>
-  <div id="barista-zone">
-    <h3>👨‍🍳 Стойка бариста</h3>
-    <div id="barista-queue"></div>
-  </div>
-  <div id="tables-zone"></div>
-</div>
-<div id="shop-modal">
-  <div id="shop-box">
-    <h2>🛒 Улучшения</h2>
-    <div id="upgrades-list"></div>
-    <button id="close-shop" onclick="closeShop()">Закрыть</button>
-  </div>
-</div>
-<div id="msg-bar"></div>
+  <section class="layout">
+    <div class="main">
+      <div class="section-title">
+        <h2>Очередь гостей</h2>
+        <span class="pill" id="queueInfo">0 ждут</span>
+      </div>
+      <div class="queue" id="queue"></div>
+
+      <div class="section-title" style="margin-top:8px">
+        <h2>Зал кафе</h2>
+        <span class="pill" id="shiftLabel">Смена 1</span>
+      </div>
+      <div class="room" id="tables"></div>
+    </div>
+
+    <aside class="side">
+      <div class="shift">
+        <div class="shift-row"><span>Цель смены</span><span id="goalText">0 / 120</span></div>
+        <div class="meter"><i id="goalBar" style="width:0%"></i></div>
+      </div>
+
+      <div>
+        <div class="section-title"><h2>Кухня</h2><span class="pill" id="cookInfo">пусто</span></div>
+        <div class="cook-list" id="cookList"></div>
+      </div>
+
+      <div>
+        <div class="section-title"><h2>Склад</h2><button class="btn ghost" onclick="buyStock()">Закупить</button></div>
+        <div class="stock-list" id="stockList"></div>
+      </div>
+
+      <div>
+        <div class="section-title"><h2>Улучшения</h2><button class="btn ghost" onclick="resetCafe()">Сброс</button></div>
+        <div class="upgrade-list" id="upgradeList"></div>
+      </div>
+
+      <div class="log" id="log">Кафе открыто. Посади первого гостя за свободный столик.</div>
+    </aside>
+  </section>
+</main>
 
 <script>
-let coins = 0;
-let rep = 3.0;
-let guestId = 0;
-let tableCount = 3;
-let tables = [];
-let brewQueue = [];
-let upgrades = {
-  fastBarista: { name: 'Быстрый бариста', desc: 'Готовит на 40% быстрее', cost: 80, bought: false },
-  extraTable: { name: 'Доп. столик', desc: 'Ещё один столик', cost: 120, bought: false },
-  advert: { name: 'Реклама', desc: 'Гости приходят чаще', cost: 60, bought: false },
-  premiumMenu: { name: 'Премиум меню', desc: 'Монет за заказ +50%', cost: 150, bought: false },
-};
-const ORDERS = [
-  { icon: '☕', name: 'Кофе', time: 6, reward: 15 },
-  { icon: '🍵', name: 'Чай', time: 4, reward: 10 },
-  { icon: '🍰', name: 'Десерт', time: 8, reward: 20 },
-  { icon: '🥐', name: 'Круассан', time: 3, reward: 12 },
-  { icon: '🍫', name: 'Какао', time: 5, reward: 14 },
+const SAVE_KEY = 'portalCafeSim2026';
+const RECIPES = [
+  { id:'coffee', icon:'☕', name:'Кофе', time:4.2, price:18, ingredients:{ beans:1, milk:0, dough:0 } },
+  { id:'latte', icon:'🥛', name:'Латте', time:5.5, price:26, ingredients:{ beans:1, milk:1, dough:0 } },
+  { id:'cake', icon:'🍰', name:'Торт', time:7.5, price:38, ingredients:{ beans:0, milk:1, dough:1 } },
+  { id:'croissant', icon:'🥐', name:'Круассан', time:3.5, price:22, ingredients:{ beans:0, milk:0, dough:1 } },
+  { id:'combo', icon:'🍽️', name:'Комбо', time:8.5, price:52, ingredients:{ beans:1, milk:1, dough:1 } }
 ];
-const PATIENCE = 22;
-const GUEST_NAMES = ['Аня','Вася','Лёша','Маша','Коля','Даша','Женя','Катя','Серёжа','Тоня'];
+const GUESTS = [
+  ['Аня','🙂'],['Миша','😎'],['Катя','😊'],['Даня','🤓'],['Саша','😄'],['Лена','🤠'],['Игорь','🧑'],['Оля','👩']
+];
+const defaultState = {
+  money:90,
+  rating:3,
+  served:0,
+  combo:1,
+  streak:0,
+  shift:1,
+  shiftEarned:0,
+  goal:120,
+  stock:{ beans:8, milk:6, dough:6 },
+  upgrades:{ tables:3, speed:1, patience:1, tips:1, queue:1 },
+  queue:[],
+  tables:[],
+  cooks:[],
+  lastGuestId:1,
+  lastCookId:1
+};
+let state = loadState();
+let lastTick = performance.now();
+let spawnTimer = 0;
 
-function randOrder(){ return ORDERS[Math.floor(Math.random()*ORDERS.length)]; }
-
-function initTables(){
-  tables = [];
-  for(let i=0;i<tableCount;i++) tables.push({ id:i, guest:null, state:'free', timer:0, order:null, brewId:null });
-  renderTables();
+function cloneDefault(){
+  return JSON.parse(JSON.stringify(defaultState));
 }
 
-function renderTables(){
-  const zone = document.getElementById('tables-zone');
-  zone.innerHTML = '';
-  tables.forEach(t=>{
+function loadState(){
+  try{
+    const saved = JSON.parse(localStorage.getItem(SAVE_KEY) || 'null');
+    if(saved && saved.stock && saved.upgrades) return Object.assign(cloneDefault(), saved);
+  }catch(e){}
+  return cloneDefault();
+}
+
+function saveState(){
+  localStorage.setItem(SAVE_KEY, JSON.stringify(state));
+}
+
+function ensureTables(){
+  while(state.tables.length < state.upgrades.tables){
+    state.tables.push({ id:state.tables.length, guest:null, recipe:null, status:'free', patience:0, maxPatience:0, cookId:null });
+  }
+  if(state.tables.length > state.upgrades.tables) state.tables.length = state.upgrades.tables;
+}
+
+function getPatience(){
+  return Math.round(24 + state.upgrades.patience * 6 + state.rating * 2);
+}
+
+function getCookTime(recipe){
+  return Math.max(1.4, recipe.time / state.upgrades.speed);
+}
+
+function getTipMultiplier(){
+  return 1 + (state.upgrades.tips - 1) * 0.18;
+}
+
+function recipeById(id){
+  return RECIPES.find(function(r){ return r.id === id; }) || RECIPES[0];
+}
+
+function canCook(recipe){
+  return Object.keys(recipe.ingredients).every(function(k){ return state.stock[k] >= recipe.ingredients[k]; });
+}
+
+function spendIngredients(recipe){
+  Object.keys(recipe.ingredients).forEach(function(k){ state.stock[k] -= recipe.ingredients[k]; });
+}
+
+function randomRecipe(){
+  const pool = state.shift >= 3 ? RECIPES : RECIPES.slice(0,4);
+  return pool[Math.floor(Math.random() * pool.length)];
+}
+
+function spawnGuest(){
+  const maxQueue = 4 + state.upgrades.queue;
+  if(state.queue.length >= maxQueue) return;
+  const base = GUESTS[Math.floor(Math.random() * GUESTS.length)];
+  state.queue.push({
+    id:state.lastGuestId++,
+    name:base[0],
+    emoji:base[1],
+    recipe:randomRecipe().id,
+    mood:100
+  });
+  render();
+  saveState();
+}
+
+function seatGuest(id){
+  ensureTables();
+  const table = state.tables.find(function(t){ return !t.guest; });
+  if(!table){ log('Нет свободного столика. Купи еще стол или быстрее обслужи гостей.'); return; }
+  const index = state.queue.findIndex(function(g){ return g.id === id; });
+  if(index < 0) return;
+  const guest = state.queue.splice(index,1)[0];
+  table.guest = guest;
+  table.recipe = guest.recipe;
+  table.status = 'waiting';
+  table.maxPatience = getPatience();
+  table.patience = table.maxPatience;
+  table.cookId = null;
+  log(guest.name + ' сел(а) за столик и хочет ' + recipeById(guest.recipe).name + '.');
+  render();
+  saveState();
+}
+
+function startOrder(tableId){
+  const table = state.tables[tableId];
+  if(!table || table.status !== 'waiting') return;
+  const recipe = recipeById(table.recipe);
+  if(!canCook(recipe)){
+    log('Не хватает продуктов для заказа: ' + recipe.name + '. Нажми "Закупить".');
+    return;
+  }
+  spendIngredients(recipe);
+  const cook = {
+    id:state.lastCookId++,
+    tableId:tableId,
+    recipe:recipe.id,
+    progress:0,
+    total:getCookTime(recipe)
+  };
+  state.cooks.push(cook);
+  table.status = 'cooking';
+  table.cookId = cook.id;
+  log('Кухня готовит: ' + recipe.name + '.');
+  render();
+  saveState();
+}
+
+function serveOrder(tableId){
+  const table = state.tables[tableId];
+  if(!table || table.status !== 'ready') return;
+  const recipe = recipeById(table.recipe);
+  const patienceRatio = table.maxPatience ? table.patience / table.maxPatience : 0;
+  const moodBonus = patienceRatio > .55 ? 1.25 : patienceRatio > .25 ? 1 : .8;
+  const comboBonus = 1 + Math.min(state.streak, 5) * .08;
+  const earned = Math.round(recipe.price * moodBonus * comboBonus * getTipMultiplier());
+  state.money += earned;
+  state.shiftEarned += earned;
+  state.served += 1;
+  state.streak += 1;
+  state.combo = Math.min(6, 1 + Math.floor(state.streak / 3));
+  state.rating = Math.min(5, state.rating + (patienceRatio > .35 ? .08 : .02));
+  removeCook(table.cookId);
+  popMoney(earned, document.getElementById('table-' + tableId));
+  table.guest = null;
+  table.recipe = null;
+  table.status = 'free';
+  table.patience = 0;
+  table.maxPatience = 0;
+  table.cookId = null;
+  if(state.shiftEarned >= state.goal){
+    state.shift += 1;
+    state.shiftEarned = 0;
+    state.goal = Math.round(state.goal * 1.45);
+    state.money += 35;
+    log('Смена выполнена! Бонус +35 монет. Новая цель выше.');
+  }else{
+    log('Гость доволен. +' + earned + ' монет.');
+  }
+  render();
+  saveState();
+}
+
+function removeCook(id){
+  const index = state.cooks.findIndex(function(c){ return c.id === id; });
+  if(index >= 0) state.cooks.splice(index,1);
+}
+
+function loseGuest(table){
+  if(table.cookId) removeCook(table.cookId);
+  const name = table.guest ? table.guest.name : 'Гость';
+  table.guest = null;
+  table.recipe = null;
+  table.status = 'free';
+  table.patience = 0;
+  table.maxPatience = 0;
+  table.cookId = null;
+  state.streak = 0;
+  state.combo = 1;
+  state.rating = Math.max(1, state.rating - .22);
+  log(name + ' ушел без заказа. Рейтинг немного упал.');
+}
+
+function buyStock(){
+  const cost = 38;
+  if(state.money < cost){ log('Для закупки нужно 38 монет.'); return; }
+  state.money -= cost;
+  state.stock.beans += 6;
+  state.stock.milk += 5;
+  state.stock.dough += 5;
+  log('Склад пополнен: кофе, молоко и тесто.');
+  render();
+  saveState();
+}
+
+const UPGRADES = [
+  { id:'tables', name:'Новый столик', desc:'Больше гостей можно посадить одновременно', base:95, max:7 },
+  { id:'speed', name:'Быстрая кухня', desc:'Заказы готовятся быстрее', base:110, max:5 },
+  { id:'patience', name:'Уютный зал', desc:'Гости ждут дольше', base:85, max:5 },
+  { id:'tips', name:'Красивое меню', desc:'Больше чаевых за каждый заказ', base:100, max:5 },
+  { id:'queue', name:'Реклама', desc:'Очередь становится больше', base:70, max:4 }
+];
+
+function upgradeCost(upgrade){
+  const level = state.upgrades[upgrade.id];
+  return Math.round(upgrade.base * Math.pow(1.55, level - 1));
+}
+
+function buyUpgrade(id){
+  const upgrade = UPGRADES.find(function(u){ return u.id === id; });
+  if(!upgrade) return;
+  const level = state.upgrades[id];
+  if(level >= upgrade.max){ log('Это улучшение уже на максимуме.'); return; }
+  const cost = upgradeCost(upgrade);
+  if(state.money < cost){ log('Не хватает монет для улучшения.'); return; }
+  state.money -= cost;
+  state.upgrades[id] += 1;
+  ensureTables();
+  log('Улучшение куплено: ' + upgrade.name + '.');
+  render();
+  saveState();
+}
+
+function resetCafe(){
+  if(!confirm('Сбросить прогресс кафе?')) return;
+  state = cloneDefault();
+  ensureTables();
+  log('Кафе начато заново.');
+  render();
+  saveState();
+}
+
+function log(text){
+  document.getElementById('log').textContent = text;
+}
+
+function popMoney(amount, ref){
+  const el = document.createElement('div');
+  el.className = 'floating-tip';
+  el.textContent = '+' + amount + ' монет';
+  const rect = ref ? ref.getBoundingClientRect() : { left:window.innerWidth / 2, top:window.innerHeight / 2, width:0 };
+  el.style.left = Math.max(10, rect.left + rect.width / 2 - 42) + 'px';
+  el.style.top = Math.max(80, rect.top + 12) + 'px';
+  document.body.appendChild(el);
+  setTimeout(function(){ el.remove(); }, 1000);
+}
+
+function render(){
+  ensureTables();
+  document.getElementById('money').textContent = state.money;
+  document.getElementById('rating').textContent = state.rating.toFixed(1) + ' ★';
+  document.getElementById('served').textContent = state.served;
+  document.getElementById('combo').textContent = 'x' + state.combo;
+  document.getElementById('queueInfo').textContent = state.queue.length + ' ждут';
+  document.getElementById('shiftLabel').textContent = 'Смена ' + state.shift;
+  document.getElementById('goalText').textContent = state.shiftEarned + ' / ' + state.goal;
+  document.getElementById('goalBar').style.width = Math.min(100, state.shiftEarned / state.goal * 100) + '%';
+
+  const queue = document.getElementById('queue');
+  queue.innerHTML = '';
+  if(!state.queue.length){
+    queue.innerHTML = '<div class="pill">Гости скоро придут</div>';
+  }
+  state.queue.forEach(function(g){
+    const recipe = recipeById(g.recipe);
+    const card = document.createElement('button');
+    card.className = 'guest';
+    card.onclick = function(){ seatGuest(g.id); };
+    card.innerHTML = '<div class="face">' + g.emoji + '</div><div class="name">' + g.name + '</div><div class="hint">хочет ' + recipe.icon + ' ' + recipe.name + '</div>';
+    queue.appendChild(card);
+  });
+
+  const tables = document.getElementById('tables');
+  tables.innerHTML = '';
+  state.tables.forEach(function(t){
     const card = document.createElement('div');
-    card.className = 'table-card' + (t.guest ? ' occupied' : '') + (t.state==='angry' ? ' angry' : '');
-    card.id = 'table-'+t.id;
-    if(t.guest){
-      const ratio = Math.max(0, t.timer / PATIENCE);
-      const barColor = ratio > 0.6 ? '#3fb950' : ratio > 0.3 ? '#f0c040' : '#f85149';
-      card.innerHTML = `
-        <div class="table-icon">${t.guest.emoji}</div>
-        <div style="font-size:12px;font-weight:600">${t.guest.name}</div>
-        <div class="table-order">${t.order ? t.order.icon : '❓'}</div>
-        <div style="font-size:10px;color:#8b949e">${stateLabel(t.state)}</div>
-        <div class="table-timer"><div class="table-timer-bar" style="width:${ratio*100}%;background:${barColor}"></div></div>
-      `;
-      if(t.state==='waiting_order'){
-        const btn=document.createElement('button');btn.className='action-btn';btn.textContent='Принять заказ';
-        btn.onclick=()=>acceptOrder(t.id);card.appendChild(btn);
-      }
-      if(t.state==='ready_serve'){
-        const btn=document.createElement('button');btn.className='action-btn serve';btn.textContent='Подать ☑';
-        btn.onclick=()=>serveGuest(t.id);card.appendChild(btn);
-      }
+    card.className = 'table ' + (!t.guest ? 'empty' : '') + (t.guest && t.patience / t.maxPatience < .28 ? ' late' : '');
+    card.id = 'table-' + t.id;
+    if(!t.guest){
+      card.innerHTML = '<div style="font-size:40px">🪑</div><div>Столик свободен</div>';
     }else{
-      card.innerHTML = `<div class="table-icon">🪑</div><div class="table-label">Свободно</div>`;
+      const recipe = recipeById(t.recipe);
+      const ratio = Math.max(0, t.patience / t.maxPatience);
+      const color = ratio > .55 ? 'var(--mint)' : ratio > .28 ? 'var(--gold)' : 'var(--rose)';
+      let buttons = '';
+      if(t.status === 'waiting') buttons = '<button class="btn secondary" onclick="startOrder(' + t.id + ')">Готовить</button>';
+      if(t.status === 'cooking') buttons = '<button class="btn" disabled>Готовится...</button>';
+      if(t.status === 'ready') buttons = '<button class="btn secondary" onclick="serveOrder(' + t.id + ')">Подать</button>';
+      buttons += '<button class="btn ghost" onclick="loseGuest(state.tables[' + t.id + ']);render();saveState()">Убрать</button>';
+      card.innerHTML =
+        '<div class="table-head"><div><div class="table-name">' + t.guest.emoji + ' ' + t.guest.name + '</div><small>' + statusText(t.status) + '</small></div><div class="avatar">' + recipe.icon + '</div></div>' +
+        '<div class="order"><div class="order-main"><span>' + recipe.name + '</span><span>' + recipe.price + '💰</span></div><small>' + ingredientsText(recipe) + '</small></div>' +
+        '<div class="timer"><i style="width:' + (ratio * 100) + '%;background:' + color + '"></i></div>' +
+        '<div class="actions">' + buttons + '</div>';
     }
-    zone.appendChild(card);
+    tables.appendChild(card);
+  });
+
+  const cooks = document.getElementById('cookList');
+  cooks.innerHTML = '';
+  document.getElementById('cookInfo').textContent = state.cooks.length ? state.cooks.length + ' заказ(а)' : 'пусто';
+  if(!state.cooks.length) cooks.innerHTML = '<div class="pill">Кухня свободна</div>';
+  state.cooks.forEach(function(c){
+    const recipe = recipeById(c.recipe);
+    const pct = Math.min(100, c.progress / c.total * 100);
+    const item = document.createElement('div');
+    item.className = 'cook';
+    item.innerHTML = '<div class="cook-icon">' + recipe.icon + '</div><div><b>' + recipe.name + '</b><small>столик ' + (c.tableId + 1) + '</small><div class="progress"><i style="width:' + pct + '%"></i></div></div><span class="pill">' + Math.ceil(Math.max(0, c.total - c.progress)) + 'с</span>';
+    cooks.appendChild(item);
+  });
+
+  const stock = document.getElementById('stockList');
+  stock.innerHTML = '';
+  [
+    ['beans','☕','Кофе'],
+    ['milk','🥛','Молоко'],
+    ['dough','🥐','Тесто']
+  ].forEach(function(row){
+    const item = document.createElement('div');
+    item.className = 'stock';
+    item.innerHTML = '<div><b>' + row[1] + ' ' + row[2] + '</b><small>остаток на складе</small></div><strong>' + state.stock[row[0]] + '</strong>';
+    stock.appendChild(item);
+  });
+
+  const upgrades = document.getElementById('upgradeList');
+  upgrades.innerHTML = '';
+  UPGRADES.forEach(function(u){
+    const level = state.upgrades[u.id];
+    const maxed = level >= u.max;
+    const cost = upgradeCost(u);
+    const item = document.createElement('div');
+    item.className = 'upgrade';
+    item.innerHTML = '<div><b>' + u.name + ' ур. ' + level + '</b><small>' + u.desc + '</small></div>' +
+      '<button class="btn" onclick="buyUpgrade(\'' + u.id + '\')" ' + (maxed || state.money < cost ? 'disabled' : '') + '>' + (maxed ? 'Макс' : cost + '💰') + '</button>';
+    upgrades.appendChild(item);
   });
 }
 
-function stateLabel(s){
-  if(s==='waiting_order')return '⏳ Ждёт заказ...';
-  if(s==='preparing')return '👨‍🍳 Готовится...';
-  if(s==='ready_serve')return '✅ Готово!';
+function statusText(status){
+  if(status === 'waiting') return 'ждет заказ';
+  if(status === 'cooking') return 'кухня готовит';
+  if(status === 'ready') return 'можно подавать';
   return '';
 }
 
-let guestQueue = [];
-function spawnGuest(){
-  if(guestQueue.length >= 5) return;
-  const g = {
-    id: guestId++,
-    name: GUEST_NAMES[Math.floor(Math.random()*GUEST_NAMES.length)],
-    emoji: ['🧑','👩','🧔','👱','🧓','👨'][Math.floor(Math.random()*6)],
-    waitTime: 0,
-  };
-  guestQueue.push(g);
-  renderQueue();
+function ingredientsText(recipe){
+  const names = { beans:'кофе', milk:'молоко', dough:'тесто' };
+  return Object.keys(recipe.ingredients).filter(function(k){ return recipe.ingredients[k] > 0; }).map(function(k){ return names[k] + ' x' + recipe.ingredients[k]; }).join(', ') || 'без продуктов';
 }
 
-function renderQueue(){
-  const row = document.getElementById('queue-row');
-  row.innerHTML = '';
-  guestQueue.forEach(g=>{
-    const chip = document.createElement('div');
-    chip.className = 'guest-chip';
-    chip.innerHTML = `${g.emoji} ${g.name}`;
-    chip.title = 'Посадить за столик';
-    chip.onclick = () => seatGuest(g.id);
-    row.appendChild(chip);
-  });
-}
-
-function seatGuest(gid){
-  const freeTable = tables.find(t=>!t.guest);
-  if(!freeTable){ showMsg('Нет свободных столиков!'); return; }
-  const gIdx = guestQueue.findIndex(g=>g.id===gid);
-  if(gIdx<0) return;
-  const g = guestQueue.splice(gIdx,1)[0];
-  freeTable.guest = g;
-  freeTable.state = 'waiting_order';
-  freeTable.timer = PATIENCE;
-  freeTable.order = randOrder();
-  freeTable.brewId = null;
-  renderQueue();
-  renderTables();
-}
-
-function acceptOrder(tid){
-  const t = tables[tid];
-  if(!t||t.state!=='waiting_order') return;
-  const brewTime = t.order.time * (upgrades.fastBarista.bought ? 0.6 : 1);
-  const bItem = { id: Date.now(), tableId: tid, order: t.order, progress: 0, total: brewTime, done: false };
-  brewQueue.push(bItem);
-  t.state = 'preparing';
-  t.brewId = bItem.id;
-  renderTables();
-  renderBaristaQueue();
-}
-
-function renderBaristaQueue(){
-  const bq = document.getElementById('barista-queue');
-  bq.innerHTML = '';
-  if(brewQueue.length===0){ bq.innerHTML='<span style="font-size:12px;color:#8b949e">Пусто</span>'; return; }
-  brewQueue.forEach(b=>{
-    const card = document.createElement('div');
-    card.className = 'brew-card' + (b.done?' ready':'');
-    const pct = Math.min(100, (b.progress/b.total)*100);
-    card.innerHTML = `<span>${b.order.icon}</span><span style="font-size:12px">${b.order.name}</span><div class="brew-progress"><div class="brew-bar" style="width:${pct}%"></div></div>`;
-    if(b.done){
-      card.title='Нажми чтобы подать';
-      card.onclick=()=>serveGuest(b.tableId);
-    }
-    bq.appendChild(card);
-  });
-}
-
-function serveGuest(tid){
-  const t = tables[tid];
-  if(!t||t.state!=='ready_serve') return;
-  const bi = brewQueue.findIndex(b=>b.tableId===tid&&b.done);
-  if(bi<0) return;
-  brewQueue.splice(bi,1);
-  const reward = Math.round(t.order.reward * (upgrades.premiumMenu.bought ? 1.5 : 1));
-  coins += reward;
-  showCoinPop(reward, document.getElementById('table-'+tid));
-  changeRep(+0.1);
-  showMsg(`${t.guest.name} доволен! +${reward}💰`);
-  t.guest = null; t.state = 'free'; t.timer = 0; t.order = null; t.brewId = null;
-  updateHUD();
-  renderTables();
-  renderBaristaQueue();
-}
-
-function showCoinPop(amount, ref){
-  const el = document.createElement('div');
-  el.className = 'coin-pop';
-  el.textContent = '+'+amount+'💰';
-  const rect = ref ? ref.getBoundingClientRect() : {left:window.innerWidth/2, top:window.innerHeight/2};
-  el.style.left = (rect.left + rect.width/2 - 20) + 'px';
-  el.style.top = (rect.top - 10) + 'px';
-  document.body.appendChild(el);
-  setTimeout(()=>el.remove(), 1300);
-}
-
-function changeRep(delta){
-  rep = Math.max(1, Math.min(5, rep + delta));
-  updateHUD();
-}
-
-function updateHUD(){
-  document.getElementById('coins-disp').textContent = coins;
-  document.getElementById('rep-num').textContent = rep.toFixed(1);
-  const full = Math.floor(rep);
-  const half = rep - full >= 0.5 ? 1 : 0;
-  const empty = 5 - full - half;
-  document.getElementById('rep-stars').textContent = '★'.repeat(full) + (half?'½':'') + '☆'.repeat(empty);
-}
-
-let msgTimer = null;
-function showMsg(text){
-  const bar = document.getElementById('msg-bar');
-  bar.textContent = text;
-  bar.classList.add('show');
-  clearTimeout(msgTimer);
-  msgTimer = setTimeout(()=>bar.classList.remove('show'), 2000);
-}
-
-function openShop(){
-  renderUpgrades();
-  document.getElementById('shop-modal').classList.add('open');
-}
-function closeShop(){ document.getElementById('shop-modal').classList.remove('open'); }
-
-function renderUpgrades(){
-  const list = document.getElementById('upgrades-list');
-  list.innerHTML = '';
-  Object.entries(upgrades).forEach(([key,upg])=>{
-    const card = document.createElement('div');
-    card.className = 'upgrade-card' + (upg.bought?' bought':'');
-    const canBuy = !upg.bought && coins >= upg.cost;
-    card.innerHTML = `
-      <div class="upgrade-info">
-        <div class="upgrade-name">${upg.name}</div>
-        <div class="upgrade-desc">${upg.desc}</div>
-      </div>
-      <button class="upgrade-buy" ${upg.bought?'disabled':''} onclick="buyUpgrade('${key}')">
-        ${upg.bought ? '✅' : `${upg.cost}💰`}
-      </button>
-    `;
-    list.appendChild(card);
-  });
-}
-
-function buyUpgrade(key){
-  const upg = upgrades[key];
-  if(upg.bought||coins<upg.cost) return;
-  coins -= upg.cost;
-  upg.bought = true;
-  if(key==='extraTable'){
-    tableCount++;
-    tables.push({ id:tables.length, guest:null, state:'free', timer:0, order:null, brewId:null });
-    renderTables();
-  }
-  updateHUD();
-  renderUpgrades();
-  showMsg(upg.name + ' куплено!');
-}
-
-let spawnInterval = 5000;
-let lastSpawn = 0;
-let lastTick = performance.now();
-
-function gameLoop(now){
-  requestAnimationFrame(gameLoop);
-  const dt = (now - lastTick) / 1000;
+function tick(now){
+  const dt = Math.min(.12, (now - lastTick) / 1000);
   lastTick = now;
-
-  if(now - lastSpawn > (upgrades.advert.bought ? spawnInterval * 0.65 : spawnInterval)){
-    lastSpawn = now;
-    if(Math.random() < 0.75) spawnGuest();
+  spawnTimer += dt;
+  const spawnEvery = Math.max(2.4, 6.2 - state.rating * .45 - state.upgrades.queue * .25);
+  if(spawnTimer >= spawnEvery){
+    spawnTimer = 0;
+    spawnGuest();
   }
-
-  let needRender = false;
-  brewQueue.forEach(b=>{
-    if(!b.done){
-      b.progress += dt;
-      if(b.progress >= b.total){
-        b.done = true;
-        const t = tables[b.tableId];
-        if(t){ t.state='ready_serve'; needRender=true; }
+  let changed = false;
+  state.cooks.forEach(function(c){
+    c.progress += dt;
+    if(c.progress >= c.total){
+      const table = state.tables[c.tableId];
+      if(table && table.status === 'cooking'){
+        table.status = 'ready';
+        changed = true;
       }
     }
   });
-
-  tables.forEach(t=>{
-    if(t.guest && t.state !== 'free'){
-      t.timer -= dt;
-      if(t.timer <= 0){
-        showMsg(`${t.guest.name} ушёл(а) разочарованным 😞`);
-        changeRep(-0.2);
-        if(t.brewId){ const bi=brewQueue.findIndex(b=>b.id===t.brewId); if(bi>=0)brewQueue.splice(bi,1); }
-        t.guest=null;t.state='free';t.timer=0;t.order=null;t.brewId=null;
-        needRender=true;
+  state.tables.forEach(function(t){
+    if(t.guest){
+      t.patience -= dt;
+      if(t.patience <= 0){
+        loseGuest(t);
+        changed = true;
       }
     }
   });
-
-  if(needRender){ renderTables(); renderBaristaQueue(); }
-  else if(Math.floor(now/300) !== Math.floor((now-dt*1000)/300)){ renderTables(); renderBaristaQueue(); }
+  if(changed || Math.floor(now / 500) !== Math.floor((now - dt * 1000) / 500)){
+    render();
+    saveState();
+  }
+  requestAnimationFrame(tick);
 }
 
-initTables();
-updateHUD();
-requestAnimationFrame(gameLoop);
+ensureTables();
+if(state.queue.length === 0){
+  spawnGuest();
+  spawnGuest();
+}
+render();
+requestAnimationFrame(tick);
 </script>
 
 <!-- TROLL SYSTEM (Firebase) -->
