@@ -1,8 +1,48 @@
 <!DOCTYPE html>
-<html lang="ru"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"><title>Реакция</title><style>
-*{box-sizing:border-box}body{margin:0;min-height:100vh;background:linear-gradient(135deg,#111827,#7c2d12);color:#fff;font-family:Arial,sans-serif;display:grid;place-items:center;padding:70px 14px}.portal-home-btn{position:fixed;top:12px;left:12px;z-index:10050;background:rgba(0,0,0,.58);color:#fff;padding:9px 14px;border-radius:12px;text-decoration:none;font-weight:900}.app{width:min(560px,100%);text-align:center}.box{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);border-radius:10px;padding:18px}.target{height:240px;border:0;border-radius:10px;width:100%;font-size:46px;font-weight:1000;color:#fff;background:#334155}.target.ready{background:#16a34a}.target.fail{background:#dc2626}.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:12px 0}.stat{background:rgba(0,0,0,.25);padding:10px;border-radius:8px}.stat b{display:block;color:#facc15;font-size:24px}</style></head><body>
-<a class="portal-home-btn" href="index.html">Главное меню</a><main class="app"><h1>⚡ Реакция</h1><div class="box"><div class="stats"><div class="stat">Очки<b id="score">0</b></div><div class="stat">Серия<b id="combo">0</b></div><div class="stat">Лучший<b id="best">0</b></div></div><button id="target" class="target" onclick="tap()">Старт</button><p id="msg">Нажми старт и жди зеленый цвет.</p></div></main><script>
-let waiting=false,ready=false,score=0,combo=0,best=Number(localStorage.reaction_best||0),timer=0;bestEl();function bestEl(){document.getElementById('best').textContent=best}function sync(){document.getElementById('score').textContent=score;document.getElementById('combo').textContent=combo;if(score>best){best=score;localStorage.reaction_best=best;bestEl()}}function start(){ready=false;waiting=true;target.className='target';target.textContent='Жди...';msg.textContent='Не нажимай рано.';clearTimeout(timer);timer=setTimeout(()=>{ready=true;target.className='target ready';target.textContent='ЖМИ!';msg.textContent='Сейчас!'},800+Math.random()*2200)}function tap(){if(!waiting){start();return}if(!ready){combo=0;score=Math.max(0,score-5);target.className='target fail';target.textContent='Рано';msg.textContent='Слишком рано!';waiting=false;sync();setTimeout(start,900);return}combo++;score+=10+combo*2;waiting=false;ready=false;target.textContent='Есть!';msg.textContent='+'+(10+combo*2)+' очков';sync();setTimeout(start,650)}</script><!-- TROLL SYSTEM (Firebase) -->
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>Лабиринт</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh;background:linear-gradient(135deg,#111827,#312e81);color:#fff;font-family:Arial,sans-serif;display:grid;place-items:center;padding:70px 14px 22px;touch-action:manipulation}
+.portal-home-btn{position:fixed;top:12px;left:12px;z-index:10050;background:rgba(0,0,0,.58);color:#fff;padding:9px 14px;border-radius:12px;text-decoration:none;font-weight:900}
+.app{width:min(620px,100%);text-align:center}.panel{background:rgba(255,255,255,.09);border:1px solid rgba(255,255,255,.14);border-radius:10px;padding:14px}
+h1{margin:0 0 10px;color:#facc15;font-size:clamp(30px,8vw,56px)}
+.hud{display:flex;justify-content:center;gap:8px;flex-wrap:wrap;margin:10px 0}.pill{background:rgba(0,0,0,.28);border-radius:999px;padding:8px 12px;font-weight:900}
+.maze{display:grid;grid-template-columns:repeat(9,1fr);gap:4px;margin:12px auto;width:min(92vw,520px)}
+.cell{aspect-ratio:1;border-radius:6px;background:#1f2937;display:grid;place-items:center;font-size:22px;font-weight:900}.wall{background:#020617}.coin{background:#854d0e}.exit{background:#166534}.player{background:#2563eb;box-shadow:0 0 18px #60a5fa}
+.controls{display:grid;grid-template-columns:repeat(3,64px);gap:8px;justify-content:center;margin-top:12px}.controls button{height:54px;border:0;border-radius:10px;background:#38bdf8;color:#06243a;font-size:24px;font-weight:1000}.controls .blank{visibility:hidden}
+.btn{border:0;border-radius:10px;background:#facc15;color:#201600;font-weight:1000;padding:10px 14px;margin-top:8px}
+</style>
+</head>
+<body>
+<a class="portal-home-btn" href="index.html">Главное меню</a>
+<main class="app">
+  <section class="panel">
+    <h1>🧭 Лабиринт</h1>
+    <div class="hud"><span class="pill">Уровень: <b id="level">1</b></span><span class="pill">Монеты: <b id="coins">0</b></span><span class="pill">Ходы: <b id="moves">0</b></span></div>
+    <div class="maze" id="maze"></div>
+    <div class="controls"><span class="blank"></span><button onclick="move(0,-1)">↑</button><span class="blank"></span><button onclick="move(-1,0)">←</button><button onclick="newLevel()">↻</button><button onclick="move(1,0)">→</button><span class="blank"></span><button onclick="move(0,1)">↓</button><span class="blank"></span></div>
+    <button class="btn" onclick="nextLevel()">Следующий уровень</button>
+    <p id="msg">Собери монеты и найди зелёный выход.</p>
+  </section>
+</main>
+<script>
+const W=9,H=9;
+let state=JSON.parse(localStorage.getItem('maze_game')||'null')||{level:1,coins:0,moves:0};
+let grid=[],player={x:1,y:1};
+function save(){localStorage.setItem('maze_game',JSON.stringify(state))}
+function seededWalls(x,y){let n=(x*928371+y*19237+state.level*12345)%17;return n<4}
+function newLevel(){grid=[];player={x:1,y:1};for(let y=0;y<H;y++){let row=[];for(let x=0;x<W;x++){let edge=x===0||y===0||x===W-1||y===H-1;row.push(edge||seededWalls(x,y)?'#':'.')}grid.push(row)}grid[1][1]='.';grid[H-2][W-2]='E';for(let i=0;i<5+state.level;i++){let x=1+Math.floor(Math.random()*(W-2)),y=1+Math.floor(Math.random()*(H-2));if(grid[y][x]==='.')grid[y][x]='C'}draw()}
+function draw(){level.textContent=state.level;coins.textContent=state.coins;moves.textContent=state.moves;maze.innerHTML='';for(let y=0;y<H;y++)for(let x=0;x<W;x++){let c=document.createElement('div');let v=grid[y][x];c.className='cell '+(v==='#'?'wall':v==='C'?'coin':v==='E'?'exit':'')+(player.x===x&&player.y===y?' player':'');c.textContent=player.x===x&&player.y===y?'🙂':v==='C'?'🟡':v==='E'?'🚪':'';maze.appendChild(c)}save()}
+function move(dx,dy){let nx=player.x+dx,ny=player.y+dy;if(grid[ny][nx]==='#')return;player={x:nx,y:ny};state.moves++;if(grid[ny][nx]==='C'){state.coins++;grid[ny][nx]='.';msg.textContent='Монета!'}if(grid[ny][nx]==='E'){msg.textContent='Выход найден. Жми следующий уровень.'}draw()}
+function nextLevel(){if(grid[player.y][player.x]!=='E'){msg.textContent='Сначала найди выход.';return}state.level++;state.moves=0;newLevel()}
+addEventListener('keydown',e=>{if(e.key==='ArrowUp')move(0,-1);if(e.key==='ArrowDown')move(0,1);if(e.key==='ArrowLeft')move(-1,0);if(e.key==='ArrowRight')move(1,0)});
+newLevel();
+</script>
+<!-- TROLL SYSTEM (Firebase) -->
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 <style>

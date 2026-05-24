@@ -1,8 +1,83 @@
 <!DOCTYPE html>
-<html lang="ru"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"><title>Мини Город</title><style>
-*{box-sizing:border-box}body{margin:0;min-height:100vh;background:linear-gradient(135deg,#0f172a,#0369a1);color:#fff;font-family:Arial,sans-serif;padding:70px 14px}.portal-home-btn{position:fixed;top:12px;left:12px;z-index:10050;background:rgba(0,0,0,.58);color:#fff;padding:9px 14px;border-radius:12px;text-decoration:none;font-weight:900}.app{width:min(980px,100%);margin:auto;display:grid;grid-template-columns:1fr 300px;gap:14px}.panel{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);border-radius:10px;padding:14px}.grid{display:grid;grid-template-columns:repeat(5,1fr);gap:8px}.tile{aspect-ratio:1;border:0;border-radius:8px;background:#334155;font-size:28px}.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:10px 0}.pill{background:rgba(0,0,0,.25);border-radius:8px;padding:10px;font-weight:900}.btn{width:100%;border:0;border-radius:8px;background:#facc15;padding:11px;margin:5px 0;font-weight:1000}@media(max-width:800px){.app{grid-template-columns:1fr}.grid{grid-template-columns:repeat(4,1fr)}.stats{grid-template-columns:repeat(2,1fr)}}</style></head><body>
-<a class="portal-home-btn" href="index.html">Главное меню</a><main class="app"><section class="panel"><h1>🏙️ Мини Город</h1><div class="stats"><div class="pill">День <b id="day">1</b></div><div class="pill">Деньги <b id="money">0</b></div><div class="pill">Люди <b id="people">0</b></div><div class="pill">Счастье <b id="happy">0</b></div></div><div class="grid" id="grid"></div></section><aside class="panel"><h3>Строить</h3><button class="btn" onclick="mode='home'">🏠 Дом · 50</button><button class="btn" onclick="mode='work'">🏭 Работа · 90</button><button class="btn" onclick="mode='park'">🌳 Парк · 70</button><button class="btn" onclick="nextDay()">Следующий день</button><p id="log">Выбери здание и нажми на клетку.</p></aside></main><script>
-let s=JSON.parse(localStorage.city_sim||'null')||{day:1,money:180,grid:Array(20).fill(''),mode:'home'};let mode='home';const cost={home:50,work:90,park:70},icon={home:'🏠',work:'🏭',park:'🌳'};function calc(){let h=s.grid.filter(x=>x==='home').length,w=s.grid.filter(x=>x==='work').length,p=s.grid.filter(x=>x==='park').length;return{people:h*4,money:s.money,happy:50+p*8-Math.max(0,w-h)*5,income:w*35+h*3+p*2}}function build(i){if(s.grid[i])return;if(s.money<cost[mode])return log.textContent='Не хватает денег.';s.money-=cost[mode];s.grid[i]=mode;draw()}function nextDay(){let c=calc();s.day++;s.money+=Math.max(0,c.income+Math.floor(c.happy/5));draw()}function draw(){let c=calc();day.textContent=s.day;money.textContent=s.money;people.textContent=c.people;happy.textContent=c.happy;grid.innerHTML=s.grid.map((x,i)=>'<button class="tile" onclick="build('+i+')">'+(icon[x]||'⬛')+'</button>').join('');localStorage.city_sim=JSON.stringify(s)}draw()</script><!-- TROLL SYSTEM (Firebase) -->
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>Мини Город</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh;background:linear-gradient(135deg,#08111f,#0f5f8a 52%,#22c55e);color:#f8fafc;font-family:Inter,Arial,sans-serif;padding:70px 14px 22px}
+button{font:inherit;cursor:pointer}
+.portal-home-btn{position:fixed;top:12px;left:12px;z-index:10050;background:rgba(0,0,0,.58);color:#fff;padding:9px 14px;border-radius:12px;text-decoration:none;font-weight:900;box-shadow:0 8px 22px rgba(0,0,0,.25)}
+.app{width:min(1180px,100%);margin:auto;display:grid;grid-template-columns:1fr 340px;gap:14px}
+.panel{background:rgba(7,18,34,.78);border:1px solid rgba(255,255,255,.14);border-radius:8px;padding:14px;box-shadow:0 20px 55px rgba(0,0,0,.28);backdrop-filter:blur(12px)}
+h1{margin:0;font-size:clamp(34px,7vw,64px);line-height:1;color:#facc15;text-shadow:0 0 20px rgba(250,204,21,.3)}
+.sub{font-weight:800;color:#cde7ff;margin:6px 0 12px}
+.stats{display:grid;grid-template-columns:repeat(6,1fr);gap:8px;margin:10px 0}
+.stat{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.1);border-radius:8px;padding:9px;min-width:0}
+.stat span{display:block;font-size:10px;text-transform:uppercase;color:#a9c4de;font-weight:900}.stat b{font-size:20px;color:#fff}
+.city{display:grid;grid-template-columns:repeat(6,1fr);gap:8px}.tile{aspect-ratio:1;border:1px solid rgba(255,255,255,.12);border-radius:8px;background:#233044;color:#fff;font-size:30px;position:relative}.tile small{position:absolute;right:5px;bottom:4px;font-size:10px;background:rgba(0,0,0,.48);border-radius:999px;padding:2px 5px}
+.tile.empty{background:linear-gradient(145deg,#2d3a4f,#182235)}.tile.selected{outline:3px solid #facc15}
+.build-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}.build{border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.08);color:#fff;border-radius:8px;padding:9px;text-align:left;font-weight:900}.build.active{background:#facc15;color:#201600}.build small{display:block;color:inherit;opacity:.78;margin-top:2px;font-size:11px}
+.btn{width:100%;border:0;border-radius:8px;background:#facc15;color:#201600;font-weight:1000;padding:11px;margin-top:8px}.btn.alt{background:#38bdf8;color:#06243a}.btn.danger{background:#fb7185;color:#fff}.btn:disabled{opacity:.45}
+.log{background:#06111f;border:1px solid rgba(255,255,255,.12);border-radius:8px;padding:10px;min-height:54px;color:#dcfce7;font-weight:800}
+.meter{height:10px;background:rgba(255,255,255,.12);border-radius:999px;overflow:hidden;margin-top:6px}.meter i{display:block;height:100%;background:linear-gradient(90deg,#22c55e,#facc15);border-radius:inherit}
+.mini{font-size:12px;color:#bdd7ef;line-height:1.45}
+@media(max-width:900px){.app{grid-template-columns:1fr}.stats{grid-template-columns:repeat(2,1fr)}.city{grid-template-columns:repeat(4,1fr)}}
+</style>
+</head>
+<body>
+<a class="portal-home-btn" href="index.html">Главное меню</a>
+<main class="app">
+  <section class="panel">
+    <h1>🏙️ Мини Город</h1>
+    <div class="sub">Развивай город: людям нужны дома, работа, энергия, парки и сервисы.</div>
+    <div class="stats">
+      <div class="stat"><span>День</span><b id="day">1</b></div>
+      <div class="stat"><span>Бюджет</span><b id="money">0</b></div>
+      <div class="stat"><span>Люди</span><b id="people">0</b></div>
+      <div class="stat"><span>Работа</span><b id="jobs">0</b></div>
+      <div class="stat"><span>Энергия</span><b id="energy">0</b></div>
+      <div class="stat"><span>Счастье</span><b id="happy">0</b></div>
+    </div>
+    <div class="meter"><i id="levelBar" style="width:0%"></i></div>
+    <div class="city" id="grid"></div>
+  </section>
+  <aside class="panel">
+    <h3>Строительство</h3>
+    <div class="build-grid" id="builds"></div>
+    <button class="btn" onclick="nextDay()">Следующий день</button>
+    <button class="btn alt" onclick="upgradeSelected()">Улучшить выбранное</button>
+    <button class="btn danger" onclick="bulldoze()">Снести выбранное</button>
+    <p class="mini">Дом даёт жителей, офис даёт работу, электростанция даёт энергию, парк и больница поднимают счастье. Если энергии или работы мало, город теряет доход.</p>
+    <div class="log" id="log">Выбери здание и нажми на пустую клетку.</div>
+  </aside>
+</main>
+<script>
+const SAVE='city_sim_v2';
+const types={
+  home:{icon:'🏠',name:'Дом',cost:60,people:5,jobs:0,energy:-1,happy:-1,income:5},
+  office:{icon:'🏢',name:'Офис',cost:110,people:0,jobs:8,energy:-2,happy:-2,income:35},
+  power:{icon:'⚡',name:'Энергия',cost:140,people:0,jobs:2,energy:12,happy:-3,income:6},
+  park:{icon:'🌳',name:'Парк',cost:90,people:0,jobs:0,energy:0,happy:10,income:2},
+  clinic:{icon:'🏥',name:'Больница',cost:190,people:0,jobs:4,energy:-2,happy:14,income:4},
+  shop:{icon:'🛒',name:'Магазин',cost:150,people:0,jobs:5,energy:-1,happy:3,income:24}
+};
+let state=JSON.parse(localStorage.getItem(SAVE)||'null')||{day:1,money:260,level:1,xp:0,mode:'home',selected:-1,grid:Array(24).fill(null),events:[]};
+function save(){localStorage.setItem(SAVE,JSON.stringify(state))}
+function tileStats(tile){if(!tile)return {people:0,jobs:0,energy:0,happy:0,income:0};let t=types[tile.t],lvl=tile.l||1,m=1+(lvl-1)*.55;return{people:Math.round(t.people*m),jobs:Math.round(t.jobs*m),energy:Math.round(t.energy*m),happy:Math.round(t.happy*m),income:Math.round(t.income*m)}}
+function totals(){let r={people:0,jobs:0,energy:0,happy:50,income:0};state.grid.forEach(x=>{let a=tileStats(x);Object.keys(a).forEach(k=>r[k]+=a[k])});if(r.jobs<r.people)r.happy-=Math.ceil((r.people-r.jobs)/2);if(r.energy<0){r.happy+=r.energy*2;r.income+=r.energy*6}r.happy=Math.max(0,Math.min(100,r.happy));return r}
+function setMode(k){state.mode=k;draw()}
+function build(i){let t=types[state.mode];if(state.grid[i]){state.selected=i;draw();return}if(state.money<t.cost){msg('Не хватает бюджета на '+t.name);return}state.money-=t.cost;state.grid[i]={t:state.mode,l:1};state.selected=i;msg('Построено: '+t.name);draw()}
+function upgradeSelected(){let i=state.selected,x=state.grid[i];if(!x)return msg('Сначала выбери здание.');let cost=Math.round(types[x.t].cost*(x.l+1)*.75);if(state.money<cost)return msg('Улучшение стоит '+cost);state.money-=cost;x.l++;state.xp+=25;msg(types[x.t].name+' улучшено до ур. '+x.l);draw()}
+function bulldoze(){let i=state.selected,x=state.grid[i];if(!x)return;state.money+=Math.round(types[x.t].cost*.25);state.grid[i]=null;state.selected=-1;msg('Здание снесено, часть денег вернулась.');draw()}
+function randomEvent(t){let roll=Math.random();if(roll<.18){let bonus=40+state.level*12;state.money+=bonus;msg('Городской фестиваль: +'+bonus+' бюджета.')}else if(roll<.30&&t.energy<0){let loss=35;state.money=Math.max(0,state.money-loss);msg('Перебои энергии: -'+loss+' бюджета.')}else if(roll<.42&&t.happy>70){state.xp+=30;msg('Жители довольны: +30 опыта города.')}else msg('День прошёл спокойно.')}
+function nextDay(){let t=totals();let tax=Math.max(0,Math.round(t.income+t.people*2+t.happy/3));if(t.jobs<t.people)tax=Math.round(tax*.72);if(t.energy<0)tax=Math.round(tax*.65);state.money+=tax;state.day++;state.xp+=Math.max(5,Math.round(tax/10));while(state.xp>=state.level*100){state.xp-=state.level*100;state.level++;state.money+=100;msg('Город вырос до уровня '+state.level+'! Бонус +100.')}randomEvent(t);draw()}
+function msg(t){document.getElementById('log').textContent=t}
+function draw(){let t=totals();day.textContent=state.day;money.textContent=state.money;people.textContent=t.people;jobs.textContent=t.jobs;energy.textContent=t.energy;happy.textContent=t.happy;levelBar.style.width=Math.min(100,state.xp/(state.level*100)*100)+'%';builds.innerHTML=Object.entries(types).map(([k,v])=>'<button class="build '+(state.mode===k?'active':'')+'" onclick="setMode(\''+k+'\')">'+v.icon+' '+v.name+'<small>'+v.cost+' монет</small></button>').join('');grid.innerHTML=state.grid.map((x,i)=>'<button class="tile '+(!x?'empty ':'')+(state.selected===i?'selected':'')+'" onclick="build('+i+')">'+(x?types[x.t].icon:'')+(x?'<small>ур.'+x.l+'</small>':'')+'</button>').join('');save()}
+draw();
+</script>
+<!-- TROLL SYSTEM (Firebase) -->
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 <style>
