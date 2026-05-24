@@ -18,9 +18,12 @@ body{background:linear-gradient(135deg,#0f0c29 0%,#302b63 50%,#24243e 100%);min-
 .header p{color:#888;font-size:14px;margin-top:4px}
 
 .games-grid{position:relative;z-index:10;padding:20px 16px;max-width:920px;margin:0 auto}
-.category-section{margin:0 0 26px}
-.category-title{font-size:18px;color:#feca57;margin:0 0 10px;padding-left:4px;text-shadow:0 0 16px rgba(254,202,87,.25)}
-.category-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:16px}
+.category-section{margin:0 0 14px;border:1px solid rgba(255,255,255,.1);border-radius:16px;background:rgba(255,255,255,.035);overflow:hidden}
+.category-title{font-size:18px;color:#feca57;margin:0;padding:14px 16px;text-shadow:0 0 16px rgba(254,202,87,.25);cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:10px}
+.category-title::after{content:'▼';font-size:13px;color:#aaa;transition:transform .2s}
+.category-section.closed .category-title::after{transform:rotate(-90deg)}
+.category-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:16px;padding:0 16px 16px}
+.category-section.closed .category-grid{display:none}
 .game-card{background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.12);border-radius:20px;padding:20px 14px;text-align:center;cursor:pointer;transition:transform .2s,box-shadow .2s,background .2s;position:relative;overflow:hidden}
 .game-card:hover,.game-card:active{transform:translateY(-4px) scale(1.02);background:rgba(255,255,255,0.13);box-shadow:0 8px 30px rgba(0,0,0,.4)}
 .game-card .icon{font-size:48px;display:block;margin-bottom:10px;transition:transform .3s}
@@ -386,7 +389,12 @@ const DEFAULT_GAMES = [
   { id:'tetris', icon:'🧱', name:'Тетрис', desc:'Падающие блоки, очки и ускорение', url:'tetris.html', badge:'NEW', type:'link', builtin:true, category:'arcade' },
   { id:'arkanoid', icon:'🏓', name:'Арканоид', desc:'Отбивай шарик и ломай блоки', url:'arkanoid.html', badge:'NEW', type:'link', builtin:true, category:'arcade' },
   { id:'game2048', icon:'🔢', name:'2048', desc:'Соединяй плитки до 2048', url:'2048.html', badge:'NEW', type:'link', builtin:true, category:'puzzle' },
+  { id:'memory', icon:'🃏', name:'Memory', desc:'Открой пары одинаковых карточек', url:'memory.html', badge:'NEW', type:'link', builtin:true, category:'puzzle' },
+  { id:'tictactoe', icon:'❌', name:'Крестики-нолики', desc:'Сыграй против компьютера', url:'tic_tac_toe.html', badge:'NEW', type:'link', builtin:true, category:'puzzle' },
+  { id:'minesweeper', icon:'💣', name:'Сапёр', desc:'Найди все клетки без мин', url:'minesweeper.html', badge:'NEW', type:'link', builtin:true, category:'puzzle' },
+  { id:'pixelart', icon:'🖌️', name:'Pixel Art', desc:'Рисуй пиксельные картинки', url:'pixel_art.html', badge:'NEW', type:'link', builtin:true, category:'creative' },
   { id:'cafesim', icon:'☕', name:'Моё Кафе', desc:'Управляй кафе и радуй гостей!', url:'cafe_sim.html', badge:'NEW', type:'link', builtin:true, category:'sim' },
+  { id:'clicker', icon:'💰', name:'Кликер', desc:'Кликай, покупай улучшения и богатей', url:'clicker.html', badge:'NEW', type:'link', builtin:true, category:'sim' },
 ];
 
 // =======================================================
@@ -417,8 +425,11 @@ function renderGames() {
     const games = groups[category];
     if (!games || !games.length) return;
     const section = document.createElement('section');
-    section.className = 'category-section';
-    section.innerHTML = `<h2 class="category-title">${CATEGORY_LABELS[category] || category}</h2><div class="category-grid"></div>`;
+    section.className = 'category-section closed';
+    section.innerHTML = `<h2 class="category-title">${CATEGORY_LABELS[category] || category} <span>${games.length}</span></h2><div class="category-grid"></div>`;
+    section.querySelector('.category-title').addEventListener('click', () => {
+      section.classList.toggle('closed');
+    });
     const list = section.querySelector('.category-grid');
     games.forEach(g => {
       const card = document.createElement('div');
