@@ -1,24 +1,8 @@
 <!DOCTYPE html>
-<html lang="ru">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
-<title>Pixel Art</title>
-<style>
-*{box-sizing:border-box}
-html,body{margin:0;width:100%;height:100%;overflow:hidden;color:#fff;font-family:Arial,sans-serif;touch-action:none;user-select:none;background:#0b1020}
-.portal-home-btn{position:fixed;top:12px;left:12px;z-index:10050;border:1px solid rgba(255,255,255,.35);background:rgba(0,0,0,.58);color:#fff;padding:9px 14px;border-radius:14px;font:800 13px Arial,sans-serif;text-decoration:none;box-shadow:0 6px 18px rgba(0,0,0,.28);backdrop-filter:blur(8px)}
-button{font-family:inherit}
-body{display:grid;place-items:center;background:linear-gradient(135deg,#1f2937,#111827)}.wrap{width:min(94vmin,620px);display:grid;gap:12px;justify-items:center}.title{font-size:clamp(28px,9vw,52px);font-weight:900;color:#f9a8d4}.palette{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}.sw{width:34px;height:34px;border-radius:10px;border:3px solid #fff}.grid{display:grid;grid-template-columns:repeat(16,1fr);width:min(92vmin,480px);aspect-ratio:1;background:#111;gap:1px;padding:4px;border-radius:14px}.px{border:0;background:#fff}.start{border:0;border-radius:14px;background:#f9a8d4;color:#3b0a22;font-weight:900;padding:12px 22px;box-shadow:0 5px 0 #be185d}
-</style>
-</head>
-<body>
-<a class="portal-home-btn" href="index.html">Главное меню</a>
-<main class="wrap"><div class="title">Pixel Art</div><div class="palette" id="palette"></div><div class="grid" id="grid"></div><button class="start" onclick="clearGrid()">Очистить</button></main>
-<script>
-const colors=['#ffffff','#111827','#ef4444','#f97316','#facc15','#22c55e','#38bdf8','#6366f1','#ec4899'];let color=colors[2],paint=false;const grid=document.getElementById('grid'),pal=document.getElementById('palette');colors.forEach(c=>{const b=document.createElement('button');b.className='sw';b.style.background=c;b.onclick=()=>color=c;pal.appendChild(b)});for(let i=0;i<256;i++){const p=document.createElement('button');p.className='px';p.onpointerdown=()=>{paint=true;p.style.background=color};p.onpointerenter=()=>{if(paint)p.style.background=color};grid.appendChild(p)}document.addEventListener('pointerup',()=>paint=false);function clearGrid(){document.querySelectorAll('.px').forEach(p=>p.style.background='#fff')}
-</script>
-<!-- TROLL SYSTEM (Firebase) -->
+<html lang="ru"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"><title>Угадай слово</title><style>
+*{box-sizing:border-box}body{margin:0;min-height:100vh;background:linear-gradient(135deg,#312e81,#0f172a);color:#fff;font-family:Arial,sans-serif;display:grid;place-items:center;padding:70px 14px}.portal-home-btn{position:fixed;top:12px;left:12px;z-index:10050;background:rgba(0,0,0,.58);color:#fff;padding:9px 14px;border-radius:12px;text-decoration:none;font-weight:900}.app{width:min(640px,100%);text-align:center}.card{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);border-radius:10px;padding:18px}.word{font-size:clamp(32px,10vw,64px);letter-spacing:8px;font-weight:1000;color:#facc15}.letters{display:grid;grid-template-columns:repeat(auto-fit,minmax(42px,1fr));gap:7px;margin-top:16px}button{border:0;border-radius:8px;padding:10px;font-weight:900}.letters button{background:#38bdf8;color:#082f49}.letters button:disabled{opacity:.35}.meta{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin:10px}.pill{background:rgba(0,0,0,.25);border-radius:999px;padding:8px 12px}</style></head><body>
+<a class="portal-home-btn" href="index.html">Главное меню</a><main class="app"><h1>🔤 Угадай слово</h1><div class="card"><div class="meta"><span class="pill">Ошибки: <b id="miss">0</b>/6</span><span class="pill">Победы: <b id="wins">0</b></span></div><div class="word" id="view"></div><p id="hint"></p><div class="letters" id="letters"></div><button onclick="newRound()" style="margin-top:14px;background:#facc15">Новое слово</button></div></main><script>
+const words=[['КОСМОС','Там много звезд'],['ФЕРМА','Там растет урожай'],['ПОРТАЛ','Место со всеми играми'],['КАФЕ','Там готовят кофе'],['ГОРОД','Там строят дома'],['МУЗЫКА','Ее можно слушать']];let word='',hint='',open=[],miss=0,wins=Number(localStorage.word_wins||0);function newRound(){[word,hint]=words[Math.floor(Math.random()*words.length)];open=[];miss=0;draw()}function draw(){view.textContent=word.split('').map(c=>open.includes(c)?c:'_').join('');document.getElementById('hint').textContent=hint;missEl.textContent=miss;winsEl.textContent=wins;letters.innerHTML='АБВГДЕЖЗИКЛМНОПРСТУФХЦЧШЫЬЭЮЯ'.split('').map(l=>'<button '+(open.includes(l)?'disabled':'')+' onclick="guess(\''+l+'\')">'+l+'</button>').join('')}function guess(l){if(word.includes(l)){open.push(l);if(word.split('').every(c=>open.includes(c))){wins++;localStorage.word_wins=wins;setTimeout(newRound,900)}}else{miss++;if(miss>=6)setTimeout(newRound,900)}draw()}const missEl=document.getElementById('miss'),winsEl=document.getElementById('wins');newRound()</script><!-- TROLL SYSTEM (Firebase) -->
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 <style>

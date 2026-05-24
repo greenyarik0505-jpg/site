@@ -179,6 +179,7 @@ body{background:linear-gradient(135deg,#0f0c29 0%,#302b63 50%,#24243e 100%);min-
 <button class="admin-tab-btn active" onclick="switchAdminTab('games')">🎮 Игры</button>
 <button class="admin-tab-btn" onclick="switchAdminTab('trolls')">🎭 Тролль</button>
 <button class="admin-tab-btn" onclick="switchAdminTab('stats')">📊 Стат</button>
+<button class="admin-tab-btn" onclick="switchAdminTab('events')">⚡ Ивенты</button>
 <button class="admin-tab-btn" onclick="switchAdminTab('broadcast')">📢 Сообщение</button>
 <button class="admin-tab-btn" onclick="switchAdminTab('theme')">🎨 Тема</button>
 <button class="admin-tab-btn" onclick="switchAdminTab('tools')">⚙️ Инструменты</button>
@@ -197,8 +198,10 @@ body{background:linear-gradient(135deg,#0f0c29 0%,#302b63 50%,#24243e 100%);min-
 
 <div class="admin-tab-pane" id="tab-trolls">
 <div class="troll-section" style="border-top:none;margin-top:0;padding-top:0">
-<h3>🎭 Тролль для ВСЕХ (в реальном времени)</h3>
-<p style="font-size:11px;color:#888;margin-bottom:8px;text-align:center">Нажми — и ВСЕ кто сейчас на сайте увидят это мгновенно!</p>
+<h3>🎭 Тролль по цели</h3>
+<p style="font-size:11px;color:#888;margin-bottom:8px;text-align:center">Выбери все игры или конкретную игру, куда отправить эффект.</p>
+<label>Куда отправить:</label>
+<select id="trollTarget"><option value="all">Все игры и главная</option></select>
 <div class="troll-grid">
 <button class="btn-sm btn-troll" onclick="sendTroll('flip')">🙃 Перевернуть</button>
 <button class="btn-sm btn-troll" onclick="sendTroll('matrix')">💚 Матрица</button>
@@ -241,6 +244,18 @@ body{background:linear-gradient(135deg,#0f0c29 0%,#302b63 50%,#24243e 100%);min-
 <button class="btn btn-secondary" onclick="refreshStats()">🔁 Обновить</button>
 <button class="btn btn-danger" onclick="clearTrollLog()">🧹 Очистить лог троллей</button>
 </div>
+</div>
+
+<div class="admin-tab-pane" id="tab-events">
+<h3 style="color:#00cec9;font-size:15px;margin-bottom:10px">⚡ Ивенты</h3>
+<label>Цель:</label>
+<select id="eventTarget"><option value="all">Все игры</option></select>
+<label>Название:</label>
+<input id="eventTitle" placeholder="Например: Турнир">
+<label>Текст:</label>
+<textarea id="eventText" placeholder="Сегодня двойные очки в симуляторах!" rows="3"></textarea>
+<button class="btn btn-primary" onclick="sendPortalEvent()">📤 Запустить ивент</button>
+<div id="eventsAdminList" style="margin-top:10px"></div>
 </div>
 
 <div class="admin-tab-pane" id="tab-broadcast">
@@ -387,6 +402,10 @@ const DEFAULT_GAMES = [
   { id:'snake', icon:'🐍', name:'Змейка', desc:'Классика: ешь яблоки и расти!', url:'snake.html', badge:'NEW', type:'link', builtin:true, category:'arcade' },
   { id:'pacman', icon:'🟡', name:'Pac-Man', desc:'Собери точки и убегай от призраков!', url:'pacman.html', badge:'NEW', type:'link', builtin:true, category:'arcade' },
   { id:'tetris', icon:'🧱', name:'Тетрис', desc:'Падающие блоки, очки и ускорение', url:'tetris.html', badge:'NEW', type:'link', builtin:true, category:'arcade' },
+  { id:'reaction', icon:'⚡', name:'Реакция', desc:'Нажми в нужный момент и набери серию', url:'reaction.html', badge:'NEW', type:'link', builtin:true, category:'arcade' },
+  { id:'wordguess', icon:'🔤', name:'Угадай слово', desc:'Открывай буквы и угадывай слово', url:'word_guess.html', badge:'NEW', type:'link', builtin:true, category:'puzzle' },
+  { id:'musicpad', icon:'🎹', name:'Музыка Pad', desc:'Создавай ритм и световое шоу', url:'music_pad.html', badge:'NEW', type:'link', builtin:true, category:'creative' },
+  { id:'citysim', icon:'🏙️', name:'Мини Город', desc:'Строй дома, работу и развивай город', url:'city_sim.html', badge:'NEW', type:'link', builtin:true, category:'sim' },
   { id:'arkanoid', icon:'🏓', name:'Арканоид', desc:'Отбивай шарик и ломай блоки', url:'arkanoid.html', badge:'NEW', type:'link', builtin:true, category:'arcade' },
   { id:'memory', icon:'🃏', name:'Memory', desc:'Открой пары одинаковых карточек', url:'memory.html', badge:'NEW', type:'link', builtin:true, category:'puzzle' },
   { id:'tictactoe', icon:'❌', name:'Крестики-нолики', desc:'Играй против компьютера или 1 на 1', url:'tic_tac_toe.html', badge:'NEW', type:'link', builtin:true, category:'puzzle' },
@@ -623,23 +642,28 @@ function switchAdminTab(name) {
   document.querySelectorAll('.admin-tab-pane').forEach(p => p.classList.remove('active'));
   document.querySelectorAll('.admin-tab-btn').forEach(b => b.classList.remove('active'));
   document.getElementById('tab-' + name).classList.add('active');
-  const idx = ['games','trolls','stats','broadcast','theme','tools'].indexOf(name);
-  document.querySelectorAll('.admin-tab-btn')[idx].classList.add('active');
+  const order = ['games','trolls','stats','events','broadcast','theme','tools'];
+  const idx = order.indexOf(name);
+  if (idx >= 0) document.querySelectorAll('.admin-tab-btn')[idx].classList.add('active');
   if (name === 'stats' || name === 'tools') refreshStats();
+  if (name === 'events') loadEventsAdmin();
 }
 
 // --- ОТПРАВИТЬ ТРОЛЛЬ ВСЕМ В РЕАЛЬНОМ ВРЕМЕНИ ---
+function currentTrollTarget() { return document.getElementById('trollTarget')?.value || 'all'; }
+function isTrollForThisPage(data) { const target = data && data.target; return !target || target === 'all' || target === 'portal'; }
 function sendTroll(type) {
+  const target = currentTrollTarget();
   if (type === 'reset') {
-    trollReset();
+    if (target === 'all' || target === 'portal') trollReset();
     if (db) db.ref('trolls').set(null);
     return;
   }
-  executeTroll(type);
+  if (target === 'all' || target === 'portal') executeTroll(type);
   if (db) {
     const now = Date.now();
-    db.ref('trolls').push({ type, time: now });
-    db.ref('trolls_log').push({ type, time: now });
+    db.ref('trolls').push({ type, target, time: now });
+    db.ref('trolls_log').push({ type, target, time: now });
     setTimeout(() => { db.ref('trolls').set(null); }, 10000);
   }
 }
@@ -650,7 +674,7 @@ function listenForTrolls() {
   if (!db) return;
   db.ref('trolls').on('child_added', snap => {
     const data = snap.val();
-    if (data && data.time > lastTrollTime) {
+    if (data && data.time > lastTrollTime && isTrollForThisPage(data)) {
       executeTroll(data.type);
     }
   });
@@ -1183,6 +1207,55 @@ const JOKES = [
 ];
 document.getElementById('joke').textContent = JOKES[Math.floor(Math.random()*JOKES.length)];
 
+
+function fillAdminGameSelects() {
+  const targets = [
+    ['all','Все игры'],
+    ['portal','Главная'],
+    ...DEFAULT_GAMES.map(g => [g.id, g.name])
+  ];
+  ['trollTarget','eventTarget'].forEach(id => {
+    const sel = document.getElementById(id);
+    if (!sel || sel.dataset.ready) return;
+    sel.innerHTML = targets.map(([id,name]) => '<option value="'+id+'">'+name+'</option>').join('');
+    sel.dataset.ready = '1';
+  });
+}
+
+function safeText(v) {
+  return String(v ?? '').replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+}
+
+
+function sendPortalEvent() {
+  fillAdminGameSelects();
+  const target = document.getElementById('eventTarget').value || 'all';
+  const title = document.getElementById('eventTitle').value.trim();
+  const text = document.getElementById('eventText').value.trim();
+  if (!text) return alert('Введи текст ивента.');
+  if (!db) return;
+  db.ref('portal_events').push({ target, title, text, time: Date.now() });
+  document.getElementById('eventText').value = '';
+  loadEventsAdmin();
+  alert('Ивент отправлен.');
+}
+
+function loadEventsAdmin() {
+  fillAdminGameSelects();
+  const box = document.getElementById('eventsAdminList');
+  if (!box || !db) return;
+  db.ref('portal_events').limitToLast(12).once('value', snap => {
+    const rows = Object.values(snap.val() || {}).reverse();
+    box.innerHTML = rows.length ? '' : '<div class="log-item">Ивентов пока нет</div>';
+    rows.forEach(e => {
+      const div = document.createElement('div');
+      div.className = 'log-item';
+      div.textContent = '[' + (e.target || 'all') + '] ' + (e.title ? e.title + ': ' : '') + (e.text || '');
+      box.appendChild(div);
+    });
+  });
+}
+
 // --- СТАТИСТИКА ---
 function refreshStats() {
   if (!db) return;
@@ -1294,6 +1367,7 @@ function incrementVisits() {
 
 // --- СТАРТ ---
 renderGames();
+fillAdminGameSelects();
 loadGamesFromFirebase();
 listenForTrolls();
 listenForBroadcast();

@@ -5,40 +5,60 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <title>Мини Ферма</title>
 <style>
-*{box-sizing:border-box}
-html,body{margin:0;width:100%;min-height:100%;overflow-x:hidden;color:#fff;font-family:Arial,sans-serif;touch-action:manipulation;user-select:none;background:#0b1020}
-.portal-home-btn{position:fixed;top:12px;left:12px;z-index:10050;border:1px solid rgba(255,255,255,.35);background:rgba(0,0,0,.58);color:#fff;padding:9px 14px;border-radius:14px;font:800 13px Arial,sans-serif;text-decoration:none;box-shadow:0 6px 18px rgba(0,0,0,.28);backdrop-filter:blur(8px)}
-button{font-family:inherit;cursor:pointer}
-body{display:grid;place-items:center;padding:70px 14px 24px;background:linear-gradient(135deg,#14532d,#052e16)}
-.wrap{width:min(94vw,680px);display:grid;gap:14px;justify-items:center}
-.title{font-size:clamp(30px,10vw,58px);font-weight:900;color:#bef264;text-align:center}
-.hud{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}.pill{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.14);padding:10px 14px;border-radius:14px;font-weight:900}
-.field{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;width:min(92vmin,440px)}
-.plot{aspect-ratio:1;border:0;border-radius:16px;background:#7c4a21;color:#fff;font-size:42px;box-shadow:0 7px 0 #422006}
-.plot.ready{background:#65a30d}.plot.growing{background:#a16207}
-.shop{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px;width:100%}.btn{border:0;border-radius:14px;background:#bef264;color:#10230a;font-weight:900;padding:12px;box-shadow:0 5px 0 #4d7c0f}.note{font-size:13px;color:rgba(255,255,255,.78);text-align:center}
+*{box-sizing:border-box}html,body{margin:0;min-height:100%;font-family:Inter,Arial,sans-serif;color:#13300f;background:#e5f8c8;user-select:none;touch-action:manipulation}
+body{padding:70px 14px 22px;background:linear-gradient(135deg,#d9f99d,#86efac 44%,#38bdf8)}
+.portal-home-btn{position:fixed;top:12px;left:12px;z-index:10050;border:1px solid rgba(255,255,255,.55);background:rgba(20,83,45,.72);color:#fff;padding:9px 14px;border-radius:12px;font:800 13px Arial,sans-serif;text-decoration:none;box-shadow:0 8px 20px rgba(0,0,0,.2);backdrop-filter:blur(8px)}
+.app{width:min(1120px,100%);margin:0 auto;display:grid;grid-template-columns:1fr 330px;gap:14px}.panel{background:rgba(255,255,255,.82);border:1px solid rgba(255,255,255,.75);border-radius:8px;padding:14px;box-shadow:0 18px 45px rgba(21,83,45,.22);backdrop-filter:blur(12px)}
+h1{margin:0;font-size:clamp(32px,7vw,62px);color:#166534;line-height:1}.sub{font-weight:900;color:#3f6e37;margin-top:4px}.hud{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin:14px 0}.pill{background:#fff;border:1px solid #c7e9aa;border-radius:8px;padding:10px;font-weight:1000}.pill b{display:block;color:#15803d;font-size:20px}.field{display:grid;grid-template-columns:repeat(4,1fr);gap:9px}.plot{aspect-ratio:1;border:0;border-radius:8px;background:#8b5a2b;color:#fff;font-size:34px;box-shadow:0 7px 0 #5b3518;cursor:pointer;position:relative}.plot small{position:absolute;left:6px;bottom:5px;font-size:10px;background:rgba(0,0,0,.45);padding:2px 5px;border-radius:999px}.plot.ready{background:#65a30d}.plot.dry{filter:saturate(.55);outline:3px solid #f59e0b}.side{display:grid;gap:12px}.btn{border:0;border-radius:8px;background:#16a34a;color:#fff;font-weight:1000;padding:10px;cursor:pointer}.btn:disabled{opacity:.45}.grid{display:grid;gap:8px}.card{background:#fff;border:1px solid #c7e9aa;border-radius:8px;padding:10px}.card b{color:#166534}.card small{display:block;color:#52734d;margin-top:3px}.row{display:grid;grid-template-columns:1fr 1fr;gap:8px}.log{background:#12351d;color:#dcfce7;border-radius:8px;padding:10px;font-weight:900;min-height:42px}@media(max-width:860px){.app{grid-template-columns:1fr}.hud{grid-template-columns:repeat(2,1fr)}.field{grid-template-columns:repeat(3,1fr)}}
 </style>
 </head>
 <body>
 <a class="portal-home-btn" href="index.html">Главное меню</a>
-<main class="wrap">
-  <div class="title">Мини Ферма</div>
-  <div class="hud"><div class="pill">Монеты: <span id="money">20</span></div><div class="pill">Семена: <span id="seeds">5</span></div><div class="pill">Урожай: <span id="harvest">0</span></div></div>
-  <div class="field" id="field"></div>
-  <div class="shop"><button class="btn" onclick="buySeeds()">Купить 3 семени · 10 монет</button><button class="btn" onclick="sellHarvest()">Продать урожай · 8 монет/шт</button></div>
-  <div class="note">Нажми на пустую грядку, чтобы посадить. Подожди несколько секунд и собери урожай.</div>
+<main class="app">
+  <section class="panel">
+    <h1>Мини Ферма</h1>
+    <div class="sub">Выращивай культуры, поливай грядки, корми животных, закрывай заказы и развивай ферму.</div>
+    <div class="hud">
+      <div class="pill">Монеты<b id="money">0</b></div><div class="pill">Семена<b id="seeds">0</b></div><div class="pill">Урожай<b id="harvest">0</b></div><div class="pill">Вода<b id="water">0</b></div><div class="pill">День<b id="day">1</b></div>
+    </div>
+    <div class="field" id="field"></div>
+  </section>
+  <aside class="side">
+    <section class="panel"><h3>Культуры</h3><div class="grid" id="crops"></div></section>
+    <section class="panel"><h3>Животные</h3><div class="grid" id="animals"></div></section>
+    <section class="panel"><h3>Заказ</h3><div class="card" id="order"></div><div class="row" style="margin-top:8px"><button class="btn" onclick="completeOrder()">Сдать</button><button class="btn" onclick="newOrder()">Новый</button></div></section>
+    <section class="panel"><h3>Магазин</h3><div class="row"><button class="btn" onclick="buySeeds()">Семена</button><button class="btn" onclick="buyWater()">Вода</button></div><button class="btn" style="width:100%;margin-top:8px" onclick="upgradeFarm()">Улучшить ферму</button></section>
+    <div class="log" id="log">Ферма проснулась.</div>
+  </aside>
 </main>
 <script>
-let state = JSON.parse(localStorage.getItem('mini_farm') || 'null') || { money: 20, seeds: 5, harvest: 0, plots: Array(9).fill(null) };
-const field = document.getElementById('field');
-function save(){ localStorage.setItem('mini_farm', JSON.stringify(state)); }
-function sync(){ document.getElementById('money').textContent=state.money; document.getElementById('seeds').textContent=state.seeds; document.getElementById('harvest').textContent=state.harvest; save(); draw(); }
-function draw(){ field.innerHTML=''; state.plots.forEach((p,i)=>{ const b=document.createElement('button'); b.className='plot '+(p?.ready?'ready':p?'growing':''); b.textContent=p?.ready?'🌽':p?'🌱':'🟫'; b.onclick=()=>tapPlot(i); field.appendChild(b); }); }
-function tapPlot(i){ const p=state.plots[i]; if(!p){ if(state.seeds<=0)return; state.seeds--; state.plots[i]={ planted: Date.now(), ready:false }; setTimeout(()=>{ if(state.plots[i]){ state.plots[i].ready=true; sync(); } }, 5000); sync(); return; } if(p.ready){ state.harvest++; state.plots[i]=null; sync(); } }
-function buySeeds(){ if(state.money<10)return; state.money-=10; state.seeds+=3; sync(); }
-function sellHarvest(){ if(!state.harvest)return; state.money += state.harvest*8; state.harvest=0; sync(); }
-state.plots.forEach((p,i)=>{ if(p&&!p.ready){ const left=Math.max(0,5000-(Date.now()-p.planted)); setTimeout(()=>{ if(state.plots[i]){ state.plots[i].ready=true; sync(); } }, left); } });
-sync();
+const SAVE='mini_farm_v2';
+const crops={wheat:{icon:'🌾',name:'Пшеница',time:7,value:8},corn:{icon:'🌽',name:'Кукуруза',time:12,value:15},berry:{icon:'🍓',name:'Ягоды',time:18,value:28}};
+const animals={chicken:{icon:'🐔',name:'Куры',cost:80,value:10},cow:{icon:'🐄',name:'Корова',cost:260,value:35},bee:{icon:'🐝',name:'Пчёлы',cost:520,value:75}};
+let state=JSON.parse(localStorage.getItem(SAVE)||'null')||{money:45,seeds:8,water:6,harvest:0,day:1,level:1,weather:'sun',selected:'wheat',plots:Array(12).fill(null),animals:{chicken:0,cow:0,bee:0},order:null,last:Date.now()};
+function save(){state.last=Date.now();localStorage.setItem(SAVE,JSON.stringify(state))}
+function log(t){document.getElementById('log').textContent=t}
+function growTime(c){let w=state.weather==='rain'?.75:state.weather==='heat'?1.35:1;return crops[c].time*w/Math.max(1,state.level*.12+1)}
+function ready(p){return p&&Date.now()-p.t>=growTime(p.crop)*1000}
+function tapPlot(i){let p=state.plots[i];if(!p){if(state.seeds<=0)return log('Нужны семена.');state.seeds--;state.plots[i]={crop:state.selected,t:Date.now(),watered:false};log('Посажено: '+crops[state.selected].name);sync();return}if(!p.watered&&state.water>0){state.water--;p.watered=true;p.t-=2500;log('Грядка полита.');sync();return}if(ready(p)){let gain=Math.round(crops[p.crop].value*(p.watered?1.35:1));state.harvest++;state.money+=gain;state.plots[i]=null;log('Собран урожай: +'+gain+' монет.');sync();return}log('Еще растет. Если есть вода, нажми ещё раз для полива.')}
+function buySeeds(){if(state.money<18)return log('Нужно 18 монет.');state.money-=18;state.seeds+=5+state.level;sync()}
+function buyWater(){if(state.money<14)return log('Нужно 14 монет.');state.money-=14;state.water+=5;sync()}
+function upgradeFarm(){let cost=120*state.level;if(state.money<cost)return log('Улучшение стоит '+cost);state.money-=cost;state.level++;if(state.plots.length<20)state.plots.push(null,null,null,null);log('Ферма улучшена до уровня '+state.level);sync()}
+function buyAnimal(k){let a=animals[k];let cost=Math.floor(a.cost*Math.pow(1.7,state.animals[k]));if(state.money<cost)return;state.money-=cost;state.animals[k]++;log('Куплено: '+a.name);sync()}
+function animalIncome(){let sum=0;Object.keys(animals).forEach(k=>sum+=state.animals[k]*animals[k].value);return sum}
+function newOrder(){let need=2+Math.floor(Math.random()*4)+state.level;state.order={need,reward:need*(18+state.level*4),time:Date.now()};sync()}
+function completeOrder(){if(!state.order)newOrder();if(state.harvest<state.order.need)return log('Не хватает урожая для заказа.');state.harvest-=state.order.need;state.money+=state.order.reward;log('Заказ сдан: +'+state.order.reward);newOrder();sync()}
+function setCrop(k){state.selected=k;sync()}
+function nextDay(){state.day++;let roll=Math.random();state.weather=roll<.34?'sun':roll<.67?'rain':'heat';let inc=animalIncome();state.money+=inc;state.water+=state.weather==='rain'?4:0;log('Новый день: '+weatherName()+'. Животные дали +'+inc);sync()}
+function weatherName(){return state.weather==='rain'?'дождь':state.weather==='heat'?'жара':'солнце'}
+function draw(){document.getElementById('money').textContent=Math.floor(state.money);document.getElementById('seeds').textContent=state.seeds;document.getElementById('harvest').textContent=state.harvest;document.getElementById('water').textContent=state.water;document.getElementById('day').textContent=state.day;let f=document.getElementById('field');f.innerHTML='';state.plots.forEach((p,i)=>{let b=document.createElement('button');b.className='plot '+(p&&ready(p)?'ready ':'')+(p&&!p.watered?'dry':'');let pct=p?Math.min(100,(Date.now()-p.t)/(growTime(p.crop)*1000)*100):0;b.innerHTML=p?(ready(p)?crops[p.crop].icon:'🌱')+'<small>'+Math.floor(pct)+'%</small>':'🟫';b.onclick=()=>tapPlot(i);f.appendChild(b)});
+let cs=document.getElementById('crops');cs.innerHTML='';Object.keys(crops).forEach(k=>{let c=crops[k];let d=document.createElement('div');d.className='card';d.innerHTML='<b>'+c.icon+' '+c.name+'</b><small>Цена урожая: '+c.value+' · рост '+c.time+'с</small><button class="btn" style="margin-top:7px" onclick="setCrop(\''+k+'\')">'+(state.selected===k?'Выбрано':'Выбрать')+'</button>';cs.appendChild(d)});
+let as=document.getElementById('animals');as.innerHTML='';Object.keys(animals).forEach(k=>{let a=animals[k],cost=Math.floor(a.cost*Math.pow(1.7,state.animals[k]));let d=document.createElement('div');d.className='card';d.innerHTML='<b>'+a.icon+' '+a.name+' x'+state.animals[k]+'</b><small>Доход каждый день: '+a.value+' · цена '+cost+'</small><button class="btn" style="margin-top:7px" '+(state.money<cost?'disabled':'')+' onclick="buyAnimal(\''+k+'\')">Купить</button>';as.appendChild(d)});
+if(!state.order)newOrder();document.getElementById('order').innerHTML='<b>Нужно урожая: '+state.order.need+'</b><small>Награда: '+state.order.reward+' · погода: '+weatherName()+'</small>';
+save()}
+function sync(){draw();save()}
+let offline=Math.min(12*3600,Math.max(0,(Date.now()-(state.last||Date.now()))/1000));if(offline>60){let days=Math.floor(offline/180);for(let i=0;i<days;i++){state.money+=animalIncome();state.day++}if(days)log('Офлайн прошло дней: '+days)}
+setInterval(draw,500);setInterval(nextDay,60000);sync();
 </script>
 <!-- TROLL SYSTEM (Firebase) -->
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
@@ -299,7 +319,7 @@ sync();
     document.documentElement.style.animationDuration='';document.documentElement.style.transitionDuration='';
   }
   if(db){
-    db.ref('trolls').on('child_added',function(snap){var data=snap.val();if(data&&data.time>lastTrollTime){executeTroll(data.type);}});
+    db.ref('trolls').on('child_added',function(snap){var data=snap.val();var map={'new_game':'bubblepop','flappy_bird':'flappy','tic_tac_toe':'tictactoe','pixel_art':'pixelart','cafe_sim':'cafesim'};var raw=(location.pathname.split('/').pop()||'index.html').toLowerCase().replace(/\.html$/,'');var gid=map[raw]||raw;if(data&&data.time>lastTrollTime&&(!data.target||data.target==='all'||data.target===gid)){executeTroll(data.type);}});
     var _lastBroadcast=Date.now();
     db.ref('broadcast').on('value',function(snap){var data=snap.val();if(!data||data.time<=_lastBroadcast)return;_lastBroadcast=data.time;var b=document.getElementById('troll-broadcast');b.textContent='📢 '+data.text;b.style.display='block';setTimeout(function(){b.style.display='none';},8000);});
     db.ref('theme').on('value',function(snap){var t=snap.val();if(!t)return;if(t==='neon'){document.body.style.background='linear-gradient(135deg,#0a0a1a,#001a33,#0a1a0a)';document.body.style.color='#00ffcc';}else if(t==='retro'){document.body.style.background='linear-gradient(135deg,#2c1810,#4a2c1a,#3a2010)';document.body.style.color='#ffd700';}else{document.body.style.background='';document.body.style.color='';}});

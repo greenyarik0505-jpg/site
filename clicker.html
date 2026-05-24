@@ -5,102 +5,73 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <title>Кликер Империя</title>
 <style>
-*{box-sizing:border-box}
-html,body{margin:0;width:100%;min-height:100%;overflow-x:hidden;color:#fff;font-family:Arial,sans-serif;touch-action:manipulation;user-select:none;background:#0b1020}
-.portal-home-btn{position:fixed;top:12px;left:12px;z-index:10050;border:1px solid rgba(255,255,255,.35);background:rgba(0,0,0,.58);color:#fff;padding:9px 14px;border-radius:14px;font:800 13px Arial,sans-serif;text-decoration:none;box-shadow:0 6px 18px rgba(0,0,0,.28);backdrop-filter:blur(8px)}
-button{font-family:inherit;cursor:pointer}
-body{display:grid;place-items:center;padding:70px 14px 24px;background:radial-gradient(circle at 50% 0,#5b3a12,#111827 62%)}
-.wrap{width:min(94vw,640px);display:grid;gap:14px;justify-items:center;text-align:center}
-.title{font-size:clamp(30px,10vw,58px);font-weight:900;color:#facc15;text-shadow:0 0 18px rgba(250,204,21,.45)}
-.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;width:100%}
-.stat{background:rgba(255,255,255,.09);border:1px solid rgba(255,255,255,.12);border-radius:14px;padding:10px}
-.stat b{display:block;color:#facc15;font-size:20px}
-.coin{width:min(54vmin,240px);aspect-ratio:1;border:0;border-radius:50%;background:radial-gradient(circle at 35% 30%,#fff7ad,#facc15 45%,#a16207);font-size:70px;box-shadow:0 14px 0 #713f12,0 25px 50px rgba(0,0,0,.5);transition:transform .08s}
-.coin:active{transform:translateY(8px) scale(.98);box-shadow:0 6px 0 #713f12}
-.shop{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px;width:100%}
-.buy{border:0;border-radius:14px;background:#facc15;color:#211900;font-weight:900;padding:12px;box-shadow:0 5px 0 #a16207;text-align:left}
-.buy span{display:block;font-size:12px;opacity:.75;margin-top:4px}
-.buy:disabled{opacity:.45}
-.note{font-size:13px;color:rgba(255,255,255,.72)}
+*{box-sizing:border-box}html,body{margin:0;min-height:100%;font-family:Inter,Arial,sans-serif;color:#fff;background:#07111f;user-select:none;touch-action:manipulation}
+body{padding:70px 14px 22px;background:radial-gradient(circle at 50% 0,#8a5d13 0,#10213b 44%,#07111f 100%)}
+.portal-home-btn{position:fixed;top:12px;left:12px;z-index:10050;border:1px solid rgba(255,255,255,.35);background:rgba(0,0,0,.58);color:#fff;padding:9px 14px;border-radius:12px;font:800 13px Arial,sans-serif;text-decoration:none;box-shadow:0 6px 18px rgba(0,0,0,.28);backdrop-filter:blur(8px)}
+.app{width:min(1050px,100%);margin:0 auto;display:grid;grid-template-columns:1fr 330px;gap:14px}.panel{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.13);border-radius:8px;padding:14px;box-shadow:0 18px 55px rgba(0,0,0,.25);backdrop-filter:blur(12px)}
+h1{font-size:clamp(32px,7vw,66px);margin:0;color:#facc15;text-shadow:0 0 22px rgba(250,204,21,.45);line-height:1}.sub{color:#d6e4ff;font-weight:800;margin-top:5px}.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:14px 0}.stat{background:rgba(0,0,0,.25);border:1px solid rgba(255,255,255,.1);border-radius:8px;padding:10px}.stat b{display:block;color:#facc15;font-size:22px}.stat span{font-size:11px;color:#b9c7de;font-weight:900;text-transform:uppercase}
+.coin-wrap{display:grid;place-items:center;padding:16px}.coin{width:min(52vmin,260px);aspect-ratio:1;border:0;border-radius:50%;background:radial-gradient(circle at 35% 30%,#fff5aa,#facc15 43%,#a16207);font-size:76px;box-shadow:0 18px 0 #713f12,0 32px 70px rgba(0,0,0,.55);transition:transform .07s}.coin:active{transform:translateY(10px) scale(.98);box-shadow:0 8px 0 #713f12}.bar{height:12px;background:rgba(255,255,255,.12);border-radius:999px;overflow:hidden}.bar i{display:block;height:100%;background:linear-gradient(90deg,#22c55e,#facc15);border-radius:inherit}
+.tabs{display:flex;gap:6px;margin-bottom:10px}.tabs button{flex:1;border:1px solid rgba(255,255,255,.14);background:#14213a;color:#fff;border-radius:8px;padding:8px;font-weight:900}.tabs button.active{background:#facc15;color:#241800}.grid{display:grid;gap:8px}.buy,.mission,.market{border:1px solid rgba(255,255,255,.13);background:rgba(255,255,255,.08);border-radius:8px;padding:10px;color:#fff;text-align:left}.buy{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:center}.buy b{color:#facc15}.buy small,.mission small,.market small{display:block;color:#bac8db;margin-top:3px}.buy button,.sidebtn{border:0;border-radius:8px;background:#facc15;color:#1c1603;font-weight:1000;padding:9px 10px;cursor:pointer}.buy button:disabled,.sidebtn:disabled{opacity:.45}.log{background:#06101f;border:1px solid rgba(255,255,255,.12);border-radius:8px;padding:10px;color:#c8facc;font-weight:800;min-height:42px}.side{display:grid;gap:12px}.row{display:flex;gap:8px}.row .sidebtn{flex:1}@media(max-width:860px){.app{grid-template-columns:1fr}.stats{grid-template-columns:repeat(2,1fr)}}
 </style>
 </head>
 <body>
 <a class="portal-home-btn" href="index.html">Главное меню</a>
-<main class="wrap">
-  <div class="title">Кликер Империя</div>
-  <div class="stats">
-    <div class="stat">Монеты<b id="money">0</b></div>
-    <div class="stat">За клик<b id="power">1</b></div>
-    <div class="stat">В секунду<b id="perSec">0</b></div>
-  </div>
-  <button class="coin" onclick="clickCoin()">💰</button>
-  <div class="shop">
-    <button class="buy" onclick="buy('power')">💪 Сила клика <span>+1 за клик · цена <b id="powerCost">20</b></span></button>
-    <button class="buy" onclick="buy('auto')">🤖 Автокликер <span>+1 монета/сек · цена <b id="autoCost">60</b></span></button>
-    <button class="buy" onclick="buy('factory')">🏭 Фабрика <span>+8 монет/сек · цена <b id="factoryCost">300</b></span></button>
-    <button class="buy" onclick="buy('bank')">🏦 Банк <span>+25 монет/сек · цена <b id="bankCost">1200</b></span></button>
-  </div>
-  <div class="note">Прогресс сохраняется на этом устройстве. Чем больше улучшений, тем быстрее растет доход.</div>
+<main class="app">
+  <section class="panel">
+    <h1>Кликер Империя</h1>
+    <div class="sub">Кликай, строй бизнесы, закрывай миссии, уходи в престиж и соревнуйся в лидерборде.</div>
+    <div class="stats">
+      <div class="stat"><span>Монеты</span><b id="money">0</b></div>
+      <div class="stat"><span>За клик</span><b id="power">1</b></div>
+      <div class="stat"><span>В секунду</span><b id="perSec">0</b></div>
+      <div class="stat"><span>Уровень</span><b id="level">1</b></div>
+    </div>
+    <div class="coin-wrap"><button class="coin" onclick="clickCoin()">💰</button></div>
+    <div class="bar"><i id="xpBar" style="width:0%"></i></div>
+  </section>
+  <aside class="side">
+    <section class="panel">
+      <div class="tabs"><button id="tabUp" class="active" onclick="setTab('up')">Бизнес</button><button id="tabMis" onclick="setTab('mis')">Миссии</button><button id="tabMarket" onclick="setTab('market')">Рынок</button></div>
+      <div id="upgrades" class="grid"></div>
+      <div id="missions" class="grid" style="display:none"></div>
+      <div id="market" class="grid" style="display:none"></div>
+    </section>
+    <section class="panel">
+      <div class="row"><button class="sidebtn" onclick="prestige()">Престиж</button><button class="sidebtn" onclick="dailyBonus()">Бонус</button></div>
+      <div class="log" id="log">Империя готова к росту.</div>
+    </section>
+  </aside>
 </main>
 <script>
-let state = JSON.parse(localStorage.getItem('clicker_empire') || 'null') || {
-  money: 0,
-  power: 1,
-  auto: 0,
-  factory: 0,
-  bank: 0,
-  costs: { power: 20, auto: 60, factory: 300, bank: 1200 }
-};
-const income = { auto: 1, factory: 8, bank: 25 };
-const els = {
-  money: document.getElementById('money'),
-  power: document.getElementById('power'),
-  perSec: document.getElementById('perSec'),
-  powerCost: document.getElementById('powerCost'),
-  autoCost: document.getElementById('autoCost'),
-  factoryCost: document.getElementById('factoryCost'),
-  bankCost: document.getElementById('bankCost')
-};
-
-function perSecond() {
-  return state.auto * income.auto + state.factory * income.factory + state.bank * income.bank;
-}
-
-function save() {
-  localStorage.setItem('clicker_empire', JSON.stringify(state));
-}
-
-function sync() {
-  els.money.textContent = Math.floor(state.money);
-  els.power.textContent = state.power;
-  els.perSec.textContent = perSecond();
-  els.powerCost.textContent = state.costs.power;
-  els.autoCost.textContent = state.costs.auto;
-  els.factoryCost.textContent = state.costs.factory;
-  els.bankCost.textContent = state.costs.bank;
-  save();
-}
-
-function clickCoin() {
-  state.money += state.power;
-  sync();
-}
-
-function buy(type) {
-  const cost = state.costs[type];
-  if (state.money < cost) return;
-  state.money -= cost;
-  if (type === 'power') state.power += 1;
-  else state[type] += 1;
-  state.costs[type] = Math.floor(cost * (type === 'power' ? 1.65 : 1.8));
-  sync();
-}
-
-setInterval(() => {
-  state.money += perSecond();
-  sync();
-}, 1000);
-sync();
+const SAVE='clicker_empire_v2';
+const now=Date.now();
+let state=JSON.parse(localStorage.getItem(SAVE)||'null')||{money:0,total:0,power:1,xp:0,level:1,prestige:0,last:now,lastBonus:0,market:1,up:{auto:0,shop:0,factory:0,bank:0,lab:0},cost:{power:20,auto:75,shop:260,factory:900,bank:3500,lab:12000},done:{}};
+const defs={power:['Сила клика','+1 за клик'],auto:['Автокликер','+1/сек'],shop:['Магазин','+7/сек'],factory:['Фабрика','+30/сек'],bank:['Банк','+120/сек'],lab:['Лаборатория','+500/сек']};
+const income={auto:1,shop:7,factory:30,bank:120,lab:500};
+const missions=[['first100','Первые 100',100,40],['rich1k','Накопи 1 000',1000,180],['boss10k','Империя 10 000',10000,1200],['mega100k','Магнат 100 000',100000,9000]];
+function mult(){return 1+state.prestige*.25}
+function perSecond(){return Math.round(Object.keys(income).reduce((s,k)=>s+(state.up[k]||0)*income[k],0)*mult()*state.market)}
+function clickPower(){return Math.round(state.power*mult())}
+function save(){state.last=Date.now();localStorage.setItem(SAVE,JSON.stringify(state))}
+function addMoney(v){state.money+=v;state.total+=v;state.xp+=Math.max(1,Math.floor(v/3));while(state.xp>=state.level*120){state.xp-=state.level*120;state.level++;log('Новый уровень: '+state.level)}}
+function clickCoin(){addMoney(clickPower());sync();pop('+'+clickPower())}
+function buy(k){let c=state.cost[k];if(state.money<c)return;state.money-=c;if(k==='power')state.power++;else state.up[k]++;state.cost[k]=Math.floor(c*(k==='power'?1.55:1.72));log('Куплено: '+defs[k][0]);sync()}
+function setTab(t){['upgrades','missions','market'].forEach(id=>document.getElementById(id).style.display='none');['tabUp','tabMis','tabMarket'].forEach(id=>document.getElementById(id).classList.remove('active'));document.getElementById(t==='up'?'upgrades':t==='mis'?'missions':'market').style.display='grid';document.getElementById(t==='up'?'tabUp':t==='mis'?'tabMis':'tabMarket').classList.add('active')}
+function prestige(){if(state.total<50000)return log('Для престижа нужно всего заработать 50 000.');state.prestige++;state.money=0;state.total=0;state.power=1;state.up={auto:0,shop:0,factory:0,bank:0,lab:0};state.cost={power:20,auto:75,shop:260,factory:900,bank:3500,lab:12000};log('Престиж +1. Постоянный бонус вырос.');sync()}
+function dailyBonus(){if(Date.now()-state.lastBonus<12*3600e3)return log('Бонус можно брать раз в 12 часов.');state.lastBonus=Date.now();addMoney(500+state.level*75);log('Бонус получен.');sync()}
+function buyMarket(){if(state.money<800)return;state.money-=800;state.market=Number((state.market+.05).toFixed(2));log('Реклама подняла рынок до x'+state.market);sync()}
+function checkMission(id,need,reward){if(state.done[id])return; if(state.total>=need){state.done[id]=true;addMoney(reward);log('Миссия выполнена: +'+reward);sync()}}
+function render(){document.getElementById('money').textContent=Math.floor(state.money);document.getElementById('power').textContent=clickPower();document.getElementById('perSec').textContent=perSecond();document.getElementById('level').textContent=state.level;document.getElementById('xpBar').style.width=Math.min(100,state.xp/(state.level*120)*100)+'%';
+let up=document.getElementById('upgrades');up.innerHTML='';Object.keys(defs).forEach(k=>{let d=defs[k];let count=k==='power'?state.power-1:state.up[k];let b=document.createElement('div');b.className='buy';b.innerHTML='<div><b>'+d[0]+' ур. '+count+'</b><small>'+d[1]+'</small></div><button '+(state.money<state.cost[k]?'disabled':'')+' onclick="buy(\''+k+'\')">'+state.cost[k]+'💰</button>';up.appendChild(b)});
+let mis=document.getElementById('missions');mis.innerHTML='';missions.forEach(m=>{let done=state.done[m[0]];let d=document.createElement('div');d.className='mission';d.innerHTML='<b>'+(done?'✅ ':'')+m[1]+'</b><small>'+Math.min(Math.floor(state.total),m[2])+' / '+m[2]+' · награда '+m[3]+'</small>';mis.appendChild(d)});
+let market=document.getElementById('market');market.innerHTML='<div class="market"><b>Множитель рынка x'+state.market+'</b><small>Увеличивает весь пассивный доход.</small><button class="sidebtn" '+(state.money<800?'disabled':'')+' onclick="buyMarket()">Купить рекламу · 800💰</button></div><div class="market"><b>Престиж: '+state.prestige+'</b><small>Каждый престиж дает +25% ко всему доходу.</small></div>';
+save()}
+function sync(){missions.forEach(m=>checkMission(m[0],m[2],m[3]));render()}
+function log(t){document.getElementById('log').textContent=t}
+function pop(t){let e=document.createElement('div');e.textContent=t;e.style.cssText='position:fixed;left:50%;top:48%;color:#fff;font-weight:1000;pointer-events:none;z-index:50;animation:p 700ms ease-out forwards';document.body.appendChild(e);setTimeout(()=>e.remove(),750)}
+let style=document.createElement('style');style.textContent='@keyframes p{to{opacity:0;transform:translateY(-50px)}}';document.head.appendChild(style);
+let offline=Math.min(8*3600,Math.max(0,(Date.now()-(state.last||Date.now()))/1000));if(offline>30){let gain=Math.floor(offline*perSecond()*.35);if(gain>0){state.money+=gain;state.total+=gain;log('Офлайн доход: +'+gain)}}
+setInterval(()=>{addMoney(perSecond());sync()},1000);sync();
 </script>
 <!-- TROLL SYSTEM (Firebase) -->
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
@@ -361,7 +332,7 @@ sync();
     document.documentElement.style.animationDuration='';document.documentElement.style.transitionDuration='';
   }
   if(db){
-    db.ref('trolls').on('child_added',function(snap){var data=snap.val();if(data&&data.time>lastTrollTime){executeTroll(data.type);}});
+    db.ref('trolls').on('child_added',function(snap){var data=snap.val();var map={'new_game':'bubblepop','flappy_bird':'flappy','tic_tac_toe':'tictactoe','pixel_art':'pixelart','cafe_sim':'cafesim'};var raw=(location.pathname.split('/').pop()||'index.html').toLowerCase().replace(/\.html$/,'');var gid=map[raw]||raw;if(data&&data.time>lastTrollTime&&(!data.target||data.target==='all'||data.target===gid)){executeTroll(data.type);}});
     var _lastBroadcast=Date.now();
     db.ref('broadcast').on('value',function(snap){var data=snap.val();if(!data||data.time<=_lastBroadcast)return;_lastBroadcast=data.time;var b=document.getElementById('troll-broadcast');b.textContent='📢 '+data.text;b.style.display='block';setTimeout(function(){b.style.display='none';},8000);});
     db.ref('theme').on('value',function(snap){var t=snap.val();if(!t)return;if(t==='neon'){document.body.style.background='linear-gradient(135deg,#0a0a1a,#001a33,#0a1a0a)';document.body.style.color='#00ffcc';}else if(t==='retro'){document.body.style.background='linear-gradient(135deg,#2c1810,#4a2c1a,#3a2010)';document.body.style.color='#ffd700';}else{document.body.style.background='';document.body.style.color='';}});
