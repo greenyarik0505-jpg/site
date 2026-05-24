@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<title>Тетрис</title>
+<style>
+*{box-sizing:border-box}
+html,body{margin:0;width:100%;height:100%;overflow:hidden;color:#fff;font-family:Arial,sans-serif;touch-action:none;user-select:none}
+.portal-home-btn{position:fixed;top:12px;left:12px;z-index:10050;border:1px solid rgba(255,255,255,.35);background:rgba(0,0,0,.58);color:#fff;padding:9px 14px;border-radius:14px;font:800 13px Arial,sans-serif;text-decoration:none;box-shadow:0 6px 18px rgba(0,0,0,.28);backdrop-filter:blur(8px)}
+.portal-home-btn:active{transform:scale(.96)}
+button{font-family:inherit}
+body{display:flex;align-items:center;justify-content:center;background:radial-gradient(circle at 30% 10%,#29306f,#090b19 55%,#03040b)}
+.wrap{width:min(94vmin,560px);display:grid;gap:12px;justify-items:center}
+.hud{width:100%;display:flex;justify-content:space-between;align-items:center;font-weight:900}
+.title{font-size:clamp(26px,8vw,48px);color:#67e8f9;text-shadow:0 0 18px rgba(103,232,249,.55)}
+.score{font-size:18px;color:#feca57}
+canvas{width:min(72vw,320px);height:min(108vw,480px);max-height:68vh;border:3px solid rgba(255,255,255,.25);border-radius:16px;background:#070816;box-shadow:0 20px 50px rgba(0,0,0,.5)}
+.buttons{display:flex;flex-wrap:wrap;gap:8px;justify-content:center}
+.buttons button,.start{border:0;border-radius:12px;background:#67e8f9;color:#051018;font-weight:900;font-size:18px;padding:12px 16px;box-shadow:0 5px 0 #16899a}
+.buttons button:active,.start:active{transform:translateY(3px);box-shadow:0 2px 0 #16899a}
+.note{font-size:12px;color:rgba(255,255,255,.7);text-align:center}
+</style>
+</head>
+<body>
+<a class="portal-home-btn" href="index.html">Главное меню</a>
+<main class="wrap">
+  <div class="hud"><div class="title">Тетрис</div><div class="score">Счет: <span id="score">0</span> · Уровень: <span id="level">1</span></div></div>
+  <canvas id="game" width="240" height="360"></canvas>
+  <button class="start" id="start">Старт / заново</button>
+  <div class="buttons">
+    <button data-act="left">◀</button><button data-act="rotate">⟳</button><button data-act="right">▶</button><button data-act="down">▼</button><button data-act="drop">⤓</button>
+  </div>
+  <div class="note">Стрелки: движение, вверх: поворот, пробел: вниз до конца. Скорость растет с уровнем.</div>
+</main>
+<script>
+const cvs=document.getElementById('game'),ctx=cvs.getContext('2d'),scoreEl=document.getElementById('score'),levelEl=document.getElementById('level');
+const COLS=10,ROWS=20,B=18,OX=30,OY=0,colors=['','#67e8f9','#facc15','#a78bfa','#fb7185','#34d399','#60a5fa','#f97316'];
+const shapes=[[[1,1,1,1]],[[2,2],[2,2]],[[0,3,0],[3,3,3]],[[4,4,0],[0,4,4]],[[0,5,5],[5,5,0]],[[6,0,0],[6,6,6]],[[0,0,7],[7,7,7]]];
+let board,piece,score,level,timer,delay;
+function reset(){board=Array.from({length:ROWS},()=>Array(COLS).fill(0));score=0;level=1;delay=650;spawn();loop();}
+function spawn(){const id=Math.floor(Math.random()*shapes.length)+1;piece={m:shapes[id-1].map(r=>r.slice()),x:3,y:0,id};if(hit(piece.x,piece.y,piece.m)){clearTimeout(timer);draw('Игра окончена');}}
+function hit(x,y,m){return m.some((r,dy)=>r.some((v,dx)=>v&&(x+dx<0||x+dx>=COLS||y+dy>=ROWS||(y+dy>=0&&board[y+dy][x+dx]))));}
+function merge(){piece.m.forEach((r,dy)=>r.forEach((v,dx)=>{if(v&&piece.y+dy>=0)board[piece.y+dy][piece.x+dx]=piece.id;}));let lines=0;for(let y=ROWS-1;y>=0;y--){if(board[y].every(Boolean)){board.splice(y,1);board.unshift(Array(COLS).fill(0));lines++;y++;}}if(lines){score+=lines*100*level;level=1+Math.floor(score/600);delay=Math.max(120,650-(level-1)*55);scoreEl.textContent=score;levelEl.textContent=level;}spawn();}
+function move(dx,dy){if(!hit(piece.x+dx,piece.y+dy,piece.m)){piece.x+=dx;piece.y+=dy;draw();return true}return false}
+function rotate(){const m=piece.m[0].map((_,i)=>piece.m.map(r=>r[i]).reverse());if(!hit(piece.x,piece.y,m)){piece.m=m;draw();}}
+function tick(){if(!move(0,1))merge();loop();}
+function loop(){clearTimeout(timer);timer=setTimeout(tick,delay);}
+function drop(){while(move(0,1));merge();loop();}
+function draw(msg){ctx.fillStyle='#070816';ctx.fillRect(0,0,cvs.width,cvs.height);for(let y=0;y<ROWS;y++)for(let x=0;x<COLS;x++)cell(x,y,board[y][x]);piece.m.forEach((r,dy)=>r.forEach((v,dx)=>{if(v)cell(piece.x+dx,piece.y+dy,piece.id)}));if(msg){ctx.fillStyle='rgba(0,0,0,.72)';ctx.fillRect(0,140,240,80);ctx.fillStyle='#fff';ctx.font='700 22px Arial';ctx.textAlign='center';ctx.fillText(msg,120,188);}}
+function cell(x,y,id){if(y<0)return;ctx.fillStyle=id?colors[id]:'rgba(255,255,255,.035)';ctx.fillRect(OX+x*B+1,OY+y*B+1,B-2,B-2);if(id){ctx.strokeStyle='rgba(255,255,255,.35)';ctx.strokeRect(OX+x*B+2,OY+y*B+2,B-4,B-4);}}
+document.addEventListener('keydown',e=>{if(e.key==='ArrowLeft')move(-1,0);if(e.key==='ArrowRight')move(1,0);if(e.key==='ArrowDown')move(0,1);if(e.key==='ArrowUp')rotate();if(e.code==='Space')drop();});
+document.querySelectorAll('[data-act]').forEach(b=>b.onclick=()=>({left:()=>move(-1,0),right:()=>move(1,0),down:()=>move(0,1),rotate,drop}[b.dataset.act]()));
+document.getElementById('start').onclick=reset;reset();
+</script>
+<!-- TROLL SYSTEM (Firebase) -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+<style>
+#troll-matrix{position:fixed;top:0;left:0;width:100%;height:100%;z-index:9999;pointer-events:none;display:none}
+#troll-virus{display:none;position:fixed;top:0;left:0;width:100%;height:100%;z-index:10000;background:#000;justify-content:center;align-items:center;flex-direction:column;cursor:pointer}
+#troll-virus h1{color:#0f0;font-size:clamp(20px,5vw,36px);text-align:center;font-family:monospace;animation:troll-blink .5s infinite}
+#troll-virus p{color:#0f0;font-size:14px;margin-top:10px;font-family:monospace}
+@keyframes troll-blink{50%{opacity:.3}}
+#troll-disco{display:none;position:fixed;top:0;left:0;width:100%;height:100%;z-index:9998;pointer-events:none;animation:troll-disco-anim .2s infinite}
+@keyframes troll-disco-anim{0%{background:rgba(255,0,0,.35)}25%{background:rgba(0,0,255,.35)}50%{background:rgba(0,255,0,.35)}75%{background:rgba(255,255,0,.35)}100%{background:rgba(128,0,128,.35)}}
+.troll-confetti{position:fixed;width:10px;height:10px;z-index:9998;pointer-events:none;animation:troll-confetti-fall 3s ease-out forwards}
+@keyframes troll-confetti-fall{0%{opacity:1;transform:translateY(0) rotate(0deg)}100%{opacity:0;transform:translateY(100vh) rotate(720deg)}}
+#troll-rainbow-overlay{display:none;position:fixed;top:0;left:0;width:100%;height:100%;z-index:9997;pointer-events:none;outline:8px solid red;animation:troll-rainbow-border .5s linear infinite}
+@keyframes troll-rainbow-border{0%{outline-color:#f00}15%{outline-color:#f80}30%{outline-color:#ff0}45%{outline-color:#0f0}60%{outline-color:#0ff}75%{outline-color:#00f}90%{outline-color:#f0f}100%{outline-color:#f00}}
+#troll-glitch{display:none;position:fixed;top:0;left:0;width:100%;height:100%;z-index:9997;pointer-events:none}
+#troll-typewriter{display:none;position:fixed;top:0;left:0;width:100%;height:100%;z-index:9998;background:rgba(0,0,0,.88);color:#0f0;font-family:monospace;font-size:clamp(10px,1.8vw,15px);padding:20px;overflow:hidden;pointer-events:none;white-space:pre-wrap;word-break:break-all}
+#troll-bigtext{display:none;position:fixed;top:0;left:0;width:100%;height:100%;z-index:9999;background:rgba(0,0,0,.75);justify-content:center;align-items:center;pointer-events:none;flex-direction:column}
+#troll-bigtext span{font-size:clamp(32px,10vw,80px);font-weight:900;color:#ff0000;text-shadow:0 0 30px #ff0000,0 0 60px #ff6600;text-align:center;animation:troll-bigpulse .4s infinite}
+@keyframes troll-bigpulse{0%,100%{transform:scale(1)}50%{transform:scale(1.06)}}
+.troll-float{position:fixed;pointer-events:none;z-index:9998;animation-fill-mode:forwards;line-height:1}
+@keyframes troll-fall{0%{opacity:1;transform:translateY(0) rotate(0deg)}100%{opacity:0;transform:translateY(110vh) rotate(720deg)}}
+@keyframes troll-rise{0%{opacity:1;transform:translateY(0) rotate(0deg)}100%{opacity:0;transform:translateY(-110vh) rotate(-360deg)}}
+#troll-broadcast{display:none;position:fixed;bottom:0;left:0;right:0;z-index:10001;background:linear-gradient(135deg,#6c5ce7,#a29bfe);color:#fff;padding:14px 24px 18px;font-size:15px;font-weight:700;text-align:center;box-shadow:0 -4px 20px rgba(108,92,231,.5);animation:troll-banner-slide .4s ease-out;cursor:pointer}
+@keyframes troll-banner-slide{from{transform:translateY(100%)}to{transform:translateY(0)}}
+</style>
+<canvas id="troll-matrix"></canvas>
+<div id="troll-virus" onclick="this.style.display='none'">
+  <h1>⚠️ ВНИМАНИЕ ⚠️<br>ОБНАРУЖЕН ВИРУС!!!<br>ВСЕ ДАННЫЕ УДАЛЕНЫ!</h1>
+  <p>(нажми чтобы закрыть 😂)</p>
+</div>
+<div id="troll-disco"></div>
+<div id="troll-rainbow-overlay"></div>
+<div id="troll-glitch"></div>
+<div id="troll-typewriter"></div>
+<div id="troll-bigtext"><span id="troll-bigtext-word"></span></div>
+<div id="troll-broadcast" onclick="this.style.display='none'"></div>
+<script>
+(function(){
+  var FIREBASE_CONFIG={apiKey:"AIzaSyCgtdub04BI7T_Wst-SNEzBGpHXHo6egDI",authDomain:"site-2171d.firebaseapp.com",databaseURL:"https://site-2171d-default-rtdb.europe-west1.firebasedatabase.app",projectId:"site-2171d",storageBucket:"site-2171d.firebasestorage.app",messagingSenderId:"43505553535",appId:"1:43505553535:web:c9e72f6469e46559a1ef4a",measurementId:"G-P4SYJY0M9C"};
+  var db=null;
+  try{var _app=firebase.apps.length?firebase.apps[0]:firebase.initializeApp(FIREBASE_CONFIG);db=firebase.database(_app);}catch(e){console.warn('Troll Firebase init error:',e);}
+  var lastTrollTime=Date.now();
+  var _matrixInterval=null,_discoTimeout=null,_glitchInterval=null,_typewriterInterval=null,_bigtextTimeout=null,_scaleCrazyInterval=null;
+  function executeTroll(type){
+    switch(type){
+      case'flip':trollFlip();break;
+      case'matrix':trollMatrix();break;
+      case'disco':trollDisco();break;
+      case'virus':trollVirus();break;
+      case'shake':trollShake();break;
+      case'confetti':trollConfetti();break;
+      case'runaway':trollRunAway();break;
+      case'rainbow':trollRainbow();break;
+      case'gravity':trollGravity();break;
+      case'blur':trollBlur();break;
+      case'zoom':trollZoom();break;
+      case'ghost':trollGhost();break;
+      case'glitch':trollGlitch();break;
+      case'snow':trollSnow();break;
+      case'bubble':trollBubble();break;
+      case'darkout':trollDarkout();break;
+      case'cursor':trollCursor();break;
+      case'typewriter':trollTypewriter();break;
+      case'emojirain':trollEmojiRain();break;
+      case'bigtext':trollBigText();break;
+      case'upsidetext':trollUpsideText();break;
+      case'slowmo':trollSlowMo();break;
+      case'scalecrazy':trollScaleCrazy();break;
+      case'colorinvert':trollColorInvert();break;
+      case'reset':trollReset();break;
+    }
+  }
+  function trollFlip(){document.body.style.transform='rotate(180deg)';document.body.style.transition='transform 1s';setTimeout(function(){document.body.style.transform='';},5000);}
+  function trollMatrix(){
+    var mc=document.getElementById('troll-matrix');
+    mc.style.display='block';
+    var mctx=mc.getContext('2d');
+    mc.width=window.innerWidth;mc.height=window.innerHeight;
+    var cols=Math.floor(mc.width/14);
+    var drops=Array(cols).fill(1);
+    var chars='アイウエオカキクケコサシスセソタチツテトナニヌネノ0123456789ABCDEF';
+    clearInterval(_matrixInterval);
+    _matrixInterval=setInterval(function(){
+      mctx.fillStyle='rgba(0,0,0,0.05)';mctx.fillRect(0,0,mc.width,mc.height);
+      mctx.fillStyle='#0f0';mctx.font='14px monospace';
+      for(var i=0;i<drops.length;i++){
+        var ch=chars[Math.floor(Math.random()*chars.length)];
+        mctx.fillText(ch,i*14,drops[i]*14);
+        if(drops[i]*14>mc.height&&Math.random()>0.975)drops[i]=0;
+        drops[i]++;
+      }
+    },35);
+    setTimeout(function(){clearInterval(_matrixInterval);mc.style.display='none';},8000);
+  }
+  function trollDisco(){var d=document.getElementById('troll-disco');d.style.display='block';clearTimeout(_discoTimeout);_discoTimeout=setTimeout(function(){d.style.display='none';},5000);}
+  function trollVirus(){document.getElementById('troll-virus').style.display='flex';}
+  function trollShake(){
+    var count=0;
+    var int=setInterval(function(){
+      document.body.style.transform='translate('+((Math.random()-.5)*30)+'px,'+((Math.random()-.5)*20)+'px)';
+      count++;if(count>40){clearInterval(int);document.body.style.transform='';}
+    },50);
+  }
+  function trollConfetti(){
+    var colors=['#ff6b6b','#feca57','#48dbfb','#ff9ff3','#6c5ce7','#00b894','#fd79a8'];
+    for(var i=0;i<80;i++){(function(){
+      var c=document.createElement('div');
+      c.className='troll-confetti';
+      c.style.left=Math.random()*100+'%';c.style.top='-10px';
+      c.style.background=colors[Math.floor(Math.random()*colors.length)];
+      c.style.borderRadius=Math.random()>.5?'50%':'0';
+      c.style.animationDelay=Math.random()*2+'s';
+      c.style.animationDuration=(2+Math.random()*2)+'s';
+      document.body.appendChild(c);setTimeout(function(){c.remove();},5000);
+    })();}
+  }
+  function trollRunAway(){}
+  function trollRainbow(){var o=document.getElementById('troll-rainbow-overlay');o.style.display='block';setTimeout(function(){o.style.display='none';},6000);}
+  function trollGravity(){}
+  function trollBlur(){document.body.style.filter='blur(8px)';document.body.style.transition='filter .3s';setTimeout(function(){document.body.style.filter='';},6000);}
+  function trollZoom(){
+    var t=0;
+    var int=setInterval(function(){var s=1+0.06*Math.sin(t*0.3);document.body.style.transform='scale('+s+')';t++;},50);
+    setTimeout(function(){clearInterval(int);document.body.style.transform='';},6000);
+  }
+  function trollGhost(){
+    var t=0;
+    var int=setInterval(function(){var o=0.5+0.5*Math.sin(t*0.6);document.body.style.opacity=Math.max(0.02,o).toString();t++;},40);
+    setTimeout(function(){clearInterval(int);document.body.style.opacity='';},5000);
+  }
+  function trollGlitch(){
+    var ov=document.getElementById('troll-glitch');ov.style.display='block';
+    clearInterval(_glitchInterval);
+    _glitchInterval=setInterval(function(){
+      var bars=[];
+      for(var i=0;i<8;i++){
+        var y=Math.random()*100,h=Math.random()*6+1,color='hsl('+Math.floor(Math.random()*360)+',100%,50%)',x=(Math.random()-.5)*30;
+        bars.push('<div style="position:absolute;top:'+y+'%;left:0;width:100%;height:'+h+'%;background:'+color+';opacity:.55;transform:translateX('+x+'px)"></div>');
+      }
+      ov.innerHTML=bars.join('');
+    },80);
+    setTimeout(function(){clearInterval(_glitchInterval);ov.style.display='none';ov.innerHTML='';},5000);
+  }
+  function trollSnow(){
+    var emojis=['❄️','⛄','🌨️'];
+    for(var i=0;i<40;i++){(function(){
+      var delay=Math.random()*3000;
+      setTimeout(function(){
+        var el=document.createElement('div');el.className='troll-float';
+        el.textContent=emojis[Math.floor(Math.random()*emojis.length)];
+        el.style.left=Math.random()*100+'vw';el.style.top='-40px';
+        el.style.fontSize=(20+Math.random()*20)+'px';
+        el.style.animation='troll-fall '+(3+Math.random()*4)+'s ease-in forwards';
+        document.body.appendChild(el);setTimeout(function(){el.remove();},8000);
+      },delay);
+    })();}
+  }
+  function trollBubble(){
+    var emojis=['🫧','💫','🎈','✨'];
+    for(var i=0;i<35;i++){(function(){
+      var delay=Math.random()*2500;
+      setTimeout(function(){
+        var el=document.createElement('div');el.className='troll-float';
+        el.textContent=emojis[Math.floor(Math.random()*emojis.length)];
+        el.style.left=Math.random()*100+'vw';el.style.bottom='-40px';el.style.top='auto';
+        el.style.fontSize=(18+Math.random()*18)+'px';
+        el.style.animation='troll-rise '+(2.5+Math.random()*3)+'s ease-out forwards';
+        document.body.appendChild(el);setTimeout(function(){el.remove();},6500);
+      },delay);
+    })();}
+  }
+  function trollDarkout(){
+    var ov=document.createElement('div');ov.id='troll-darkout-el';
+    ov.style.cssText='position:fixed;top:0;left:0;width:100%;height:100%;background:#000;z-index:9999;pointer-events:none;opacity:0;transition:opacity 1.5s';
+    document.body.appendChild(ov);
+    requestAnimationFrame(function(){ov.style.opacity='1';});
+    setTimeout(function(){ov.style.opacity='0';},2000);
+    setTimeout(function(){ov.remove();},3600);
+  }
+  function trollCursor(){
+    var style=document.createElement('style');style.id='troll-cursor-style';
+    style.textContent='*{cursor:url("data:image/svg+xml,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'32\' height=\'32\'><text y=\'28\' font-size=\'28\'>💩</text></svg>") 16 16,auto !important}';
+    document.head.appendChild(style);
+    setTimeout(function(){style.remove();},6000);
+  }
+  function trollTypewriter(){
+    var ov=document.getElementById('troll-typewriter');
+    var words=['ACCESSING SYSTEM...','ROOT ACCESS GRANTED','DELETING SYSTEM32...','HACKING MAINFRAME...','BYPASSING FIREWALL...','UPLOADING VIRUS...','STEALING DATA...','ENCRYPTING FILES...','GAME OVER...','YOU HAVE BEEN PWNED'];
+    ov.textContent='';ov.style.display='block';
+    clearInterval(_typewriterInterval);
+    var text='';
+    _typewriterInterval=setInterval(function(){
+      text+=words[Math.floor(Math.random()*words.length)]+'\n';
+      if(text.length>600)text=text.slice(text.length-600);
+      ov.textContent=text;
+    },120);
+    setTimeout(function(){clearInterval(_typewriterInterval);ov.style.display='none';ov.textContent='';},6000);
+  }
+  function trollEmojiRain(){
+    var emojis=['😂','🤣','💀','🔥','👀','😱','🤡','👾','💩','🐛','🎃','👻','🦠','☠️','🤮','😈','👽','🛸','🌝','🍆','🌈','🦄','🐸'];
+    for(var i=0;i<60;i++){(function(){
+      var delay=Math.random()*2000;
+      setTimeout(function(){
+        var el=document.createElement('div');el.className='troll-float';
+        el.textContent=emojis[Math.floor(Math.random()*emojis.length)];
+        el.style.left=Math.random()*100+'vw';el.style.top='-40px';
+        el.style.fontSize=(16+Math.random()*24)+'px';
+        el.style.animation='troll-fall '+(1.5+Math.random()*3)+'s ease-in forwards';
+        document.body.appendChild(el);setTimeout(function(){el.remove();},5500);
+      },delay);
+    })();}
+  }
+  function trollBigText(){
+    var phrases=['ТЫ ВЗЛОМАН 💀','ВСЁ ПРОПАЛО 😱','УДАЛЯЮ ДАННЫЕ...','ПРОЩАЙ, ДРУГ 👋','СЕРВЕР ВЗЛОМАН','ВИРУС АКТИВИРОВАН ☠️'];
+    var ov=document.getElementById('troll-bigtext');var sp=document.getElementById('troll-bigtext-word');
+    ov.style.display='flex';var idx=0;sp.textContent=phrases[0];
+    clearTimeout(_bigtextTimeout);
+    function next(){idx++;if(idx>=phrases.length){ov.style.display='none';return;}sp.textContent=phrases[idx];_bigtextTimeout=setTimeout(next,900);}
+    _bigtextTimeout=setTimeout(next,900);
+    setTimeout(function(){ov.style.display='none';clearTimeout(_bigtextTimeout);},6000);
+  }
+  function trollUpsideText(){
+    var style=document.createElement('style');style.id='troll-upside-style';
+    style.textContent='p,h1,h2,h3,h4,span,a,button,label{transform:rotate(180deg) !important;display:inline-block !important}';
+    document.head.appendChild(style);setTimeout(function(){style.remove();},5000);
+  }
+  function trollSlowMo(){
+    document.documentElement.style.animationDuration='500%';document.documentElement.style.transitionDuration='500%';
+    setTimeout(function(){document.documentElement.style.animationDuration='';document.documentElement.style.transitionDuration='';},6000);
+  }
+  function trollScaleCrazy(){
+    clearInterval(_scaleCrazyInterval);
+    _scaleCrazyInterval=setInterval(function(){
+      var cards=document.querySelectorAll('.game-card');if(!cards.length)return;
+      var card=cards[Math.floor(Math.random()*cards.length)];
+      card.style.transform='scale(1.5)';card.style.zIndex='200';card.style.transition='transform .1s';
+      setTimeout(function(){card.style.transform='';card.style.zIndex='';},180);
+    },200);
+    setTimeout(function(){clearInterval(_scaleCrazyInterval);document.querySelectorAll('.game-card').forEach(function(c){c.style.transform='';c.style.zIndex='';});},5000);
+  }
+  function trollColorInvert(){document.body.style.filter='invert(1)';document.body.style.transition='filter .3s';setTimeout(function(){document.body.style.filter='';},5000);}
+  function trollReset(){
+    document.body.style.transform='';document.body.style.filter='';document.body.style.opacity='';
+    document.getElementById('troll-matrix').style.display='none';clearInterval(_matrixInterval);
+    document.getElementById('troll-virus').style.display='none';
+    document.getElementById('troll-disco').style.display='none';clearTimeout(_discoTimeout);
+    document.getElementById('troll-rainbow-overlay').style.display='none';
+    document.getElementById('troll-glitch').style.display='none';document.getElementById('troll-glitch').innerHTML='';clearInterval(_glitchInterval);
+    document.getElementById('troll-typewriter').style.display='none';clearInterval(_typewriterInterval);
+    document.getElementById('troll-bigtext').style.display='none';clearTimeout(_bigtextTimeout);
+    clearInterval(_scaleCrazyInterval);
+    document.querySelectorAll('.troll-confetti,.troll-float').forEach(function(e){e.remove();});
+    var de=document.getElementById('troll-darkout-el');if(de)de.remove();
+    var cs=document.getElementById('troll-cursor-style');if(cs)cs.remove();
+    var us=document.getElementById('troll-upside-style');if(us)us.remove();
+    document.documentElement.style.animationDuration='';document.documentElement.style.transitionDuration='';
+  }
+  if(db){
+    db.ref('trolls').on('child_added',function(snap){var data=snap.val();if(data&&data.time>lastTrollTime){executeTroll(data.type);}});
+    var _lastBroadcast=Date.now();
+    db.ref('broadcast').on('value',function(snap){var data=snap.val();if(!data||data.time<=_lastBroadcast)return;_lastBroadcast=data.time;var b=document.getElementById('troll-broadcast');b.textContent='📢 '+data.text;b.style.display='block';setTimeout(function(){b.style.display='none';},8000);});
+    db.ref('theme').on('value',function(snap){var t=snap.val();if(!t)return;if(t==='neon'){document.body.style.background='linear-gradient(135deg,#0a0a1a,#001a33,#0a1a0a)';document.body.style.color='#00ffcc';}else if(t==='retro'){document.body.style.background='linear-gradient(135deg,#2c1810,#4a2c1a,#3a2010)';document.body.style.color='#ffd700';}else{document.body.style.background='';document.body.style.color='';}});
+  }
+})();
+</script>
+</body>
+</html>

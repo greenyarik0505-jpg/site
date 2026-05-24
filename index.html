@@ -17,7 +17,10 @@ body{background:linear-gradient(135deg,#0f0c29 0%,#302b63 50%,#24243e 100%);min-
 @keyframes hueShift{0%{filter:hue-rotate(0deg)}100%{filter:hue-rotate(360deg)}}
 .header p{color:#888;font-size:14px;margin-top:4px}
 
-.games-grid{position:relative;z-index:10;display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:16px;padding:20px 16px;max-width:700px;margin:0 auto}
+.games-grid{position:relative;z-index:10;padding:20px 16px;max-width:920px;margin:0 auto}
+.category-section{margin:0 0 26px}
+.category-title{font-size:18px;color:#feca57;margin:0 0 10px;padding-left:4px;text-shadow:0 0 16px rgba(254,202,87,.25)}
+.category-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:16px}
 .game-card{background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.12);border-radius:20px;padding:20px 14px;text-align:center;cursor:pointer;transition:transform .2s,box-shadow .2s,background .2s;position:relative;overflow:hidden}
 .game-card:hover,.game-card:active{transform:translateY(-4px) scale(1.02);background:rgba(255,255,255,0.13);box-shadow:0 8px 30px rgba(0,0,0,.4)}
 .game-card .icon{font-size:48px;display:block;margin-bottom:10px;transition:transform .3s}
@@ -32,6 +35,17 @@ body{background:linear-gradient(135deg,#0f0c29 0%,#302b63 50%,#24243e 100%);min-
 .overlay{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.85);z-index:100;justify-content:center;align-items:center;backdrop-filter:blur(8px)}
 .overlay.show{display:flex}
 .modal{background:#1a1a2e;border:1px solid #333;border-radius:20px;padding:24px;width:92%;max-width:440px;max-height:85vh;overflow-y:auto;position:relative}
+#adminOverlay{align-items:stretch}
+#adminOverlay .modal{width:100%;height:100%;max-width:none;max-height:none;border-radius:0;border:none;padding:18px 18px 34px}
+#adminOverlay h2{font-size:clamp(22px,4vw,34px);margin-bottom:12px}
+#adminOverlay .close-btn{position:fixed;top:14px;right:18px;z-index:2;font-size:30px}
+#adminOverlay .admin-tabs{position:sticky;top:0;z-index:1;background:#1a1a2e;padding:8px 42px 12px 0}
+#adminOverlay .admin-tab-pane{max-width:1100px;margin:0 auto}
+.admin-action-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px;margin:12px 0}
+.admin-wide-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px;align-items:start}
+.admin-panel-box{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:14px;padding:14px}
+.admin-panel-box h3{font-size:16px;color:#feca57;margin:0 0 10px}
+.admin-mini-note{font-size:12px;color:#999;line-height:1.45}
 .modal h2{font-size:22px;margin-bottom:16px;color:#feca57;text-align:center}
 .modal label{display:block;font-size:13px;color:#aaa;margin:10px 0 4px}
 .modal input,.modal textarea,.modal select{width:100%;padding:10px 12px;border-radius:10px;border:1px solid #444;background:#16213e;color:#fff;font-size:14px;font-family:inherit}
@@ -164,12 +178,18 @@ body{background:linear-gradient(135deg,#0f0c29 0%,#302b63 50%,#24243e 100%);min-
 <button class="admin-tab-btn" onclick="switchAdminTab('stats')">📊 Стат</button>
 <button class="admin-tab-btn" onclick="switchAdminTab('broadcast')">📢 Сообщение</button>
 <button class="admin-tab-btn" onclick="switchAdminTab('theme')">🎨 Тема</button>
+<button class="admin-tab-btn" onclick="switchAdminTab('tools')">⚙️ Инструменты</button>
 </div>
 
 <div class="admin-tab-pane active" id="tab-games">
 <button class="btn btn-primary" onclick="showAddGame()">➕ Добавить игру (для всех)</button>
 <button class="btn btn-secondary" onclick="showManageGames()">📋 Управление играми</button>
 <button class="btn btn-secondary" onclick="resetPassword()">🔑 Сменить пароль</button>
+<div class="admin-action-grid">
+<button class="btn btn-secondary" onclick="refreshGames()">🔄 Обновить игры</button>
+<button class="btn btn-export" onclick="exportGames()">📦 Экспорт игр JSON</button>
+<button class="btn btn-danger" onclick="clearCustomGames()">🗑 Очистить добавленные игры</button>
+</div>
 </div>
 
 <div class="admin-tab-pane" id="tab-trolls">
@@ -214,7 +234,10 @@ body{background:linear-gradient(135deg,#0f0c29 0%,#302b63 50%,#24243e 100%);min-
 <div style="font-size:12px;color:#aaa;margin-bottom:6px">📜 Последние тролли:</div>
 <div id="stat-troll-log"></div>
 </div>
-<button class="btn btn-secondary" onclick="refreshStats()" style="margin-top:10px">🔁 Обновить</button>
+<div class="admin-action-grid">
+<button class="btn btn-secondary" onclick="refreshStats()">🔁 Обновить</button>
+<button class="btn btn-danger" onclick="clearTrollLog()">🧹 Очистить лог троллей</button>
+</div>
 </div>
 
 <div class="admin-tab-pane" id="tab-broadcast">
@@ -222,6 +245,11 @@ body{background:linear-gradient(135deg,#0f0c29 0%,#302b63 50%,#24243e 100%);min-
 <label>Текст сообщения:</label>
 <textarea id="broadcast-text" placeholder="Привет всем! 👋" rows="3"></textarea>
 <button class="btn btn-primary" onclick="sendBroadcast()">📤 Отправить всем</button>
+<div class="admin-action-grid">
+<button class="btn btn-secondary" onclick="quickBroadcast('Новая игра уже на портале! 🎮')">🎮 Новая игра</button>
+<button class="btn btn-secondary" onclick="quickBroadcast('Обнови страницу, если игра не появилась 🔄')">🔄 Обновить страницу</button>
+<button class="btn btn-danger" onclick="clearBroadcast()">🧹 Убрать сообщение</button>
+</div>
 </div>
 
 <div class="admin-tab-pane" id="tab-theme">
@@ -230,6 +258,26 @@ body{background:linear-gradient(135deg,#0f0c29 0%,#302b63 50%,#24243e 100%);min-
 <button class="btn btn-secondary" onclick="setTheme('dark')" style="background:linear-gradient(135deg,#0f0c29,#302b63);border:1px solid #6c5ce7;margin-bottom:6px">🌑 Тёмная (по умолчанию)</button>
 <button class="btn btn-secondary" onclick="setTheme('neon')" style="background:linear-gradient(135deg,#0a0a1a,#001a33);border:1px solid #00ffcc;color:#00ffcc;margin-bottom:6px">🌈 Неон</button>
 <button class="btn btn-secondary" onclick="setTheme('retro')" style="background:linear-gradient(135deg,#2c1810,#4a2c1a);border:1px solid #ffd700;color:#ffd700">📼 Ретро</button>
+<button class="btn btn-danger" onclick="setTheme('dark')">🔄 Сбросить тему</button>
+</div>
+
+<div class="admin-tab-pane" id="tab-tools">
+<div class="admin-wide-grid">
+<div class="admin-panel-box">
+<h3>⚙️ Быстрые действия</h3>
+<button class="btn btn-secondary" onclick="window.open(location.href,'_blank')">🌐 Открыть сайт</button>
+<button class="btn btn-secondary" onclick="copySiteLink()">🔗 Скопировать ссылку</button>
+<button class="btn btn-secondary" onclick="refreshStats()">📊 Обновить статистику</button>
+<button class="btn btn-danger" onclick="sendTroll('reset')">🧯 Сбросить эффекты всем</button>
+</div>
+<div class="admin-panel-box">
+<h3>📋 Состояние</h3>
+<div class="stat-row"><span>Встроенных игр</span><span class="stat-val" id="stat-builtin-games">—</span></div>
+<div class="stat-row"><span>Добавленных игр</span><span class="stat-val" id="stat-custom-games">—</span></div>
+<div class="stat-row"><span>Всего игр</span><span class="stat-val" id="stat-total-games">—</span></div>
+<p class="admin-mini-note">Кастомные игры хранятся в Firebase. Встроенные игры лежат в файлах сайта и обновляются через GitHub.</p>
+</div>
+</div>
 </div>
 </div>
 
@@ -256,6 +304,14 @@ body{background:linear-gradient(135deg,#0f0c29 0%,#302b63 50%,#24243e 100%);min-
 <label>HTML код игры:</label>
 <textarea id="addCode" placeholder="<!DOCTYPE html>..." rows="6"></textarea>
 </div>
+<label>Категория:</label>
+<select id="addCategory">
+<option value="custom">Пользовательские</option>
+<option value="arcade">Аркады</option>
+<option value="puzzle">Головоломки</option>
+<option value="creative">Творческие</option>
+<option value="sim">Симуляторы</option>
+</select>
 <label>Бейдж (необязательно):</label>
 <input type="text" id="addBadge" placeholder="NEW" maxlength="12">
 <button class="btn btn-primary" onclick="saveNewGame()">💾 Сохранить и опубликовать</button>
@@ -321,13 +377,16 @@ try {
 //  БАЗОВЫЕ ИГРЫ (встроенные)
 // =======================================================
 const DEFAULT_GAMES = [
-  { id:'sandbox', icon:'🎨', name:'Песочница', desc:'Физика, рисование, объекты', url:'sandbox.html', badge:'NEW', type:'link', builtin:true },
-  { id:'bubblepop', icon:'🫧', name:'Шарики POP', desc:'Стреляй и лопай шарики!', url:'New_game.html', badge:'', type:'link', builtin:true },
-  { id:'flappy', icon:'🐤', name:'Flappy Bird', desc:'Летай между трубами!', url:'Flappy_Bird.html', badge:'', type:'link', builtin:true },
-  { id:'sandboxels', icon:'⚗️', name:'Sandboxels', desc:'Симулятор 25+ стихий и частиц', url:'sandboxels.html', badge:'NEW', type:'link', builtin:true },
-  { id:'cafesim', icon:'☕', name:'Моё Кафе', desc:'Управляй кафе и радуй гостей!', url:'cafe_sim.html', badge:'NEW', type:'link', builtin:true },
-  { id:'snake', icon:'🐍', name:'Змейка', desc:'Классика: ешь яблоки и расти!', url:'snake.html', badge:'NEW', type:'link', builtin:true },
-  { id:'pacman', icon:'🟡', name:'Pac-Man', desc:'Собери точки и убегай от призраков!', url:'pacman.html', badge:'NEW', type:'link', builtin:true },
+  { id:'sandbox', icon:'🎨', name:'Песочница', desc:'Физика, рисование, объекты', url:'sandbox.html', badge:'NEW', type:'link', builtin:true, category:'creative' },
+  { id:'sandboxels', icon:'⚗️', name:'Sandboxels', desc:'Симулятор 25+ стихий и частиц', url:'sandboxels.html', badge:'NEW', type:'link', builtin:true, category:'creative' },
+  { id:'bubblepop', icon:'🫧', name:'Шарики POP', desc:'Стреляй и лопай шарики!', url:'New_game.html', badge:'', type:'link', builtin:true, category:'arcade' },
+  { id:'flappy', icon:'🐤', name:'Flappy Bird', desc:'Летай между трубами!', url:'Flappy_Bird.html', badge:'', type:'link', builtin:true, category:'arcade' },
+  { id:'snake', icon:'🐍', name:'Змейка', desc:'Классика: ешь яблоки и расти!', url:'snake.html', badge:'NEW', type:'link', builtin:true, category:'arcade' },
+  { id:'pacman', icon:'🟡', name:'Pac-Man', desc:'Собери точки и убегай от призраков!', url:'pacman.html', badge:'NEW', type:'link', builtin:true, category:'arcade' },
+  { id:'tetris', icon:'🧱', name:'Тетрис', desc:'Падающие блоки, очки и ускорение', url:'tetris.html', badge:'NEW', type:'link', builtin:true, category:'arcade' },
+  { id:'arkanoid', icon:'🏓', name:'Арканоид', desc:'Отбивай шарик и ломай блоки', url:'arkanoid.html', badge:'NEW', type:'link', builtin:true, category:'arcade' },
+  { id:'game2048', icon:'🔢', name:'2048', desc:'Соединяй плитки до 2048', url:'2048.html', badge:'NEW', type:'link', builtin:true, category:'puzzle' },
+  { id:'cafesim', icon:'☕', name:'Моё Кафе', desc:'Управляй кафе и радуй гостей!', url:'cafe_sim.html', badge:'NEW', type:'link', builtin:true, category:'sim' },
 ];
 
 // =======================================================
@@ -335,22 +394,47 @@ const DEFAULT_GAMES = [
 // =======================================================
 let customGames = [];
 
+const CATEGORY_LABELS = {
+  arcade: '🕹 Аркады',
+  puzzle: '🧩 Головоломки',
+  creative: '🎨 Творческие',
+  sim: '☕ Симуляторы',
+  custom: '✨ Пользовательские'
+};
+const CATEGORY_ORDER = ['arcade', 'puzzle', 'creative', 'sim', 'custom'];
+
 function renderGames() {
   const grid = document.getElementById('gamesGrid');
   grid.innerHTML = '';
-  const all = [...DEFAULT_GAMES, ...customGames];
+  const all = [...DEFAULT_GAMES, ...customGames.map(g => ({ ...g, category: g.category || 'custom' }))];
+  const groups = {};
   all.forEach(g => {
-    const card = document.createElement('div');
-    card.className = 'game-card' + (g.builtin ? '' : ' custom-game');
-    card.innerHTML = `
-      <span class="icon">${g.icon || '🎮'}</span>
-      <h3>${g.name}</h3>
-      <p>${g.desc || ''}</p>
-      ${g.badge ? `<div class="badge">${g.badge}</div>` : ''}
-    `;
-    card.addEventListener('click', () => openGame(g));
-    grid.appendChild(card);
+    const key = g.category || 'custom';
+    if (!groups[key]) groups[key] = [];
+    groups[key].push(g);
   });
+  CATEGORY_ORDER.concat(Object.keys(groups).filter(k => !CATEGORY_ORDER.includes(k))).forEach(category => {
+    const games = groups[category];
+    if (!games || !games.length) return;
+    const section = document.createElement('section');
+    section.className = 'category-section';
+    section.innerHTML = `<h2 class="category-title">${CATEGORY_LABELS[category] || category}</h2><div class="category-grid"></div>`;
+    const list = section.querySelector('.category-grid');
+    games.forEach(g => {
+      const card = document.createElement('div');
+      card.className = 'game-card' + (g.builtin ? '' : ' custom-game');
+      card.innerHTML = `
+        <span class="icon">${g.icon || '🎮'}</span>
+        <h3>${g.name}</h3>
+        <p>${g.desc || ''}</p>
+        ${g.badge ? `<div class="badge">${g.badge}</div>` : ''}
+      `;
+      card.addEventListener('click', () => openGame(g));
+      list.appendChild(card);
+    });
+    grid.appendChild(section);
+  });
+  updateAdminGameStats();
 }
 
 function openGame(g) {
@@ -528,9 +612,9 @@ function switchAdminTab(name) {
   document.querySelectorAll('.admin-tab-pane').forEach(p => p.classList.remove('active'));
   document.querySelectorAll('.admin-tab-btn').forEach(b => b.classList.remove('active'));
   document.getElementById('tab-' + name).classList.add('active');
-  const idx = ['games','trolls','stats','broadcast','theme'].indexOf(name);
+  const idx = ['games','trolls','stats','broadcast','theme','tools'].indexOf(name);
   document.querySelectorAll('.admin-tab-btn')[idx].classList.add('active');
-  if (name === 'stats') refreshStats();
+  if (name === 'stats' || name === 'tools') refreshStats();
 }
 
 // --- ОТПРАВИТЬ ТРОЛЛЬ ВСЕМ В РЕАЛЬНОМ ВРЕМЕНИ ---
@@ -571,6 +655,7 @@ function showAddGame() {
   document.getElementById('addUrl').value = '';
   document.getElementById('addCode').value = '';
   document.getElementById('addBadge').value = 'NEW';
+  document.getElementById('addCategory').value = 'custom';
 }
 
 document.getElementById('addType').addEventListener('change', function() {
@@ -590,6 +675,7 @@ function saveNewGame() {
     url: document.getElementById('addUrl').value,
     code: document.getElementById('addCode').value,
     badge: document.getElementById('addBadge').value,
+    category: document.getElementById('addCategory').value || 'custom',
     builtin: false,
   };
   if (db) {
@@ -619,6 +705,42 @@ function showManageGames() {
     item.innerHTML = `<span>${g.icon} ${g.name}</span><div><button class="btn-sm btn-danger" onclick="deleteGame('${g.id}',${i})">🗑</button></div>`;
     list.appendChild(item);
   });
+}
+
+function refreshGames() {
+  loadGamesFromFirebase();
+  renderGames();
+  alert('Список игр обновлен!');
+}
+
+function exportGames() {
+  const data = JSON.stringify({ builtin: DEFAULT_GAMES, custom: customGames }, null, 2);
+  const blob = new Blob([data], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'portal-games.json';
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+function clearCustomGames() {
+  if (!confirm('Удалить все добавленные через админку игры? Встроенные игры останутся.')) return;
+  customGames = [];
+  localStorage.removeItem('portal_custom_games');
+  if (db) db.ref('games').set(null);
+  renderGames();
+  showManageGames();
+}
+
+function updateAdminGameStats() {
+  const builtinEl = document.getElementById('stat-builtin-games');
+  const customEl = document.getElementById('stat-custom-games');
+  const totalEl = document.getElementById('stat-total-games');
+  if (!builtinEl || !customEl || !totalEl) return;
+  builtinEl.textContent = DEFAULT_GAMES.length;
+  customEl.textContent = customGames.length;
+  totalEl.textContent = DEFAULT_GAMES.length + customGames.length;
 }
 
 function deleteGame(id, index) {
@@ -1084,6 +1206,27 @@ function sendBroadcast() {
     document.getElementById('broadcast-text').value = '';
     alert('Сообщение отправлено всем!');
   }
+}
+
+function quickBroadcast(text) {
+  document.getElementById('broadcast-text').value = text;
+  sendBroadcast();
+}
+
+function clearBroadcast() {
+  if (db) db.ref('broadcast').set({ text: '', time: Date.now() });
+  document.getElementById('broadcast-text').value = '';
+  alert('Сообщение очищено.');
+}
+
+function clearTrollLog() {
+  if (!confirm('Очистить лог троллей?')) return;
+  if (db) db.ref('trolls_log').set(null);
+  document.getElementById('stat-troll-log').innerHTML = '<div class="log-item">Лог очищен</div>';
+}
+
+function copySiteLink() {
+  navigator.clipboard.writeText(location.origin + location.pathname).then(() => alert('Ссылка скопирована!'));
 }
 
 function listenForBroadcast() {
