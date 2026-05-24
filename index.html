@@ -423,6 +423,7 @@ const CATEGORY_LABELS = {
   custom: '✨ Пользовательские'
 };
 const CATEGORY_ORDER = ['arcade', 'puzzle', 'creative', 'sim', 'custom'];
+let customGames = [];
 
 function renderGames() {
   const grid = document.getElementById('gamesGrid');
@@ -737,7 +738,6 @@ function showManageGames() {
 }
 
 function refreshGames() {
-  loadGamesFromFirebase();
   renderGames();
   alert('Список игр обновлен!');
 }
