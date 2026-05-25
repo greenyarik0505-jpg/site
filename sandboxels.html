@@ -6,16 +6,23 @@
 <title>Sandboxels</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-body{background:#0d1117;color:#e6edf3;font-family:system-ui,sans-serif;display:flex;flex-direction:column;height:100vh;overflow:hidden;user-select:none}
-#ui{background:#161b22;border-bottom:1px solid #30363d;padding:6px 8px;display:flex;flex-direction:column;gap:5px;flex-shrink:0}
-#el-panel{display:flex;flex-wrap:wrap;gap:3px;max-height:88px;overflow-y:auto}
-.el-btn{display:flex;align-items:center;gap:4px;padding:3px 7px;border-radius:4px;border:1px solid #30363d;background:#21262d;color:#e6edf3;font-size:11px;cursor:pointer;transition:border-color .1s,background .1s;white-space:nowrap}
+body{background:#0d1117;color:#e6edf3;font-family:system-ui,sans-serif;display:flex;flex-direction:column;height:100vh;height:100dvh;overflow:hidden;user-select:none}
+#ui{background:#161b22;border-bottom:1px solid #30363d;padding:12px 158px 10px 158px;display:flex;flex-direction:column;gap:8px;flex-shrink:0;box-shadow:0 10px 24px rgba(0,0,0,.18)}
+#sandboxels-tools{display:grid;grid-template-columns:minmax(160px,260px) minmax(130px,180px) 1fr;gap:8px;align-items:center}
+#el-search,#el-group{width:100%;min-height:36px;border:1px solid #30363d;border-radius:8px;background:#0d1117;color:#e6edf3;padding:0 10px;font:700 13px system-ui,sans-serif;outline:none}
+#el-search:focus,#el-group:focus{border-color:#58a6ff;box-shadow:0 0 0 3px rgba(88,166,255,.16)}
+#sandboxels-hint{color:#8b949e;font-size:12px;line-height:1.25;text-align:right}
+#el-panel{display:grid;grid-template-columns:repeat(auto-fill,minmax(108px,1fr));gap:5px;max-height:132px;overflow-y:auto;padding-right:2px}
+.el-btn{display:flex;align-items:center;justify-content:flex-start;gap:6px;min-width:0;min-height:34px;padding:6px 8px;border-radius:8px;border:1px solid #30363d;background:#21262d;color:#e6edf3;font-size:12px;font-weight:750;cursor:pointer;transition:border-color .1s,background .1s,transform .1s;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .el-btn:hover{border-color:#58a6ff}
+.el-btn:active{transform:scale(.98)}
 .el-btn.active{border-color:#58a6ff;background:#1f3a5f}
 .el-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;border:1px solid rgba(255,255,255,0.2)}
-#ctrl-row{display:flex;gap:5px;align-items:center;flex-wrap:wrap}
-.cb{padding:4px 10px;border-radius:4px;border:1px solid #30363d;background:#21262d;color:#e6edf3;font-size:12px;cursor:pointer;transition:background .1s,border-color .1s}
+#ctrl-row{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+#ctrl-row>span:first-child,.brush-label{font-size:12px!important;color:#8b949e;font-weight:800}
+.cb{min-height:34px;padding:6px 11px;border-radius:8px;border:1px solid #30363d;background:#21262d;color:#e6edf3;font-size:12px;font-weight:800;cursor:pointer;transition:background .1s,border-color .1s,transform .1s}
 .cb:hover{background:#30363d}
+.cb:active{transform:scale(.98)}
 .cb.active{border-color:#58a6ff;background:#1f3a5f}
 #fps{color:#8b949e;font-size:11px;margin-left:auto}
 #cw{flex:1;overflow:hidden;display:flex}
@@ -39,12 +46,40 @@ canvas{display:block;cursor:crosshair;touch-action:none}
 }
 .portal-home-btn:active{transform:scale(.96)}
 
+@media(max-width:900px){
+  #ui{padding:58px 8px 8px}
+  #sandboxels-tools{grid-template-columns:1fr 132px}
+  #sandboxels-hint{grid-column:1/-1;text-align:left}
+  #el-panel{max-height:30dvh;grid-template-columns:repeat(3,minmax(0,1fr))}
+  .el-btn{min-height:38px;font-size:12px;padding:8px 7px}
+}
+
+@media(max-width:560px){
+  .portal-home-btn{top:10px;left:10px;padding:8px 11px;border-radius:12px;font-size:12px}
+  #ui{padding-top:54px;gap:7px}
+  #sandboxels-tools{grid-template-columns:1fr}
+  #el-search,#el-group{min-height:40px;font-size:14px}
+  #sandboxels-hint{display:none}
+  #el-panel{grid-template-columns:repeat(2,minmax(0,1fr));max-height:34dvh;gap:6px}
+  .el-btn{min-height:42px;font-size:13px}
+  #ctrl-row{display:grid;grid-template-columns:auto repeat(3,1fr);gap:6px}
+  #ctrl-row>span:first-child,.brush-label{align-self:center}
+  .cb{min-height:40px;padding:7px 8px;font-size:12px}
+  .cb:nth-of-type(4),.cb:nth-of-type(5){grid-column:span 2}
+  #fps{grid-column:1/-1;margin-left:0;text-align:right;font-size:12px}
+}
+
 </style>
 </head>
 <body>
 <a class="portal-home-btn" href="index.html">Главное меню</a>
 
 <div id="ui">
+  <div id="sandboxels-tools">
+    <input id="el-search" type="search" placeholder="Поиск элемента" autocomplete="off">
+    <select id="el-group" aria-label="Все элементы"></select>
+    <div id="sandboxels-hint">Выбирай элемент, рисуй на поле и смешивай стихии.</div>
+  </div>
   <div id="el-panel"></div>
   <div id="ctrl-row">
     <span style="font-size:11px;color:#8b949e">Кисть:</span>
@@ -110,6 +145,23 @@ const ELDEF = [
 ];
 
 const UI_ORDER = [1,6,2,4,3,5,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,26,24,25,27,28];
+const GROUP_LABELS = {
+  all: ['Все элементы','Усі елементи','All elements'],
+  powder: ['Порошки','Порошки','Powders'],
+  liquid: ['Жидкости','Рідини','Liquids'],
+  gas: ['Газы','Гази','Gases'],
+  solid: ['Твёрдые','Тверді','Solids'],
+  special: ['Особые','Особливі','Special']
+};
+const ELEMENT_I18N = {
+  1:['Песок','Пісок','Sand'],2:['Снег','Сніг','Snow'],3:['Порох','Порох','Gunpowder'],4:['Соль','Сіль','Salt'],5:['Пепел','Попіл','Ash'],6:['Земля','Земля','Dirt'],
+  7:['Вода','Вода','Water'],8:['Лава','Лава','Lava'],9:['Кислота','Кислота','Acid'],10:['Масло','Олія','Oil'],11:['Мёд','Мед','Honey'],
+  12:['Огонь','Вогонь','Fire'],13:['Дым','Дим','Smoke'],14:['Пар','Пара','Steam'],15:['Токсичный газ','Токсичний газ','Toxic Gas'],
+  16:['Камень','Камінь','Stone'],17:['Дерево','Дерево','Wood'],18:['Металл','Метал','Metal'],19:['Стекло','Скло','Glass'],20:['Лёд','Лід','Ice'],21:['Обсидиан','Обсидіан','Obsidian'],22:['Кирпич','Цегла','Brick'],23:['Губка','Губка','Sponge'],
+  24:['Клон','Клон','Clone'],25:['Вирус','Вірус','Virus'],26:['Растение','Рослина','Plant'],27:['TNT','TNT','TNT'],28:['Пустота','Порожнеча','Void']
+};
+let elementQuery = '';
+let elementGroup = 'all';
 
 const FLAMMABLE = new Set([WOOD,OIL,GUNPOWDER,PLANT]);
 const ACID_DIS = new Set([SAND,DIRT,SNOW,WOOD,PLANT,ASH,GUNPOWDER,SALT,ICE]);
@@ -488,9 +540,48 @@ canvas.addEventListener('pointerup',()=>drawing=false);
 canvas.addEventListener('pointerleave',()=>drawing=false);
 canvas.addEventListener('contextmenu',e=>e.preventDefault());
 
+function langIndex(){
+  const lang = (window.PortalI18n && window.PortalI18n.lang && window.PortalI18n.lang()) || localStorage.getItem('portal_lang') || 'ru';
+  return lang === 'uk' ? 1 : lang === 'en' ? 2 : 0;
+}
+
+function elementName(id){
+  const row = ELEMENT_I18N[id];
+  return row ? row[langIndex()] : ELDEF[id][0];
+}
+
+function buildTools(){
+  const search=document.getElementById('el-search');
+  const group=document.getElementById('el-group');
+  const hint=document.getElementById('sandboxels-hint');
+  if(!search||!group)return;
+  const li=langIndex();
+  search.placeholder=['Поиск элемента','Пошук елемента','Search element'][li];
+  if(hint)hint.textContent=['Выбирай элемент, рисуй на поле и смешивай стихии.','Обирай елемент, малюй на полі та змішуй стихії.','Pick an element, draw on the field, and mix reactions.'][li];
+  group.innerHTML='';
+  Object.keys(GROUP_LABELS).forEach(key=>{
+    const opt=document.createElement('option');
+    opt.value=key;
+    opt.textContent=GROUP_LABELS[key][li];
+    group.appendChild(opt);
+  });
+  group.value=elementGroup;
+  search.value=elementQuery;
+  search.oninput=()=>{elementQuery=search.value.trim().toLowerCase();buildUI();};
+  group.onchange=()=>{elementGroup=group.value;buildUI();};
+}
+
 function buildUI(){
   const panel=document.getElementById('el-panel');
-  UI_ORDER.forEach(id=>{
+  panel.innerHTML='';
+  const filtered = UI_ORDER.filter(id=>{
+    const type=ELDEF[id][4];
+    const name=elementName(id).toLowerCase();
+    if(elementGroup!=='all'&&type!==elementGroup)return false;
+    if(elementQuery&&name.indexOf(elementQuery)===-1)return false;
+    return true;
+  });
+  filtered.forEach(id=>{
     const[name,r,g,b]=ELDEF[id];
     const btn=document.createElement('button');
     btn.className='el-btn'+(id===selEl?' active':'');
@@ -499,7 +590,7 @@ function buildUI(){
     dot.className='el-dot';
     dot.style.background=`rgb(${r},${g},${b})`;
     btn.appendChild(dot);
-    btn.appendChild(document.createTextNode(name));
+    btn.appendChild(document.createTextNode(elementName(id)));
     btn.onclick=()=>{
       selEl=id;
       document.querySelectorAll('.el-btn').forEach(b=>b.classList.remove('active'));
@@ -507,6 +598,12 @@ function buildUI(){
     };
     panel.appendChild(btn);
   });
+  if(!filtered.length){
+    const empty=document.createElement('div');
+    empty.style.cssText='grid-column:1/-1;color:#8b949e;font-size:13px;padding:10px';
+    empty.textContent=['Ничего не найдено','Нічого не знайдено','Nothing found'][langIndex()];
+    panel.appendChild(empty);
+  }
 }
 
 function loop(ts){
@@ -525,6 +622,7 @@ window.addEventListener('resize',()=>{
   for(const[x,y,t,l,ex]of saved){if(inB(x,y)){const ni=idx(x,y);grid[ni]=t;lifeArr[ni]=l;extraArr[ni]=ex;}}
 });
 
+buildTools();
 buildUI();
 initGrid();
 requestAnimationFrame(loop);
