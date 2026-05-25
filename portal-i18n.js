@@ -111,6 +111,15 @@
     ['Сменить пароль? Потребуется задать новый.','Змінити пароль? Потрібно буде задати новий.','Change password? You will need to set a new one.'],['Удалить эту игру?','Видалити цю гру?','Delete this game?'],['А ты знал? Flappy Bird создали за один вечер','А ти знав? Flappy Bird створили за один вечір','Did you know? Flappy Bird was made in one evening'],['Если игра лагает — это не баг, это фича!','Якщо гра лагає — це не баг, це фіча!','If the game lags, it is not a bug, it is a feature!'],['Рекорд мира в Flappy Bird: 999 очков. Можешь побить?','Світовий рекорд у Flappy Bird: 999 очок. Зможеш побити?','World record in Flappy Bird: 999 points. Can you beat it?'],['Песочница — лучшее место для экспериментов!','Пісочниця — найкраще місце для експериментів!','Sandbox is the best place for experiments!'],['Шарики POP — проверь свой глазомер!','Кульки POP — перевір свій окомір!','Bubble POP tests your aim!'],['очков','очок','points'],['Можешь побить?','Зможеш побити?','Can you beat it?']
   ]);
 
+  phrases=phrases.concat([
+    ['Админ-панель','Адмін-панель','Admin panel'],['Вход','Вхід','Login'],['Придумай пароль админа','Придумай пароль адміна','Create admin password'],['Пароль','Пароль','Password'],['Повтори пароль','Повтори пароль','Repeat password'],['Сохранить','Зберегти','Save'],['Войти','Увійти','Sign in'],['Неверный пароль!','Неправильний пароль!','Wrong password!'],
+    ['Игры','Ігри','Games'],['Тролль','Троль','Troll'],['Стат','Стат','Stats'],['Сообщение','Повідомлення','Message'],['Тема','Тема','Theme'],['Инструменты','Інструменти','Tools'],['Добавить игру (для всех)','Додати гру (для всіх)','Add game for everyone'],['Управление играми','Керування іграми','Game management'],['Сменить пароль','Змінити пароль','Change password'],['Обновить игры','Оновити ігри','Refresh games'],['Экспорт игр JSON','Експорт ігор JSON','Export games JSON'],['Очистить добавленные игры','Очистити додані ігри','Clear added games'],
+    ['Тролль по цели','Троль за ціллю','Targeted troll'],['Выбери все игры или конкретную игру, куда отправить эффект.','Обери всі ігри або конкретну гру, куди відправити ефект.','Choose all games or a specific game to receive the effect.'],['Куда отправить','Куди відправити','Send to'],['Все игры и главная','Усі ігри та головна','All games and home'],['Перевернуть','Перевернути','Flip'],['Матрица','Матриця','Matrix'],['Дискотека','Дискотека','Disco'],['Фейк-вирус','Фейк-вірус','Fake virus'],['Землетрясение','Землетрус','Shake'],['Конфетти','Конфеті','Confetti'],['Убегающие','Тікаючі','Runaway'],['Радуга','Веселка','Rainbow'],['Гравитация','Гравітація','Gravity'],['Блюр','Блюр','Blur'],['Пульс-зум','Пульс-зум','Pulse zoom'],['Призрак','Привид','Ghost'],['Глитч','Глітч','Glitch'],['Снег','Сніг','Snow'],['Пузыри','Бульбашки','Bubbles'],['Темнота','Темрява','Darkout'],['Курсор','Курсор','Cursor'],['Хакер','Хакер','Hacker'],['Эмодзи-дождь','Емодзі-дощ','Emoji rain'],['Большой текст','Великий текст','Big text'],['Текст вверх ногами','Текст догори дриґом','Upside-down text'],['Замедление','Уповільнення','Slow motion'],['Безумный масштаб','Божевільний масштаб','Crazy scale'],['Инверсия','Інверсія','Invert'],['Сброс всем','Скинути всім','Reset for all'],
+    ['Статистика','Статистика','Statistics'],['Посещений','Відвідувань','Visits'],['Онлайн сейчас','Онлайн зараз','Online now'],['Последние тролли','Останні тролі','Recent trolls'],['Обновить','Оновити','Refresh'],['Очистить лог троллей','Очистити лог тролів','Clear troll log'],['Сообщение всем','Повідомлення всім','Message everyone'],['Текст сообщения','Текст повідомлення','Message text'],['Отправить всем','Надіслати всім','Send to everyone'],['Новая игра','Нова гра','New game'],['Обновить страницу','Оновити сторінку','Refresh page'],['Убрать сообщение','Прибрати повідомлення','Remove message'],['Тема для всех','Тема для всіх','Theme for everyone'],['Меняет цветовую схему у всех посетителей','Змінює колірну схему у всіх відвідувачів','Changes the color theme for all visitors'],['Тёмная (по умолчанию)','Темна (за замовчуванням)','Dark (default)'],['Неон','Неон','Neon'],['Ретро','Ретро','Retro'],['Обновить статистику','Оновити статистику','Refresh statistics'],['Сбросить эффекты всем','Скинути ефекти всім','Reset effects for everyone'],
+    ['Пароль уже задан! Введи существующий пароль.','Пароль уже задано! Введи наявний пароль.','Password is already set. Enter the existing password.'],['Удалить все добавленные через админку игры? Встроенные игры останутся.','Видалити всі ігри, додані через адмінку? Вбудовані ігри залишаться.','Delete all games added through admin? Built-in games will stay.'],['Сообщение отправлено всем!','Повідомлення надіслано всім!','Message sent to everyone!'],['Сообщение очищено.','Повідомлення очищено.','Message cleared.'],
+    ['FLAPPY NATURE','FLAPPY NATURE','FLAPPY NATURE'],['СЧЕТ:','РАХУНОК:','SCORE:'],['РЕКОРД:','РЕКОРД:','BEST:'],['Счет:','Рахунок:','Score:'],['Жизни:','Життя:','Lives:'],['Ходы:','Ходи:','Moves:'],['Разбей все блоки.','Розбий усі блоки.','Break all blocks.']
+  ]);
+
   var cp1251='\u0402\u0403\u201A\u0453\u201E\u2026\u2020\u2021\u20AC\u2030\u0409\u2039\u040A\u040C\u040B\u040F\u0452\u2018\u2019\u201C\u201D\u2022\u2013\u2014\u0098\u2122\u0459\u203A\u045A\u045C\u045B\u045F\u00A0\u040E\u045E\u0408\u00A4\u0490\u00A6\u00A7\u0401\u00A9\u0404\u00AB\u00AC\u00AD\u00AE\u0407\u00B0\u00B1\u0406\u0456\u0491\u00B5\u00B6\u00B7\u0451\u2116\u0454\u00BB\u0458\u0405\u0455\u0457\u0410\u0411\u0412\u0413\u0414\u0415\u0416\u0417\u0418\u0419\u041A\u041B\u041C\u041D\u041E\u041F\u0420\u0421\u0422\u0423\u0424\u0425\u0426\u0427\u0428\u0429\u042A\u042B\u042C\u042D\u042E\u042F\u0430\u0431\u0432\u0433\u0434\u0435\u0436\u0437\u0438\u0439\u043A\u043B\u043C\u043D\u043E\u043F\u0440\u0441\u0442\u0443\u0444\u0445\u0446\u0447\u0448\u0449\u044A\u044B\u044C\u044D\u044E\u044F';
   function toMojibake(str){
     var bytes=typeof TextEncoder!=='undefined'?Array.from(new TextEncoder().encode(str)):[];
@@ -227,7 +236,44 @@
     wrap.querySelectorAll('button').forEach(function(btn){btn.classList.toggle('active',btn.dataset.lang===current)});
   }
 
-  var canvasTranslatorInstalled=false,dialogTranslatorInstalled=false;
+  var canvasTranslatorInstalled=false,dialogTranslatorInstalled=false,domWriteTranslatorInstalled=false;
+  function canTranslateNode(node){
+    if(!node)return false;
+    var el=node.nodeType===1?node:node.parentElement;
+    if(!el)return true;
+    if(el.tagName&&/^(SCRIPT|STYLE|NOSCRIPT|CANVAS)$/i.test(el.tagName))return false;
+    return !el.closest||!el.closest('[data-no-i18n]');
+  }
+
+  function installDomWriteTranslator(){
+    if(domWriteTranslatorInstalled)return;
+    domWriteTranslatorInstalled=true;
+    var textDesc=Object.getOwnPropertyDescriptor(Node.prototype,'textContent');
+    if(textDesc&&textDesc.set&&textDesc.get){
+      Object.defineProperty(Node.prototype,'textContent',{
+        configurable:true,
+        enumerable:textDesc.enumerable,
+        get:function(){return textDesc.get.call(this)},
+        set:function(value){
+          if(typeof value==='string'&&canTranslateNode(this))value=translateString(value);
+          return textDesc.set.call(this,value);
+        }
+      });
+    }
+    var htmlDesc=Object.getOwnPropertyDescriptor(Element.prototype,'innerHTML');
+    if(htmlDesc&&htmlDesc.set&&htmlDesc.get){
+      Object.defineProperty(Element.prototype,'innerHTML',{
+        configurable:true,
+        enumerable:htmlDesc.enumerable,
+        get:function(){return htmlDesc.get.call(this)},
+        set:function(value){
+          htmlDesc.set.call(this,value);
+          if(typeof value==='string'&&canTranslateNode(this))translateNodeText(this);
+        }
+      });
+    }
+  }
+
   function installCanvasTranslator(){
     if(canvasTranslatorInstalled||!window.CanvasRenderingContext2D)return;
     canvasTranslatorInstalled=true;
@@ -318,6 +364,7 @@
     applying=true;
     document.documentElement.lang=current;
     ensureSwitcher();
+    installDomWriteTranslator();
     installCanvasTranslator();
     installDialogTranslator();
     if(!fromObserver){
