@@ -72,8 +72,8 @@
 
   var phrases=[
     ['Главное меню','Головне меню','Main menu'],['Язык','Мова','Language'],['Кисть','Пензель','Brush'],['Очистить','Очистити','Clear'],['Пауза','Пауза','Pause'],['Старт','Старт','Start'],
-    ['Играть','Грати','Play'],['Начать','Почати','Start'],['Заново','Заново','Restart'],['Сброс','Скинути','Reset'],['Выход','Вихід','Exit'],['Назад','Назад','Back'],
-    ['Счёт','Рахунок','Score'],['Очки','Очки','Points'],['Лучший','Найкращий','Best'],['Рекорд','Рекорд','Record'],['Уровень','Рівень','Level'],['Монеты','Монети','Coins'],['Ходы','Ходи','Moves'],
+    ['Старт / заново','Старт / заново','Start / restart'],['Играть','Грати','Play'],['Начать','Почати','Start'],['Заново','Заново','Restart'],['Сброс','Скинути','Reset'],['Выход','Вихід','Exit'],['Назад','Назад','Back'],
+    ['Счёт','Рахунок','Score'],['Счет','Рахунок','Score'],['Очки','Очки','Points'],['Лучший','Найкращий','Best'],['Рекорд','Рекорд','Record'],['Уровень','Рівень','Level'],['Монеты','Монети','Coins'],['Ходы','Ходи','Moves'],
     ['Следующий уровень','Наступний рівень','Next level'],['Сначала найди выход','Спочатку знайди вихід','Find the exit first'],['Монета','Монета','Coin'],['Выход найден','Вихід знайдено','Exit found'],
     ['Строительство','Будівництво','Construction'],['Следующий день','Наступний день','Next day'],['Улучшить выбранное','Покращити вибране','Upgrade selected'],['Снести выбранное','Знести вибране','Demolish selected'],
     ['День','День','Day'],['Бюджет','Бюджет','Budget'],['Люди','Люди','People'],['Работа','Робота','Jobs'],['Энергия','Енергія','Energy'],['Счастье','Щастя','Happiness'],
@@ -81,13 +81,27 @@
     ['Склад','Склад','Stock'],['Улучшения','Покращення','Upgrades'],['Кухня','Кухня','Kitchen'],['Очередь гостей','Черга гостей','Guest queue'],['Зал кафе','Зал кафе','Cafe hall'],['Цель смены','Ціль зміни','Shift goal'],
     ['Деньги','Гроші','Money'],['Семена','Насіння','Seeds'],['Урожай','Врожай','Harvest'],['Вода','Вода','Water'],['Погода','Погода','Weather'],['Заказы','Замовлення','Orders'],['Животные','Тварини','Animals'],
     ['Миссии','Місії','Missions'],['Престиж','Престиж','Prestige'],['Доход','Дохід','Income'],['Клик','Клік','Click'],['Кликер','Клікер','Clicker'],
-    ['Против компьютера','Проти комп’ютера','Vs computer'],['1 на 1','1 на 1','1v1'],['Ход игрока','Хід гравця','Player turn'],['Победа','Перемога','Win'],['Ничья','Нічия','Draw'],
-    ['Жди','Чекай','Wait'],['ЖМИ','ТИСНИ','TAP'],['Рано','Рано','Too early'],['Слишком рано','Занадто рано','Too early'],['Новая игра','Нова гра','New game'],
+    ['Против компьютера','Проти комп’ютера','Vs computer'],['1 на 1','1 на 1','1v1'],['Ход игрока','Хід гравця','Player turn'],['Победа','Перемога','Win'],['Победа!','Перемога!','You win!'],['Ничья','Нічия','Draw'],['Игра окончена','Гру закінчено','Game over'],
+    ['Жди','Чекай','Wait'],['ЖМИ','ТИСНИ','TAP'],['Рано','Рано','Too early'],['Слишком рано','Занадто рано','Too early'],['Новая игра','Нова гра','New game'],['Управление','Керування','Controls'],
     ['Песок','Пісок','Sand'],['Снег','Сніг','Snow'],['Порох','Порох','Gunpowder'],['Соль','Сіль','Salt'],['Пепел','Попіл','Ash'],['Земля','Земля','Dirt'],
     ['Лава','Лава','Lava'],['Кислота','Кислота','Acid'],['Масло','Олія','Oil'],['Мёд','Мед','Honey'],['Огонь','Вогонь','Fire'],['Дым','Дим','Smoke'],['Пар','Пара','Steam'],['Токсичный газ','Токсичний газ','Toxic Gas'],
     ['Камень','Камінь','Stone'],['Дерево','Дерево','Wood'],['Металл','Метал','Metal'],['Стекло','Скло','Glass'],['Лёд','Лід','Ice'],['Обсидиан','Обсидіан','Obsidian'],['Кирпич','Цегла','Brick'],['Губка','Губка','Sponge'],
-    ['Клон','Клон','Clone'],['Вирус','Вірус','Virus'],['Растение','Рослина','Plant'],['Пустота','Порожнеча','Void'],['Все элементы','Усі елементи','All elements'],['Порошки','Порошки','Powders'],['Жидкости','Рідини','Liquids'],['Газы','Гази','Gases'],['Твёрдые','Тверді','Solids'],['Особые','Особливі','Special'],['Поиск элемента','Пошук елемента','Search element']
+    ['Клон','Клон','Clone'],['Вирус','Вірус','Virus'],['Растение','Рослина','Plant'],['Пустота','Порожнеча','Void'],['Все элементы','Усі елементи','All elements'],['Порошки','Порошки','Powders'],['Жидкости','Рідини','Liquids'],['Газы','Гази','Gases'],['Твёрдые','Тверді','Solids'],['Особые','Особливі','Special'],['Поиск элемента','Пошук елемента','Search element'],
+    ['Стрелки или кнопки на экране. Ешь яблоки и не врезайся.','Стрілки або кнопки на екрані. Їж яблука та не врізайся.','Use arrows or on-screen buttons. Eat apples and do not crash.'],
+    ['Стрелки: движение, вверх: поворот, пробел: вниз до конца. Скорость растет с уровнем.','Стрілки: рух, вгору: поворот, пробіл: вниз до кінця. Швидкість росте з рівнем.','Arrows: move, up: rotate, space: hard drop. Speed grows with level.']
   ];
+
+  var cp1251='\u0402\u0403\u201A\u0453\u201E\u2026\u2020\u2021\u20AC\u2030\u0409\u2039\u040A\u040C\u040B\u040F\u0452\u2018\u2019\u201C\u201D\u2022\u2013\u2014\u0098\u2122\u0459\u203A\u045A\u045C\u045B\u045F\u00A0\u040E\u045E\u0408\u00A4\u0490\u00A6\u00A7\u0401\u00A9\u0404\u00AB\u00AC\u00AD\u00AE\u0407\u00B0\u00B1\u0406\u0456\u0491\u00B5\u00B6\u00B7\u0451\u2116\u0454\u00BB\u0458\u0405\u0455\u0457\u0410\u0411\u0412\u0413\u0414\u0415\u0416\u0417\u0418\u0419\u041A\u041B\u041C\u041D\u041E\u041F\u0420\u0421\u0422\u0423\u0424\u0425\u0426\u0427\u0428\u0429\u042A\u042B\u042C\u042D\u042E\u042F\u0430\u0431\u0432\u0433\u0434\u0435\u0436\u0437\u0438\u0439\u043A\u043B\u043C\u043D\u043E\u043F\u0440\u0441\u0442\u0443\u0444\u0445\u0446\u0447\u0448\u0449\u044A\u044B\u044C\u044D\u044E\u044F';
+  function toMojibake(str){
+    var bytes=typeof TextEncoder!=='undefined'?Array.from(new TextEncoder().encode(str)):[];
+    if(!bytes.length){
+      var raw=unescape(encodeURIComponent(str));
+      for(var j=0;j<raw.length;j++)bytes.push(raw.charCodeAt(j));
+    }
+    var out='';
+    bytes.forEach(function(b){out+=b<128?String.fromCharCode(b):cp1251[b-128]});
+    return out;
+  }
 
   function t(key){return (ui[current]&&ui[current][key])||ui.ru[key]||key}
   function game(id){return (gameText[id]&&gameText[id][current])||(gameText[id]&&gameText[id].ru)}
@@ -99,17 +113,23 @@
   function buildPhraseMap(){
     if(phraseMap)return phraseMap;
     phraseMap={};
+    function add(src,target){
+      if(!src||!target)return;
+      phraseMap[src]=target;
+      var bad=toMojibake(src);
+      if(bad!==src)phraseMap[bad]=target;
+    }
     phrases.forEach(function(row){
       var target=row[LANGS.indexOf(current)];
-      row.forEach(function(src){phraseMap[src]=target});
+      row.forEach(function(src){add(src,target)});
     });
     Object.keys(ui).forEach(function(lang){
-      Object.keys(ui[lang]).forEach(function(key){phraseMap[ui[lang][key]]=t(key)});
+      Object.keys(ui[lang]).forEach(function(key){add(ui[lang][key],t(key))});
     });
     Object.keys(gameText).forEach(function(id){
       LANGS.forEach(function(lang){
         var src=gameText[id][lang],dst=game(id);
-        if(src&&dst){phraseMap[src[0]]=dst[0];phraseMap[src[1]]=dst[1];}
+        if(src&&dst){add(src[0],dst[0]);add(src[1],dst[1]);}
       });
     });
     return phraseMap;
