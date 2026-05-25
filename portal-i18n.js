@@ -289,6 +289,7 @@
 
   function installDialogTranslator(){
     if(dialogTranslatorInstalled)return;
+    if(file()==='index.html'||file()==='')return;
     dialogTranslatorInstalled=true;
     ['alert','confirm','prompt'].forEach(function(name){
       var original=window[name];
