@@ -91,6 +91,26 @@
     ['Стрелки: движение, вверх: поворот, пробел: вниз до конца. Скорость растет с уровнем.','Стрілки: рух, вгору: поворот, пробіл: вниз до кінця. Швидкість росте з рівнем.','Arrows: move, up: rotate, space: hard drop. Speed grows with level.']
   ];
 
+  phrases=phrases.concat([
+    ['Жизни','Життя','Lives'],['Жизни:','Життя:','Lives:'],['рейтинг','рейтинг','rating'],['гостей','гостей','guests'],['комбо','комбо','combo'],['ждут','чекають','waiting'],
+    ['Двигай платформу мышкой, пальцем или стрелками. Разбей все блоки.','Рухай платформу мишкою, пальцем або стрілками. Розбий усі блоки.','Move the paddle with mouse, finger, or arrows. Break all blocks.'],
+    ['Собери все точки и избегай призраков.','Збери всі точки та уникай привидів.','Collect all dots and avoid ghosts.'],
+    ['Открой клетки без мин','Відкрий клітинки без мін','Open cells without mines'],['Новое поле','Нове поле','New field'],['Запись','Запис','Record'],['Продолжить','Продовжити','Continue'],
+    ['Нажми кнопку ниже или коснись экрана','Натисни кнопку нижче або торкнися екрана','Press the button below or tap the screen'],
+    ['НАЧАТЬ','ПОЧАТИ','START'],['ПАУЗА','ПАУЗА','PAUSE'],['ПРОДОЛЖИТЬ','ПРОДОВЖИТИ','CONTINUE'],['ЗАНОВО','ЗАНОВО','RESTART'],['В МЕНЮ','У МЕНЮ','TO MENU'],['ОЙ-ОЙ!','ОЙ-ОЙ!','UH-OH!'],['СЧЕТ','РАХУНОК','SCORE'],['РЕКОРД','РЕКОРД','BEST'],['ИГРАТЬ СНОВА','ГРАТИ ЗНОВУ','PLAY AGAIN'],['ШАРИКИ POP!','КУЛЬКИ POP!','BUBBLE POP!'],['ИГРАТЬ','ГРАТИ','PLAY'],['GAME OVER','КІНЕЦЬ ГРИ','GAME OVER'],
+    ['0 объектов','0 об’єктів','0 objects'],['объектов','об’єктів','objects'],['Выбери инструмент и нажми на экран!','Обери інструмент і натисни на екран!','Choose a tool and tap the screen!'],
+    ['В режиме 1 на 1 игроки ходят по очереди на одном устройстве.','У режимі 1 на 1 гравці ходять по черзі на одному пристрої.','In 1v1 mode, players take turns on one device.'],['Ход X','Хід X','X turn'],['Ход O','Хід O','O turn'],
+    ['Культуры','Культури','Crops'],['Заказ','Замовлення','Order'],['Сдать','Здати','Deliver'],['Новый','Новий','New'],['Улучшить ферму','Покращити ферму','Upgrade farm'],['Ферма проснулась.','Ферма прокинулась.','The farm woke up.'],
+    ['Пшеница','Пшениця','Wheat'],['Кукуруза','Кукурудза','Corn'],['Ягоды','Ягоди','Berries'],['Куры','Кури','Chickens'],['Корова','Корова','Cow'],['Пчёлы','Бджоли','Bees'],
+    ['Цена урожая','Ціна врожаю','Crop price'],['рост','ріст','growth'],['Доход каждый день','Дохід щодня','Daily income'],['цена','ціна','price'],['Нужно урожая','Потрібно врожаю','Harvest needed'],['Награда','Нагорода','Reward'],['погода','погода','weather'],['Нужны семена.','Потрібне насіння.','You need seeds.'],['Посажено','Посаджено','Planted'],['Грядка полита.','Грядку полито.','Plot watered.'],['Собран урожай','Зібрано врожай','Harvest collected'],['Еще растет. Если есть вода, нажми ещё раз для полива.','Ще росте. Якщо є вода, натисни ще раз для поливу.','Still growing. If you have water, tap again to water it.'],['Нужно 18 монет.','Потрібно 18 монет.','Need 18 coins.'],['Нужно 14 монет.','Потрібно 14 монет.','Need 14 coins.'],['Улучшение стоит','Покращення коштує','Upgrade costs'],['Ферма улучшена до уровня','Ферму покращено до рівня','Farm upgraded to level'],['Куплено','Куплено','Bought'],['Не хватает урожая для заказа.','Не вистачає врожаю для замовлення.','Not enough harvest for the order.'],['Заказ сдан','Замовлення здано','Order delivered'],['Новый день','Новий день','New day'],['Животные дали','Тварини дали','Animals gave'],['дождь','дощ','rain'],['жара','спека','heat'],['солнце','сонце','sun'],['Офлайн прошло дней','Офлайн минуло днів','Offline days passed'],
+    ['Бизнес','Бізнес','Business'],['Рынок','Ринок','Market'],['Кликер Империя','Клікер Імперія','Clicker Empire'],['За клик','За клік','Per click'],['В секунду','За секунду','Per second'],['Империя готова к росту.','Імперія готова до росту.','The empire is ready to grow.'],['Сила клика','Сила кліку','Click power'],['Автокликер','Автоклікер','Auto clicker'],['Фабрика','Фабрика','Factory'],['Банк','Банк','Bank'],['Лаборатория','Лабораторія','Laboratory'],['Первые 100','Перші 100','First 100'],['Накопи 1 000','Накопич 1 000','Save 1,000'],['Империя 10 000','Імперія 10 000','Empire 10,000'],['Магнат 100 000','Магнат 100 000','Tycoon 100,000'],['Новый уровень','Новий рівень','New level'],['Для престижа нужно всего заработать 50 000.','Для престижу потрібно всього заробити 50 000.','Prestige requires 50,000 total earned.'],['Постоянный бонус вырос.','Постійний бонус виріс.','Permanent bonus increased.'],['Бонус можно брать раз в 12 часов.','Бонус можна брати раз на 12 годин.','Bonus can be claimed once every 12 hours.'],['Бонус получен.','Бонус отримано.','Bonus received.'],['Реклама подняла рынок до x','Реклама підняла ринок до x','Ads raised the market to x'],['Миссия выполнена','Місію виконано','Mission completed'],['награда','нагорода','reward'],['Множитель рынка','Множник ринку','Market multiplier'],['Увеличивает весь пассивный доход.','Збільшує весь пасивний дохід.','Increases all passive income.'],['Купить рекламу','Купити рекламу','Buy ads'],['Каждый престиж дает +25% ко всему доходу.','Кожен престиж дає +25% до всього доходу.','Each prestige gives +25% to all income.'],['Офлайн доход','Офлайн дохід','Offline income'],
+    ['Смена','Зміна','Shift'],['Закупить','Закупити','Restock'],['Кафе открыто. Посади первого гостя за свободный столик.','Кафе відкрито. Посади першого гостя за вільний столик.','Cafe is open. Seat the first guest at a free table.'],['Кофе','Кава','Coffee'],['Латте','Лате','Latte'],['Торт','Торт','Cake'],['Круассан','Круасан','Croissant'],['Комбо','Комбо','Combo'],['Гость','Гість','Guest'],['Нет свободного столика. Купи еще стол или быстрее обслужи гостей.','Немає вільного столика. Купи ще стіл або швидше обслуговуй гостей.','No free table. Buy another table or serve guests faster.'],['сел(а) за столик и хочет','сів/сіла за столик і хоче','sat at a table and wants'],['Не хватает продуктов для заказа','Не вистачає продуктів для замовлення','Not enough ingredients for the order'],['Нажми "Закупить".','Натисни "Закупити".','Press "Restock".'],['Кухня готовит','Кухня готує','Kitchen is cooking'],['Смена выполнена! Бонус +35 монет. Новая цель выше.','Зміну виконано! Бонус +35 монет. Нова ціль вища.','Shift complete! Bonus +35 coins. New goal is higher.'],['Гость доволен.','Гість задоволений.','Guest is happy.'],['ушел без заказа. Рейтинг немного упал.','пішов без замовлення. Рейтинг трохи впав.','left without an order. Rating dropped a bit.'],['Для закупки нужно 38 монет.','Для закупівлі потрібно 38 монет.','Restock needs 38 coins.'],['Склад пополнен','Склад поповнено','Stock refilled'],['Новый столик','Новий столик','New table'],['Больше гостей можно посадить одновременно','Більше гостей можна посадити одночасно','Seat more guests at once'],['Быстрая кухня','Швидка кухня','Fast kitchen'],['Заказы готовятся быстрее','Замовлення готуються швидше','Orders cook faster'],['Уютный зал','Затишний зал','Cozy hall'],['Гости ждут дольше','Гості чекають довше','Guests wait longer'],['Красивое меню','Гарне меню','Beautiful menu'],['Больше чаевых за каждый заказ','Більше чайових за кожне замовлення','More tips for each order'],['Реклама','Реклама','Ads'],['Очередь становится больше','Черга стає більшою','Queue gets bigger'],['Это улучшение уже на максимуме.','Це покращення вже на максимумі.','This upgrade is already maxed.'],['Не хватает монет для улучшения.','Не вистачає монет для покращення.','Not enough coins for the upgrade.'],['Улучшение куплено','Покращення куплено','Upgrade bought'],['Сбросить прогресс кафе?','Скинути прогрес кафе?','Reset cafe progress?'],['Кафе начато заново.','Кафе почато заново.','Cafe restarted.'],['Гости скоро придут','Гості скоро прийдуть','Guests will arrive soon'],['хочет','хоче','wants'],['Столик свободен','Столик вільний','Table is free'],['Готовить','Готувати','Cook'],['Готовится...','Готується...','Cooking...'],['Подать','Подати','Serve'],['Убрать','Прибрати','Remove'],['ждет заказ','чекає замовлення','waiting for order'],['кухня готовит','кухня готує','kitchen cooking'],['можно подавать','можна подавати','ready to serve'],['заказ(а)','замовлень','orders'],['пусто','порожньо','empty'],['Кухня свободна','Кухня вільна','Kitchen is free'],['столик','столик','table'],['остаток на складе','залишок на складі','left in stock'],['Молоко','Молоко','Milk'],['Тесто','Тісто','Dough'],['Макс','Макс','Max'],['без продуктов','без продуктів','no ingredients'],
+    ['Выбери здание и нажми на пустую клетку.','Обери будівлю та натисни на порожню клітинку.','Choose a building and tap an empty cell.'],['Не хватает бюджета на','Не вистачає бюджету на','Not enough budget for'],['Построено','Побудовано','Built'],['Сначала выбери здание.','Спочатку обери будівлю.','Choose a building first.'],['улучшено до ур.','покращено до рів.','upgraded to lvl'],['ур.','рів.','lvl'],['Здание снесено, часть денег вернулась.','Будівлю знесено, частину грошей повернено.','Building demolished, some money returned.'],['Городской фестиваль','Міський фестиваль','City festival'],['Перебои энергии','Перебої енергії','Power outages'],['Жители довольны','Жителі задоволені','Residents are happy'],['День прошёл спокойно.','День минув спокійно.','The day passed calmly.'],['Город вырос до уровня','Місто виросло до рівня','City grew to level'],['Бонус','Бонус','Bonus']
+    ,['Твой ход: X','Твій хід: X','Your turn: X'],['Компьютер думает...','Комп’ютер думає...','Computer is thinking...'],['Ты выиграл!','Ти виграв!','You won!'],['Компьютер выиграл','Комп’ютер виграв','Computer won'],['Победил X!','Переміг X!','X won!'],['Победил O!','Переміг O!','O won!'],
+    ['Звуков в записи','Звуків у записі','Sounds recorded'],['Запись включена','Запис увімкнено','Recording on'],['Запись выключена','Запис вимкнено','Recording off'],['Очищено','Очищено','Cleared'],
+    ['Сменить пароль? Потребуется задать новый.','Змінити пароль? Потрібно буде задати новий.','Change password? You will need to set a new one.'],['Удалить эту игру?','Видалити цю гру?','Delete this game?'],['А ты знал? Flappy Bird создали за один вечер','А ти знав? Flappy Bird створили за один вечір','Did you know? Flappy Bird was made in one evening'],['Если игра лагает — это не баг, это фича!','Якщо гра лагає — це не баг, це фіча!','If the game lags, it is not a bug, it is a feature!'],['Рекорд мира в Flappy Bird: 999 очков. Можешь побить?','Світовий рекорд у Flappy Bird: 999 очок. Зможеш побити?','World record in Flappy Bird: 999 points. Can you beat it?'],['Песочница — лучшее место для экспериментов!','Пісочниця — найкраще місце для експериментів!','Sandbox is the best place for experiments!'],['Шарики POP — проверь свой глазомер!','Кульки POP — перевір свій окомір!','Bubble POP tests your aim!'],['очков','очок','points'],['Можешь побить?','Зможеш побити?','Can you beat it?']
+  ]);
+
   var cp1251='\u0402\u0403\u201A\u0453\u201E\u2026\u2020\u2021\u20AC\u2030\u0409\u2039\u040A\u040C\u040B\u040F\u0452\u2018\u2019\u201C\u201D\u2022\u2013\u2014\u0098\u2122\u0459\u203A\u045A\u045C\u045B\u045F\u00A0\u040E\u045E\u0408\u00A4\u0490\u00A6\u00A7\u0401\u00A9\u0404\u00AB\u00AC\u00AD\u00AE\u0407\u00B0\u00B1\u0406\u0456\u0491\u00B5\u00B6\u00B7\u0451\u2116\u0454\u00BB\u0458\u0405\u0455\u0457\u0410\u0411\u0412\u0413\u0414\u0415\u0416\u0417\u0418\u0419\u041A\u041B\u041C\u041D\u041E\u041F\u0420\u0421\u0422\u0423\u0424\u0425\u0426\u0427\u0428\u0429\u042A\u042B\u042C\u042D\u042E\u042F\u0430\u0431\u0432\u0433\u0434\u0435\u0436\u0437\u0438\u0439\u043A\u043B\u043C\u043D\u043E\u043F\u0440\u0441\u0442\u0443\u0444\u0445\u0446\u0447\u0448\u0449\u044A\u044B\u044C\u044D\u044E\u044F';
   function toMojibake(str){
     var bytes=typeof TextEncoder!=='undefined'?Array.from(new TextEncoder().encode(str)):[];
@@ -207,6 +227,33 @@
     wrap.querySelectorAll('button').forEach(function(btn){btn.classList.toggle('active',btn.dataset.lang===current)});
   }
 
+  var canvasTranslatorInstalled=false,dialogTranslatorInstalled=false;
+  function installCanvasTranslator(){
+    if(canvasTranslatorInstalled||!window.CanvasRenderingContext2D)return;
+    canvasTranslatorInstalled=true;
+    ['fillText','strokeText'].forEach(function(name){
+      var original=CanvasRenderingContext2D.prototype[name];
+      if(!original)return;
+      CanvasRenderingContext2D.prototype[name]=function(text){
+        arguments[0]=translateString(String(text));
+        return original.apply(this,arguments);
+      };
+    });
+  }
+
+  function installDialogTranslator(){
+    if(dialogTranslatorInstalled)return;
+    dialogTranslatorInstalled=true;
+    ['alert','confirm','prompt'].forEach(function(name){
+      var original=window[name];
+      if(typeof original!=='function')return;
+      window[name]=function(message){
+        arguments[0]=translateString(String(message));
+        return original.apply(window,arguments);
+      };
+    });
+  }
+
   function translateIndex(){
     setText('.header h1',t('portalTitle'));
     setText('.header p',t('portalSubtitle'));
@@ -271,6 +318,8 @@
     applying=true;
     document.documentElement.lang=current;
     ensureSwitcher();
+    installCanvasTranslator();
+    installDialogTranslator();
     if(!fromObserver){
       if(file()==='index.html'||file()==='')translateIndex();else translateGame();
     }
