@@ -203,7 +203,6 @@ body{background:linear-gradient(135deg,#0f0c29 0%,#302b63 50%,#24243e 100%);min-
 <div class="admin-tabs">
 <button class="admin-tab-btn active" onclick="switchAdminTab('games')">🎮 Игры</button>
 <button class="admin-tab-btn" onclick="switchAdminTab('trolls')">🎭 Тролль</button>
-<button class="admin-tab-btn" onclick="switchAdminTab('events')">✨ Ивенты</button>
 <button class="admin-tab-btn" onclick="switchAdminTab('stats')">📊 Стат</button>
 <button class="admin-tab-btn" onclick="switchAdminTab('broadcast')">📢 Сообщение</button>
 <button class="admin-tab-btn" onclick="switchAdminTab('theme')">🎨 Тема</button>
@@ -260,9 +259,15 @@ body{background:linear-gradient(135deg,#0f0c29 0%,#302b63 50%,#24243e 100%);min-
 </select>
 </div>
 </div>
+<div class="admin-action-grid">
+<button class="btn btn-secondary" onclick="setTrollPreset(2,3000,'')">Мягко</button>
+<button class="btn btn-secondary" onclick="setTrollPreset(3,5000,'')">Стандарт</button>
+<button class="btn btn-secondary" onclick="setTrollPreset(4,8000,'ОБНОВИ СТРАНИЦУ')">Жёстко</button>
+<button class="btn btn-secondary" onclick="setTrollPreset(5,12000,'СИСТЕМА В ОПАСНОСТИ')">Хаос</button>
+</div>
 <label>Текст / сообщение для некоторых эффектов:</label>
 <input type="text" id="trollMessage" placeholder="Например: ОБНОВИ СТРАНИЦУ СЕЙЧАС">
-<p class="admin-inline-note">Новые эффекты умеют брать текст, длительность и силу из настроек выше. Для старых эффектов это тоже частично работает.</p>
+<p class="admin-inline-note">Понятная схема: сначала выбери цель, потом силу и длительность, потом либо один эффект, либо пакет. Поле текста используют большие надписи, фейк-обновление, отсчёт и уведомления.</p>
 <div class="admin-preview-box" id="trollPreviewBox">Цель: все игры и главная. Интенсивность: 3. Длительность: 5 сек. Сообщение: стандартное.</div>
 
 <div class="troll-category">
@@ -274,6 +279,7 @@ body{background:linear-gradient(135deg,#0f0c29 0%,#302b63 50%,#24243e 100%);min-
 <button class="btn-sm btn-troll" onclick="sendTroll('glitch')">📺 Глитч</button>
 <button class="btn-sm btn-troll" onclick="sendTroll('spotlight')">🔦 Прожектор</button>
 <button class="btn-sm btn-troll" onclick="sendTroll('lasers')">🔴 Лазеры</button>
+<button class="btn-sm btn-troll" onclick="sendTroll('flashbang')">⚡ Вспышка</button>
 <button class="btn-sm btn-troll" onclick="sendTroll('snow')">❄️ Снег</button>
 <button class="btn-sm btn-troll" onclick="sendTroll('bubble')">🫧 Пузыри</button>
 <button class="btn-sm btn-troll" onclick="sendTroll('confetti')">🎊 Конфетти</button>
@@ -294,6 +300,7 @@ body{background:linear-gradient(135deg,#0f0c29 0%,#302b63 50%,#24243e 100%);min-
 <button class="btn-sm btn-troll" onclick="sendTroll('runaway')">🏃 Убегающие</button>
 <button class="btn-sm btn-troll" onclick="sendTroll('scalecrazy')">📦 Безумный масштаб</button>
 <button class="btn-sm btn-troll" onclick="sendTroll('cardshuffle')">🃏 Мешанина карточек</button>
+<button class="btn-sm btn-troll" onclick="sendTroll('wobble')">🌀 Качка экрана</button>
 <button class="btn-sm btn-troll" onclick="sendTroll('darkout')">🌑 Темнота</button>
 <button class="btn-sm btn-troll" onclick="sendTroll('cursor')">💩 Курсор</button>
 </div>
@@ -310,6 +317,7 @@ body{background:linear-gradient(135deg,#0f0c29 0%,#302b63 50%,#24243e 100%);min-
 <button class="btn-sm btn-troll" onclick="sendTroll('toastspam')">🔔 Спам уведомлениями</button>
 <button class="btn-sm btn-troll" onclick="sendTroll('fakeupdate')">🛠️ Фейк-обновление</button>
 <button class="btn-sm btn-troll" onclick="sendTroll('countdown')">⏳ Обратный отсчёт</button>
+<button class="btn-sm btn-troll" onclick="sendTroll('marquee')">📢 Бегущая строка</button>
 </div>
 </div>
 
@@ -319,22 +327,6 @@ body{background:linear-gradient(135deg,#0f0c29 0%,#302b63 50%,#24243e 100%);min-
 <button class="btn btn-danger" onclick="sendTroll('reset')">🧯 Сбросить эффекты</button>
 </div>
 </div>
-</div>
-
-<div class="admin-tab-pane" id="tab-events">
-<h3 style="color:#48dbfb;font-size:15px;margin-bottom:10px">✨ Ивенты портала</h3>
-<p class="admin-inline-note">Ивенты полезны для мягких анонсов и миссий без жёсткого троллинга. Они пишутся в базу и остаются в журнале.</p>
-<label>Цель ивента:</label>
-<select id="eventTarget"><option value="all">Все игры</option></select>
-<label>Заголовок:</label>
-<input type="text" id="eventTitle" placeholder="Например: Мини-челлендж дня">
-<label>Текст ивента:</label>
-<textarea id="eventText" placeholder="Собери 100 очков в любой игре до вечера!" rows="3"></textarea>
-<div class="admin-action-grid">
-<button class="btn btn-primary" onclick="sendPortalEvent()">✨ Отправить ивент</button>
-<button class="btn btn-secondary" onclick="quickBroadcast('Сегодня новый челлендж в портале! ✨')">📣 Анонсировать всем</button>
-</div>
-<div class="event-list" id="eventsAdminList"></div>
 </div>
 
 <div class="admin-tab-pane" id="tab-stats">
@@ -733,11 +725,10 @@ function switchAdminTab(name) {
   document.querySelectorAll('.admin-tab-pane').forEach(p => p.classList.remove('active'));
   document.querySelectorAll('.admin-tab-btn').forEach(b => b.classList.remove('active'));
   document.getElementById('tab-' + name).classList.add('active');
-  const order = ['games','trolls','events','stats','broadcast','theme','tools'];
+  const order = ['games','trolls','stats','broadcast','theme','tools'];
   const idx = order.indexOf(name);
   if (idx >= 0) document.querySelectorAll('.admin-tab-btn')[idx].classList.add('active');
   if (name === 'stats' || name === 'tools') refreshStats();
-  if (name === 'events') loadEventsAdmin();
 }
 
 // --- ОТПРАВИТЬ ТРОЛЛЬ ВСЕМ В РЕАЛЬНОМ ВРЕМЕНИ ---
@@ -762,6 +753,12 @@ function updateTrollPreview() {
   const label = target === 'all' ? 'все игры и главная' : target === 'portal' ? 'главная' : target;
   box.textContent = `Цель: ${label}. Интенсивность: ${payload.intensity}. Длительность: ${Math.round(payload.duration / 1000)} сек. Сообщение: ${payload.message || 'стандартное'}.`;
 }
+function setTrollPreset(intensity, duration, message) {
+  document.getElementById('trollIntensity').value = String(intensity);
+  document.getElementById('trollDuration').value = String(duration);
+  document.getElementById('trollMessage').value = message || '';
+  updateTrollPreview();
+}
 function sendTroll(type) {
   const target = currentTrollTarget();
   const payload = collectTrollPayload();
@@ -779,16 +776,16 @@ function sendTroll(type) {
   }
 }
 function sendRandomTroll() {
-  const pool = ['matrix','disco','rainbow','glitch','spotlight','lasers','shake','gravity','zoom','cardshuffle','typewriter','toastspam','countdown','fakeupdate'];
+  const pool = ['matrix','disco','rainbow','glitch','spotlight','lasers','flashbang','shake','gravity','zoom','cardshuffle','wobble','typewriter','toastspam','countdown','fakeupdate','marquee'];
   sendTroll(pool[Math.floor(Math.random() * pool.length)]);
 }
 function sendTrollCombo() {
   const combo = trollInputValue('trollComboPreset', '');
   const combos = {
-    visual: ['matrix','rainbow','spotlight','lasers'],
-    motion: ['shake','zoom','gravity','cardshuffle'],
-    text: ['bigtext','typewriter','toastspam','countdown'],
-    chaos: ['glitch','disco','shake','toastspam','fakeupdate','emojirain']
+    visual: ['matrix','rainbow','spotlight','lasers','flashbang'],
+    motion: ['shake','zoom','gravity','cardshuffle','wobble'],
+    text: ['bigtext','typewriter','toastspam','countdown','marquee'],
+    chaos: ['glitch','disco','shake','toastspam','fakeupdate','emojirain','wobble']
   };
   const list = combos[combo];
   if (!list || !list.length) {
@@ -999,6 +996,9 @@ function executeTroll(typeOrData) {
     case 'fakeupdate': trollFakeUpdate(payload); break;
     case 'countdown': trollCountdown(payload); break;
     case 'cardshuffle': trollCardShuffle(payload); break;
+    case 'flashbang': trollFlashbang(payload); break;
+    case 'wobble': trollWobble(payload); break;
+    case 'marquee': trollMarquee(payload); break;
     case 'reset': trollReset(); break;
   }
 }
@@ -1423,6 +1423,46 @@ function trollCardShuffle(payload) {
   }, trollDuration(payload, 3500));
 }
 
+function trollFlashbang(payload) {
+  const ov = document.createElement('div');
+  ov.id = 'troll-flashbang-el';
+  ov.style.cssText='position:fixed;inset:0;z-index:10004;background:#fff;opacity:0;pointer-events:none;transition:opacity .08s';
+  document.body.appendChild(ov);
+  requestAnimationFrame(()=>{ov.style.opacity='1';});
+  rememberTrollTimeout(()=>{ov.style.opacity='0';},200 + trollIntensity(payload) * 80);
+  rememberTrollTimeout(()=>ov.remove(),900);
+}
+
+function trollWobble(payload) {
+  const intensity = trollIntensity(payload);
+  let tick = 0;
+  const int = rememberTrollInterval(() => {
+    tick++;
+    document.body.style.transform = `rotate(${Math.sin(tick * 0.8) * (1 + intensity * 0.7)}deg) scale(${1 + Math.sin(tick * 0.5) * 0.01})`;
+  }, 45);
+  rememberTrollTimeout(() => {
+    clearInterval(int);
+    document.body.style.transform = '';
+  }, trollDuration(payload, 4500));
+}
+
+function trollMarquee(payload) {
+  const banner = document.getElementById('troll-broadcast-banner');
+  banner.textContent = '📢 ' + trollMessage(payload, 'ВНИМАНИЕ! Срочно проверь портал!');
+  banner.style.display = 'block';
+  banner.style.whiteSpace = 'nowrap';
+  banner.style.overflow = 'hidden';
+  banner.style.textAlign = 'left';
+  banner.animate([{transform:'translateX(100%)'},{transform:'translateX(-100%)'}], {duration: Math.max(3000, trollDuration(payload, 6000)), iterations: 1});
+  rememberTrollTimeout(() => {
+    banner.style.display = 'none';
+    banner.style.whiteSpace = '';
+    banner.style.overflow = '';
+    banner.style.textAlign = 'center';
+    banner.style.transform = '';
+  }, trollDuration(payload, 6000));
+}
+
 function trollReset() {
   document.body.style.transform = '';
   document.body.style.filter = '';
@@ -1439,6 +1479,8 @@ function trollReset() {
   document.getElementById('troll-lasers-overlay').innerHTML = '';
   document.getElementById('troll-update-overlay').style.display = 'none';
   document.getElementById('troll-toast-layer').innerHTML = '';
+  const flashEl = document.getElementById('troll-flashbang-el');
+  if (flashEl) flashEl.remove();
   clearInterval(matrixInterval);
   clearTimeout(discoTimeout);
   clearInterval(_glitchInterval);
@@ -1527,36 +1569,6 @@ function safeText(v) {
   if (el) el.addEventListener('input', updateTrollPreview);
   if (el) el.addEventListener('change', updateTrollPreview);
 });
-
-
-function sendPortalEvent() {
-  fillAdminGameSelects();
-  const target = document.getElementById('eventTarget').value || 'all';
-  const title = document.getElementById('eventTitle').value.trim();
-  const text = document.getElementById('eventText').value.trim();
-  if (!text) return alert('Введи текст ивента.');
-  if (!db) return;
-  db.ref('portal_events').push({ target, title, text, time: Date.now() });
-  document.getElementById('eventText').value = '';
-  loadEventsAdmin();
-  alert('Ивент отправлен.');
-}
-
-function loadEventsAdmin() {
-  fillAdminGameSelects();
-  const box = document.getElementById('eventsAdminList');
-  if (!box || !db) return;
-  db.ref('portal_events').limitToLast(12).once('value', snap => {
-    const rows = Object.values(snap.val() || {}).reverse();
-    box.innerHTML = rows.length ? '' : '<div class="event-item">Ивентов пока нет</div>';
-    rows.forEach(e => {
-      const div = document.createElement('div');
-      div.className = 'event-item';
-      div.textContent = '[' + (e.target || 'all') + '] ' + (e.title ? e.title + ': ' : '') + (e.text || '');
-      box.appendChild(div);
-    });
-  });
-}
 
 // --- СТАТИСТИКА ---
 function refreshStats() {
