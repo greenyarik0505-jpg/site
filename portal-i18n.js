@@ -17,6 +17,7 @@
     tictactoe:{ru:['Крестики-нолики','Играй против компьютера или 1 на 1'],uk:['Хрестики-нулики','Грай проти комп’ютера або 1 на 1'],en:['Tic-Tac-Toe','Play versus the computer or 1v1']},
     minesweeper:{ru:['Сапёр','Найди все клетки без мин'],uk:['Сапер','Знайди всі клітинки без мін'],en:['Minesweeper','Find every safe cell']},
     maze:{ru:['Лабиринт','Ищи выход, собирай монеты и открывай уровни'],uk:['Лабіринт','Шукай вихід, збирай монети та відкривай рівні'],en:['Maze','Find the exit, collect coins, unlock levels']},
+    chess:{ru:['Шахматы','Классическая партия с шахом, матом и рокировкой'],uk:['Шахи','Класична партія з шахом, матом і рокіруванням'],en:['Chess','Classic match with checks, checkmates, and castling']},
     pixelart:{ru:['Pixel Art','Рисуй пиксельные картинки'],uk:['Pixel Art','Малюй піксельні картинки'],en:['Pixel Art','Draw pixel pictures']},
     musicpad:{ru:['Музыка Pad','Создавай ритм и световое шоу'],uk:['Музика Pad','Створюй ритм і світлове шоу'],en:['Music Pad','Create beats and light shows']},
     cafesim:{ru:['Моё Кафе','Готовь заказы, следи за складом и развивай уютное кафе'],uk:['Моє Кафе','Готуй замовлення, стеж за складом і розвивай затишне кафе'],en:['My Cafe','Cook orders, manage stock, and grow a cozy cafe']},

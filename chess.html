@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<title>Шахматы</title>
+<style>
+*{box-sizing:border-box}
+html,body{margin:0;min-height:100%;overflow-x:hidden}
+body{
+  font-family:Arial,sans-serif;
+  color:#f8fafc;
+  background:radial-gradient(circle at top,#1e3a8a 0,#0f172a 42%),linear-gradient(135deg,#0f172a,#020617);
+  padding:74px 14px 24px;
+  display:grid;
+  place-items:center;
+  touch-action:manipulation;
+}
+.portal-home-btn{position:fixed;top:12px;left:12px;z-index:10050;border:1px solid rgba(255,255,255,.35);background:rgba(0,0,0,.58);color:#fff;padding:9px 14px;border-radius:14px;font:800 13px Arial,sans-serif;text-decoration:none;box-shadow:0 6px 18px rgba(0,0,0,.28);backdrop-filter:blur(8px)}
+button{font-family:inherit;cursor:pointer}
+.app{width:min(1120px,100%);display:grid;gap:16px}
+.hero{display:grid;gap:8px;text-align:center;background:linear-gradient(135deg,rgba(255,255,255,.11),rgba(255,255,255,.05));border:1px solid rgba(255,255,255,.12);border-radius:26px;padding:22px 18px;box-shadow:0 20px 50px rgba(0,0,0,.28)}
+.title{font-size:clamp(32px,7vw,60px);font-weight:900;letter-spacing:.02em;color:#f8fafc}
+.subtitle{color:#cbd5e1;line-height:1.45}
+.layout{display:grid;grid-template-columns:minmax(280px,720px) minmax(260px,340px);gap:16px;align-items:start}
+.board-card,.panel{background:linear-gradient(180deg,rgba(15,23,42,.92),rgba(15,23,42,.82));border:1px solid rgba(255,255,255,.11);border-radius:24px;box-shadow:0 18px 46px rgba(0,0,0,.24)}
+.board-card{padding:14px}
+.topbar,.bottombar{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:8px 4px 12px}
+.player{display:flex;align-items:center;gap:10px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.08);border-radius:16px;padding:10px 12px;min-width:0;flex:1}
+.player.active{outline:2px solid #facc15;background:rgba(250,204,21,.13)}
+.player .badge{font-size:28px;line-height:1}
+.player .meta{display:grid;gap:2px;min-width:0}
+.player .name{font-weight:900}
+.player .capture{font-size:13px;color:#cbd5e1;min-height:18px}
+.turn-chip{background:linear-gradient(135deg,#facc15,#fb923c);color:#111827;font-weight:900;border-radius:999px;padding:10px 14px;white-space:nowrap}
+.board-wrap{display:grid;place-items:center}
+.board{width:min(90vw,700px);aspect-ratio:1;display:grid;grid-template-columns:repeat(8,1fr);grid-template-rows:repeat(8,1fr);border-radius:24px;overflow:hidden;border:1px solid rgba(255,255,255,.16);box-shadow:0 18px 40px rgba(0,0,0,.32)}
+.square{position:relative;border:0;font-size:clamp(28px,5.2vw,54px);display:grid;place-items:center;padding:0;user-select:none}
+.square.light{background:#f1e3c6;color:#111827}
+.square.dark{background:#956f51;color:#111827}
+.square.selected{box-shadow:inset 0 0 0 4px #38bdf8}
+.square.legal::after{content:'';position:absolute;width:26%;height:26%;border-radius:50%;background:rgba(14,165,233,.78)}
+.square.capture::after{content:'';position:absolute;inset:7%;border-radius:50%;border:4px solid rgba(239,68,68,.9)}
+.square.lastmove{box-shadow:inset 0 0 0 4px rgba(250,204,21,.55)}
+.square.incheck{background:#ef4444!important;color:#fff}
+.coords{position:absolute;font-size:11px;font-weight:900;opacity:.8;pointer-events:none}
+.coords.file{right:6px;bottom:4px}
+.coords.rank{left:6px;top:4px}
+.panel{padding:16px;display:grid;gap:14px}
+.status{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.08);border-radius:18px;padding:14px;display:grid;gap:8px}
+.status-title{font-size:14px;color:#93c5fd;font-weight:900;text-transform:uppercase;letter-spacing:.08em}
+.status-text{font-size:18px;font-weight:900}
+.hint{color:#cbd5e1;line-height:1.45;font-size:14px}
+.actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.actions button,.promo-row button{border:0;border-radius:14px;padding:12px 14px;font-weight:900}
+.primary{background:linear-gradient(135deg,#38bdf8,#22c55e);color:#06243a}
+.secondary{background:rgba(255,255,255,.08);color:#fff;border:1px solid rgba(255,255,255,.1)}
+.moves{background:rgba(2,6,23,.48);border-radius:18px;border:1px solid rgba(255,255,255,.08);padding:12px;display:grid;gap:10px}
+.moves-head{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.moves-list{display:grid;gap:8px;max-height:280px;overflow:auto;padding-right:4px}
+.move-row{display:grid;grid-template-columns:46px 1fr 1fr;gap:8px;align-items:center;font-size:14px}
+.move-row span{background:rgba(255,255,255,.06);border-radius:10px;padding:7px 8px}
+.promo{display:none;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:18px;padding:14px;gap:10px}
+.promo.show{display:grid}
+.promo-row{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.footer-note{font-size:13px;color:#94a3b8;line-height:1.45}
+@media(max-width:920px){.layout{grid-template-columns:1fr}.board{width:min(94vw,620px)}}
+</style>
+</head>
+<body>
+<a class="portal-home-btn" href="index.html">Главное меню</a>
+<main class="app">
+  <section class="hero">
+    <div class="title" id="title">Шахматы</div>
+    <div class="subtitle" id="subtitle">Классическая партия на одном устройстве: выбирай фигуру, следи за шахом и доводи атаку до мата.</div>
+  </section>
+  <section class="layout">
+    <div class="board-card">
+      <div class="topbar">
+        <div class="player" id="blackPlayer">
+          <div class="badge">♚</div>
+          <div class="meta">
+            <div class="name" id="blackName">Чёрные</div>
+            <div class="capture" id="blackCapture"></div>
+          </div>
+        </div>
+        <div class="turn-chip" id="turnChip">Ход белых</div>
+      </div>
+      <div class="board-wrap"><div class="board" id="board"></div></div>
+      <div class="bottombar">
+        <div class="player active" id="whitePlayer">
+          <div class="badge">♔</div>
+          <div class="meta">
+            <div class="name" id="whiteName">Белые</div>
+            <div class="capture" id="whiteCapture"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <aside class="panel">
+      <section class="status">
+        <div class="status-title" id="statusLabel">Статус партии</div>
+        <div class="status-text" id="statusText">Белые начинают.</div>
+        <div class="hint" id="statusHint">Нажми на фигуру своего цвета, затем на подсвеченную клетку. Рокировка, взятие на проходе и превращение пешки поддерживаются.</div>
+      </section>
+      <section class="promo" id="promotionPanel">
+        <div class="status-title" id="promotionTitle">Превращение пешки</div>
+        <div class="promo-row">
+          <button class="secondary" data-piece="q">Ферзь</button>
+          <button class="secondary" data-piece="r">Ладья</button>
+          <button class="secondary" data-piece="b">Слон</button>
+          <button class="secondary" data-piece="n">Конь</button>
+        </div>
+      </section>
+      <section class="actions">
+        <button class="primary" id="resetBtn">Новая партия</button>
+        <button class="secondary" id="undoBtn">Отменить ход</button>
+        <button class="secondary" id="flipBtn">Перевернуть доску</button>
+        <button class="secondary" id="copyBtn">Копировать FEN</button>
+      </section>
+      <section class="moves">
+        <div class="moves-head">
+          <div class="status-title" id="movesTitle">Ходы</div>
+          <div class="footer-note" id="fenLabel">FEN позиции</div>
+        </div>
+        <div class="footer-note" id="fenValue">startpos</div>
+        <div class="moves-list" id="movesList"></div>
+      </section>
+      <div class="footer-note" id="footerNote">Игра рассчитана на двух игроков на одном экране. Если король под шахом, опасная клетка подсветится красным.</div>
+    </aside>
+  </section>
+</main>
+<script>
+const TEXT={ru:{title:'Шахматы',subtitle:'Классическая партия на одном устройстве: выбирай фигуру, следи за шахом и доводи атаку до мата.',white:'Белые',black:'Чёрные',statusLabel:'Статус партии',statusHint:'Нажми на фигуру своего цвета, затем на подсвеченную клетку. Рокировка, взятие на проходе и превращение пешки поддерживаются.',promotionTitle:'Превращение пешки',promo:{q:'Ферзь',r:'Ладья',b:'Слон',n:'Конь'},reset:'Новая партия',undo:'Отменить ход',flip:'Перевернуть доску',copy:'Копировать FEN',copied:'FEN скопирован',movesTitle:'Ходы',fenLabel:'FEN позиции',footerNote:'Игра рассчитана на двух игроков на одном экране. Если король под шахом, опасная клетка подсветится красным.',emptyCapture:'Пока без взятий',capturedPrefix:'Взято: ',start:'Белые начинают.',turnWhite:'Ход белых',turnBlack:'Ход чёрных',checkWhite:'Шах белым',checkBlack:'Шах чёрным',checkmateWhite:'Мат. Победили чёрные.',checkmateBlack:'Мат. Победили белые.',stalemate:'Пат. Ничья.',needOwnPiece:'Сейчас ход другой стороны.',choosePromotion:'Выбери фигуру для превращения пешки.'},uk:{title:'Шахи',subtitle:'Класична партія на одному пристрої: обирай фігуру, стеж за шахом і доводь атаку до мату.',white:'Білі',black:'Чорні',statusLabel:'Стан партії',statusHint:'Натисни на фігуру свого кольору, а потім на підсвічену клітинку. Рокірування, взяття на проході та перетворення пішака підтримуються.',promotionTitle:'Перетворення пішака',promo:{q:'Ферзь',r:'Тура',b:'Слон',n:'Кінь'},reset:'Нова партія',undo:'Скасувати хід',flip:'Перевернути дошку',copy:'Скопіювати FEN',copied:'FEN скопійовано',movesTitle:'Ходи',fenLabel:'FEN позиції',footerNote:'Гра розрахована на двох гравців на одному екрані. Якщо король під шахом, небезпечна клітинка підсвітиться червоним.',emptyCapture:'Поки без взяттів',capturedPrefix:'Взято: ',start:'Білі починають.',turnWhite:'Хід білих',turnBlack:'Хід чорних',checkWhite:'Шах білим',checkBlack:'Шах чорним',checkmateWhite:'Мат. Перемогли чорні.',checkmateBlack:'Мат. Перемогли білі.',stalemate:'Пат. Нічия.',needOwnPiece:'Зараз хід іншої сторони.',choosePromotion:'Обери фігуру для перетворення пішака.'},en:{title:'Chess',subtitle:'A classic game on one device: pick a piece, watch for checks, and convert your attack into checkmate.',white:'White',black:'Black',statusLabel:'Game status',statusHint:'Tap one of your pieces, then a highlighted square. Castling, en passant, and pawn promotion are supported.',promotionTitle:'Pawn promotion',promo:{q:'Queen',r:'Rook',b:'Bishop',n:'Knight'},reset:'New game',undo:'Undo move',flip:'Flip board',copy:'Copy FEN',copied:'FEN copied',movesTitle:'Moves',fenLabel:'Position FEN',footerNote:'This game is designed for two players on one screen. If a king is in check, the danger square glows red.',emptyCapture:'No captures yet',capturedPrefix:'Captured: ',start:'White to move first.',turnWhite:'White to move',turnBlack:'Black to move',checkWhite:'Check on white',checkBlack:'Check on black',checkmateWhite:'Checkmate. Black wins.',checkmateBlack:'Checkmate. White wins.',stalemate:'Stalemate. Draw.',needOwnPiece:'It is the other side\'s turn.',choosePromotion:'Choose a piece for pawn promotion.'}};
+const PIECES={wp:'♙',wr:'♖',wn:'♘',wb:'♗',wq:'♕',wk:'♔',bp:'♟',br:'♜',bn:'♞',bb:'♝',bq:'♛',bk:'♚'};
+const FILES=['a','b','c','d','e','f','g','h'];
+const START_FEN='rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1';
+const boardEl=document.getElementById('board');
+const statusTextEl=document.getElementById('statusText');
+const turnChipEl=document.getElementById('turnChip');
+const movesListEl=document.getElementById('movesList');
+const fenValueEl=document.getElementById('fenValue');
+const promotionPanelEl=document.getElementById('promotionPanel');
+const blackCaptureEl=document.getElementById('blackCapture');
+const whiteCaptureEl=document.getElementById('whiteCapture');
+const whitePlayerEl=document.getElementById('whitePlayer');
+const blackPlayerEl=document.getElementById('blackPlayer');
+let lang=localStorage.getItem('portal_lang');if(!TEXT[lang])lang='ru';
+let board=[],turn='w',castling='KQkq',enPassant='-',halfmove=0,fullmove=1,orientation='w',selected=null,legalMoves=[],moveHistory=[],capturedByWhite=[],capturedByBlack=[],pendingPromotion=null,lastMoveSquares=[],statusMode='start';
+const undoStack=[];
+function t(key){return TEXT[lang][key]}
+function cloneState(){return{board:board.map(row=>row.slice()),turn,castling,enPassant,halfmove,fullmove,orientation,selected:selected?{...selected}:null,legalMoves:legalMoves.map(move=>({...move,capturedSquare:move.capturedSquare?{...move.capturedSquare}:null})),moveHistory:moveHistory.map(row=>({...row})),capturedByWhite:capturedByWhite.slice(),capturedByBlack:capturedByBlack.slice(),pendingPromotion:pendingPromotion?{...pendingPromotion}:null,lastMoveSquares:lastMoveSquares.map(square=>({...square})),statusMode}}
+function restoreState(state){board=state.board.map(row=>row.slice());turn=state.turn;castling=state.castling;enPassant=state.enPassant;halfmove=state.halfmove;fullmove=state.fullmove;orientation=state.orientation;selected=state.selected?{...state.selected}:null;legalMoves=state.legalMoves.map(move=>({...move,capturedSquare:move.capturedSquare?{...move.capturedSquare}:null}));moveHistory=state.moveHistory.map(row=>({...row}));capturedByWhite=state.capturedByWhite.slice();capturedByBlack=state.capturedByBlack.slice();pendingPromotion=state.pendingPromotion?{...state.pendingPromotion}:null;lastMoveSquares=state.lastMoveSquares.map(square=>({...square}));statusMode=state.statusMode}
+function applyLanguage(){document.documentElement.lang=lang;document.title=t('title');document.getElementById('title').textContent=t('title');document.getElementById('subtitle').textContent=t('subtitle');document.getElementById('whiteName').textContent=t('white');document.getElementById('blackName').textContent=t('black');document.getElementById('statusLabel').textContent=t('statusLabel');document.getElementById('statusHint').textContent=t('statusHint');document.getElementById('promotionTitle').textContent=t('promotionTitle');document.querySelector('[data-piece="q"]').textContent=t('promo').q;document.querySelector('[data-piece="r"]').textContent=t('promo').r;document.querySelector('[data-piece="b"]').textContent=t('promo').b;document.querySelector('[data-piece="n"]').textContent=t('promo').n;document.getElementById('resetBtn').textContent=t('reset');document.getElementById('undoBtn').textContent=t('undo');document.getElementById('flipBtn').textContent=t('flip');document.getElementById('copyBtn').textContent=t('copy');document.getElementById('movesTitle').textContent=t('movesTitle');document.getElementById('fenLabel').textContent=t('fenLabel');document.getElementById('footerNote').textContent=t('footerNote');updateStatus();updateCaptures();renderMoves()}
+function createEmptyBoard(){return Array.from({length:8},()=>Array(8).fill(''))}
+function parseFen(fen){const parts=fen.split(' ');const rows=parts[0].split('/');const nextBoard=createEmptyBoard();rows.forEach((row,y)=>{let x=0;row.split('').forEach(ch=>{if(/\d/.test(ch)){x+=Number(ch)}else{const color=ch===ch.toUpperCase()?'w':'b';const piece=ch.toLowerCase();nextBoard[y][x]=color+piece;x++}})});board=nextBoard;turn=parts[1];castling=parts[2]==='-'?'':parts[2];enPassant=parts[3];halfmove=Number(parts[4]);fullmove=Number(parts[5]);selected=null;legalMoves=[];moveHistory=[];capturedByWhite=[];capturedByBlack=[];pendingPromotion=null;lastMoveSquares=[];statusMode='start';undoStack.length=0}
+function boardToFen(){const rows=board.map(row=>{let out='',empty=0;row.forEach(cell=>{if(!cell){empty++;return}if(empty){out+=empty;empty=0}const symbol=cell[1];out+=cell[0]==='w'?symbol.toUpperCase():symbol});if(empty)out+=empty;return out});return `${rows.join('/')} ${turn} ${castling||'-'} ${enPassant} ${halfmove} ${fullmove}`}
+function inBounds(x,y){return x>=0&&x<8&&y>=0&&y<8}
+function squareName(x,y){return `${FILES[x]}${8-y}`}
+function getColor(cell){return cell?cell[0]:''}
+function getType(cell){return cell?cell[1]:''}
+function opposite(color){return color==='w'?'b':'w'}
+function addSlidingMoves(moves,x,y,color,deltas){deltas.forEach(([dx,dy])=>{let nx=x+dx,ny=y+dy;while(inBounds(nx,ny)){const target=board[ny][nx];if(!target){moves.push({fromX:x,fromY:y,toX:nx,toY:ny})}else{if(getColor(target)!==color)moves.push({fromX:x,fromY:y,toX:nx,toY:ny,capture:true});break}nx+=dx;ny+=dy}})}
+function generatePseudoMoves(x,y){const cell=board[y][x];if(!cell)return[];const color=getColor(cell),type=getType(cell),moves=[];if(type==='p'){const dir=color==='w'?-1:1,startRow=color==='w'?6:1,promotionRow=color==='w'?0:7,oneStep=y+dir;if(inBounds(x,oneStep)&&!board[oneStep][x]){moves.push({fromX:x,fromY:y,toX:x,toY:oneStep,promotion:oneStep===promotionRow});const twoStep=y+dir*2;if(y===startRow&&!board[twoStep][x])moves.push({fromX:x,fromY:y,toX:x,toY:twoStep,doubleStep:true})}[-1,1].forEach(dx=>{const nx=x+dx,ny=y+dir;if(!inBounds(nx,ny))return;const target=board[ny][nx];if(target&&getColor(target)!==color)moves.push({fromX:x,fromY:y,toX:nx,toY:ny,capture:true,promotion:ny===promotionRow});if(enPassant!=='-'&&squareName(nx,ny)===enPassant)moves.push({fromX:x,fromY:y,toX:nx,toY:ny,capture:true,enPassant:true,capturedSquare:{x:nx,y}})})}if(type==='n'){[[1,2],[2,1],[2,-1],[1,-2],[-1,-2],[-2,-1],[-2,1],[-1,2]].forEach(([dx,dy])=>{const nx=x+dx,ny=y+dy;if(!inBounds(nx,ny))return;const target=board[ny][nx];if(!target||getColor(target)!==color)moves.push({fromX:x,fromY:y,toX:nx,toY:ny,capture:!!target})})}if(type==='b')addSlidingMoves(moves,x,y,color,[[1,1],[1,-1],[-1,1],[-1,-1]]);if(type==='r')addSlidingMoves(moves,x,y,color,[[1,0],[-1,0],[0,1],[0,-1]]);if(type==='q')addSlidingMoves(moves,x,y,color,[[1,1],[1,-1],[-1,1],[-1,-1],[1,0],[-1,0],[0,1],[0,-1]]);if(type==='k'){for(let dx=-1;dx<=1;dx++){for(let dy=-1;dy<=1;dy++){if(!dx&&!dy)continue;const nx=x+dx,ny=y+dy;if(!inBounds(nx,ny))continue;const target=board[ny][nx];if(!target||getColor(target)!==color)moves.push({fromX:x,fromY:y,toX:nx,toY:ny,capture:!!target})}}if(color==='w'&&y===7&&x===4){if(castling.includes('K')&&!board[7][5]&&!board[7][6])moves.push({fromX:x,fromY:y,toX:6,toY:7,castle:'K'});if(castling.includes('Q')&&!board[7][1]&&!board[7][2]&&!board[7][3])moves.push({fromX:x,fromY:y,toX:2,toY:7,castle:'Q'})}if(color==='b'&&y===0&&x===4){if(castling.includes('k')&&!board[0][5]&&!board[0][6])moves.push({fromX:x,fromY:y,toX:6,toY:0,castle:'k'});if(castling.includes('q')&&!board[0][1]&&!board[0][2]&&!board[0][3])moves.push({fromX:x,fromY:y,toX:2,toY:0,castle:'q'})}}return moves}
+function makeMove(move,promotionPiece){const piece=board[move.fromY][move.fromX],color=getColor(piece),target=move.enPassant?board[move.capturedSquare.y][move.capturedSquare.x]:board[move.toY][move.toX];board[move.fromY][move.fromX]='';if(move.enPassant)board[move.capturedSquare.y][move.capturedSquare.x]='';board[move.toY][move.toX]=piece;if(move.castle){if(move.castle==='K'){board[7][7]='';board[7][5]='wr'}if(move.castle==='Q'){board[7][0]='';board[7][3]='wr'}if(move.castle==='k'){board[0][7]='';board[0][5]='br'}if(move.castle==='q'){board[0][0]='';board[0][3]='br'}}if(getType(piece)==='p'&&(move.toY===0||move.toY===7))board[move.toY][move.toX]=color+(promotionPiece||'q');if(getType(piece)==='k')castling=castling.replace(color==='w'?/[KQ]/g:/[kq]/g,'');if(getType(piece)==='r'){if(move.fromX===0&&move.fromY===7)castling=castling.replace('Q','');if(move.fromX===7&&move.fromY===7)castling=castling.replace('K','');if(move.fromX===0&&move.fromY===0)castling=castling.replace('q','');if(move.fromX===7&&move.fromY===0)castling=castling.replace('k','')}if(target&&getType(target)==='r'){if(move.toX===0&&move.toY===7)castling=castling.replace('Q','');if(move.toX===7&&move.toY===7)castling=castling.replace('K','');if(move.toX===0&&move.toY===0)castling=castling.replace('q','');if(move.toX===7&&move.toY===0)castling=castling.replace('k','')}enPassant='-';if(getType(piece)==='p'&&move.doubleStep)enPassant=squareName(move.fromX,move.fromY+(color==='w'?-1:1));halfmove=getType(piece)==='p'||target?0:halfmove+1;if(turn==='b')fullmove++;turn=opposite(turn);return target}
+function findKing(color){for(let y=0;y<8;y++)for(let x=0;x<8;x++)if(board[y][x]===color+'k')return{x,y};return null}
+function isSquareAttacked(x,y,byColor){for(let yy=0;yy<8;yy++){for(let xx=0;xx<8;xx++){const cell=board[yy][xx];if(!cell||getColor(cell)!==byColor)continue;const type=getType(cell);if(type==='p'){const dir=byColor==='w'?-1:1;if(yy+dir===y&&(xx-1===x||xx+1===x))return true;continue}if(type==='k'){if(Math.max(Math.abs(xx-x),Math.abs(yy-y))===1)return true;continue}const moves=generatePseudoMoves(xx,yy).filter(move=>!move.castle);if(moves.some(move=>move.toX===x&&move.toY===y))return true}}return false}
+function isInCheck(color){const king=findKing(color);if(!king)return false;return isSquareAttacked(king.x,king.y,opposite(color))}
+function getLegalMovesForPiece(x,y){const piece=board[y][x];if(!piece||getColor(piece)!==turn)return[];return generatePseudoMoves(x,y).filter(move=>{if(move.castle){if(isInCheck(turn))return false;const midX=move.toX===6?5:3;if(isSquareAttacked(midX,move.toY,opposite(turn)))return false;if(isSquareAttacked(move.toX,move.toY,opposite(turn)))return false}const snapshot=cloneState();makeMove(move,move.promotion?'q':null);const legal=!isInCheck(piece[0]);restoreState(snapshot);return legal})}
+function getAllLegalMoves(color){const savedTurn=turn;turn=color;const result=[];for(let y=0;y<8;y++)for(let x=0;x<8;x++){const cell=board[y][x];if(cell&&getColor(cell)===color)result.push(...getLegalMovesForPiece(x,y))}turn=savedTurn;return result}
+function pieceLetter(type){if(type==='p')return'';return{k:'K',q:'Q',r:'R',b:'B',n:'N'}[type]}
+function toNotation(move,piece,captured,promotionPiece){if(move.castle)return move.toX===6?'O-O':'O-O-O';const type=getType(piece),target=squareName(move.toX,move.toY);let note='';if(type==='p'){note=move.capture||move.enPassant?`${FILES[move.fromX]}x${target}`:target}else{note=`${pieceLetter(type)}${move.capture||captured?'x':''}${target}`}if(promotionPiece)note+=`=${pieceLetter(promotionPiece)}`;return note}
+function setStatus(mode){statusMode=mode;updateStatus()}
+function updateStatus(){let text=t('start');if(statusMode==='turnWhite')text=t('turnWhite');if(statusMode==='turnBlack')text=t('turnBlack');if(statusMode==='checkWhite')text=t('checkWhite');if(statusMode==='checkBlack')text=t('checkBlack');if(statusMode==='checkmateWhite')text=t('checkmateWhite');if(statusMode==='checkmateBlack')text=t('checkmateBlack');if(statusMode==='stalemate')text=t('stalemate');if(statusMode==='choosePromotion')text=t('choosePromotion');if(statusMode==='copied')text=t('copied');if(statusMode==='needOwnPiece')text=t('needOwnPiece');statusTextEl.textContent=text;turnChipEl.textContent=turn==='w'?t('turnWhite'):t('turnBlack');whitePlayerEl.classList.toggle('active',turn==='w');blackPlayerEl.classList.toggle('active',turn==='b')}
+function updateCaptures(){blackCaptureEl.textContent=capturedByWhite.length?`${t('capturedPrefix')}${capturedByWhite.map(piece=>PIECES[piece]).join(' ')}`:t('emptyCapture');whiteCaptureEl.textContent=capturedByBlack.length?`${t('capturedPrefix')}${capturedByBlack.map(piece=>PIECES[piece]).join(' ')}`:t('emptyCapture')}
+function renderMoves(){fenValueEl.textContent=boardToFen();movesListEl.innerHTML='';if(!moveHistory.length)return;for(let i=0;i<moveHistory.length;i+=2){const row=document.createElement('div');row.className='move-row';const turnNumber=document.createElement('span');turnNumber.textContent=`${Math.floor(i/2)+1}.`;const white=document.createElement('span');white.textContent=moveHistory[i]?.notation||'';const black=document.createElement('span');black.textContent=moveHistory[i+1]?.notation||'';row.append(turnNumber,white,black);movesListEl.appendChild(row)}}
+function displayRows(){const rows=[];for(let y=0;y<8;y++)rows.push(y);return orientation==='w'?rows:rows.reverse()}
+function displayCols(){const cols=[];for(let x=0;x<8;x++)cols.push(x);return orientation==='w'?cols:cols.reverse()}
+function renderBoard(){boardEl.innerHTML='';const rows=displayRows(),cols=displayCols(),checkedKing=isInCheck(turn)?findKing(turn):null;rows.forEach((y,rowIndex)=>{cols.forEach((x,colIndex)=>{const square=document.createElement('button'),cell=board[y][x],isLight=(x+y)%2===0;square.className=`square ${isLight?'light':'dark'}`;square.textContent=cell?PIECES[cell]:'';const isSelected=selected&&selected.x===x&&selected.y===y,matchingMove=legalMoves.find(move=>move.toX===x&&move.toY===y),isLastMove=lastMoveSquares.some(squareRef=>squareRef.x===x&&squareRef.y===y);if(isSelected)square.classList.add('selected');if(matchingMove)square.classList.add(matchingMove.capture||matchingMove.enPassant?'capture':'legal');if(isLastMove)square.classList.add('lastmove');if(checkedKing&&checkedKing.x===x&&checkedKing.y===y)square.classList.add('incheck');if(rowIndex===7){const fileLabel=document.createElement('span');fileLabel.className='coords file';fileLabel.textContent=FILES[x];square.appendChild(fileLabel)}if(colIndex===0){const rankLabel=document.createElement('span');rankLabel.className='coords rank';rankLabel.textContent=8-y;square.appendChild(rankLabel)}square.addEventListener('click',()=>handleSquareClick(x,y));boardEl.appendChild(square)})})}
+function finishTurn(){selected=null;legalMoves=[];const nextMoves=getAllLegalMoves(turn),checked=isInCheck(turn);if(!nextMoves.length&&checked){setStatus(turn==='w'?'checkmateWhite':'checkmateBlack')}else if(!nextMoves.length){setStatus('stalemate')}else if(checked){setStatus(turn==='w'?'checkWhite':'checkBlack')}else{setStatus(turn==='w'?'turnWhite':'turnBlack')}}
+function handleSquareClick(x,y){if(pendingPromotion)return;const cell=board[y][x];if(selected){const move=legalMoves.find(item=>item.toX===x&&item.toY===y);if(move){if(move.promotion){pendingPromotion=move;promotionPanelEl.classList.add('show');setStatus('choosePromotion');renderBoard();return}commitMove(move);return}}if(cell&&getColor(cell)===turn){selected={x,y};legalMoves=getLegalMovesForPiece(x,y);renderBoard();return}if(cell&&getColor(cell)!==turn){setStatus('needOwnPiece');return}selected=null;legalMoves=[];renderBoard()}
+function commitMove(move,promotionPiece){undoStack.push(cloneState());const piece=board[move.fromY][move.fromX],captured=makeMove(move,promotionPiece);promotionPanelEl.classList.remove('show');pendingPromotion=null;lastMoveSquares=[{x:move.fromX,y:move.fromY},{x:move.toX,y:move.toY}];if(captured){if(getColor(piece)==='w')capturedByWhite.push(captured);else capturedByBlack.push(captured)}moveHistory.push({color:getColor(piece),notation:toNotation(move,piece,captured,promotionPiece)});updateCaptures();finishTurn();renderBoard();renderMoves()}
+function resetGame(){parseFen(START_FEN);setStatus('start');renderBoard();renderMoves();updateCaptures()}
+function undoMove(){const previous=undoStack.pop();if(!previous)return;restoreState(previous);promotionPanelEl.classList.toggle('show',!!pendingPromotion);renderBoard();renderMoves();updateCaptures();updateStatus()}
+function flipBoard(){orientation=orientation==='w'?'b':'w';renderBoard()}
+async function copyFen(){try{await navigator.clipboard.writeText(boardToFen());setStatus('copied')}catch(error){fenValueEl.textContent=`${boardToFen()}  <- copy manually`}}
+document.getElementById('resetBtn').addEventListener('click',resetGame);
+document.getElementById('undoBtn').addEventListener('click',undoMove);
+document.getElementById('flipBtn').addEventListener('click',flipBoard);
+document.getElementById('copyBtn').addEventListener('click',copyFen);
+promotionPanelEl.querySelectorAll('button').forEach(button=>{button.addEventListener('click',()=>{if(!pendingPromotion)return;commitMove(pendingPromotion,button.dataset.piece)})});
+window.addEventListener('keydown',event=>{if(event.key.toLowerCase()==='r')resetGame();if(event.key.toLowerCase()==='f')flipBoard();if((event.ctrlKey||event.metaKey)&&event.key.toLowerCase()==='z'){event.preventDefault();undoMove()}});
+resetGame();
+applyLanguage();
+</script>
+<script src="portal-i18n.js?v=uk-restart-i18n-20260525"></script>
+</body>
+</html>

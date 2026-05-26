@@ -70,6 +70,14 @@ body{background:linear-gradient(135deg,#0f0c29 0%,#302b63 50%,#24243e 100%);min-
 .troll-section{border-top:1px solid #333;margin-top:16px;padding-top:14px}
 .troll-section h3{color:#ff9ff3;font-size:16px;margin-bottom:10px;text-align:center}
 .troll-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.troll-control-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px;margin:12px 0}
+.troll-category{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:12px;margin-top:10px}
+.troll-category h4{margin:0 0 8px;color:#48dbfb;font-size:14px}
+.troll-actions{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px;margin-top:12px}
+.admin-inline-note{font-size:12px;color:#9aa4c7;line-height:1.45;margin:8px 0 0}
+.admin-preview-box{background:rgba(0,0,0,.2);border:1px dashed rgba(255,255,255,.14);border-radius:12px;padding:10px;font-size:12px;color:#d9def1;line-height:1.45}
+.event-list{display:grid;gap:6px;margin-top:10px}
+.event-item{background:rgba(255,255,255,.05);border-radius:10px;padding:8px 10px;font-size:12px;color:#d7dbef}
 
 .flip-effect{animation:flipIt .5s forwards}
 @keyframes flipIt{to{transform:rotate(180deg)}}
@@ -117,6 +125,19 @@ body{background:linear-gradient(135deg,#0f0c29 0%,#302b63 50%,#24243e 100%);min-
 .troll-floating-el{position:fixed;pointer-events:none;z-index:998;font-size:28px;animation-fill-mode:forwards;line-height:1}
 @keyframes trollFallDown{0%{opacity:1;transform:translateY(0) rotate(0deg)}100%{opacity:0;transform:translateY(110vh) rotate(720deg)}}
 @keyframes trollRiseUp{0%{opacity:1;transform:translateY(0) rotate(0deg)}100%{opacity:0;transform:translateY(-110vh) rotate(-360deg)}}
+#troll-spotlight-overlay{display:none;position:fixed;inset:0;z-index:9996;pointer-events:none}
+#troll-lasers-overlay{display:none;position:fixed;inset:0;z-index:9995;pointer-events:none;overflow:hidden}
+.troll-laser-bar{position:absolute;left:-20%;width:140%;height:6px;opacity:.65;filter:blur(1px);animation:trollLaserSweep linear forwards}
+@keyframes trollLaserSweep{from{transform:translateX(-18%) translateY(0)}to{transform:translateX(18%) translateY(0)}}
+#troll-update-overlay{display:none;position:fixed;inset:0;z-index:10002;background:rgba(2,6,23,.86);align-items:center;justify-content:center;flex-direction:column;color:#fff}
+#troll-update-overlay .box{width:min(92vw,420px);background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.14);border-radius:18px;padding:18px 18px 16px;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.35)}
+#troll-update-overlay h3{margin:0 0 10px;font-size:22px;color:#48dbfb}
+#troll-update-overlay p{margin:0 0 12px;color:#d8e5ff;font-size:13px;line-height:1.45}
+#troll-update-progress{height:12px;border-radius:999px;background:rgba(255,255,255,.1);overflow:hidden}
+#troll-update-progress span{display:block;height:100%;width:0;background:linear-gradient(90deg,#48dbfb,#feca57,#ff6b6b);transition:width .25s ease}
+#troll-toast-layer{position:fixed;top:70px;right:14px;z-index:10003;display:grid;gap:10px;pointer-events:none}
+.troll-toast{min-width:220px;max-width:320px;background:rgba(17,24,39,.92);color:#fff;border:1px solid rgba(255,255,255,.12);border-left:4px solid #ff6b6b;border-radius:14px;padding:12px 14px;box-shadow:0 14px 34px rgba(0,0,0,.3);animation:trollToastIn .25s ease-out}
+@keyframes trollToastIn{from{opacity:0;transform:translateX(40px)}to{opacity:1;transform:translateX(0)}}
 </style>
 </head>
 <body>
@@ -133,6 +154,10 @@ body{background:linear-gradient(135deg,#0f0c29 0%,#302b63 50%,#24243e 100%);min-
 <div id="troll-typewriter-overlay"></div>
 <div id="troll-bigtext-overlay"><span id="troll-bigtext-word"></span></div>
 <div id="troll-broadcast-banner" onclick="this.style.display='none'"></div>
+<div id="troll-spotlight-overlay"></div>
+<div id="troll-lasers-overlay"></div>
+<div id="troll-update-overlay"><div class="box"><h3 id="troll-update-title">Системное обновление</h3><p id="troll-update-text">Подожди немного...</p><div id="troll-update-progress"><span></span></div></div></div>
+<div id="troll-toast-layer"></div>
 
 <div class="header">
 <h1>🎮 ИГРОВОЙ ПОРТАЛ</h1>
@@ -178,6 +203,7 @@ body{background:linear-gradient(135deg,#0f0c29 0%,#302b63 50%,#24243e 100%);min-
 <div class="admin-tabs">
 <button class="admin-tab-btn active" onclick="switchAdminTab('games')">🎮 Игры</button>
 <button class="admin-tab-btn" onclick="switchAdminTab('trolls')">🎭 Тролль</button>
+<button class="admin-tab-btn" onclick="switchAdminTab('events')">✨ Ивенты</button>
 <button class="admin-tab-btn" onclick="switchAdminTab('stats')">📊 Стат</button>
 <button class="admin-tab-btn" onclick="switchAdminTab('broadcast')">📢 Сообщение</button>
 <button class="admin-tab-btn" onclick="switchAdminTab('theme')">🎨 Тема</button>
@@ -199,36 +225,116 @@ body{background:linear-gradient(135deg,#0f0c29 0%,#302b63 50%,#24243e 100%);min-
 <div class="troll-section" style="border-top:none;margin-top:0;padding-top:0">
 <h3>🎭 Тролль по цели</h3>
 <p style="font-size:11px;color:#888;margin-bottom:8px;text-align:center">Выбери все игры или конкретную игру, куда отправить эффект.</p>
+<div class="troll-control-grid">
+<div>
 <label>Куда отправить:</label>
 <select id="trollTarget"><option value="all">Все игры и главная</option></select>
+</div>
+<div>
+<label>Интенсивность:</label>
+<select id="trollIntensity">
+<option value="1">1 — мягко</option>
+<option value="2">2 — заметно</option>
+<option value="3" selected>3 — нормально</option>
+<option value="4">4 — жёстко</option>
+<option value="5">5 — хаос</option>
+</select>
+</div>
+<div>
+<label>Длительность:</label>
+<select id="trollDuration">
+<option value="3000">3 сек</option>
+<option value="5000" selected>5 сек</option>
+<option value="8000">8 сек</option>
+<option value="12000">12 сек</option>
+</select>
+</div>
+<div>
+<label>Пакет:</label>
+<select id="trollComboPreset">
+<option value="">Один эффект</option>
+<option value="visual">Визуальный налёт</option>
+<option value="motion">Движ и паника</option>
+<option value="text">Текстовый рейд</option>
+<option value="chaos">Полный хаос</option>
+</select>
+</div>
+</div>
+<label>Текст / сообщение для некоторых эффектов:</label>
+<input type="text" id="trollMessage" placeholder="Например: ОБНОВИ СТРАНИЦУ СЕЙЧАС">
+<p class="admin-inline-note">Новые эффекты умеют брать текст, длительность и силу из настроек выше. Для старых эффектов это тоже частично работает.</p>
+<div class="admin-preview-box" id="trollPreviewBox">Цель: все игры и главная. Интенсивность: 3. Длительность: 5 сек. Сообщение: стандартное.</div>
+
+<div class="troll-category">
+<h4>🌈 Визуальные</h4>
 <div class="troll-grid">
-<button class="btn-sm btn-troll" onclick="sendTroll('flip')">🙃 Перевернуть</button>
 <button class="btn-sm btn-troll" onclick="sendTroll('matrix')">💚 Матрица</button>
 <button class="btn-sm btn-troll" onclick="sendTroll('disco')">🪩 Дискотека</button>
-<button class="btn-sm btn-troll" onclick="sendTroll('virus')">☠️ Фейк-вирус</button>
-<button class="btn-sm btn-troll" onclick="sendTroll('shake')">📳 Землетрясение</button>
-<button class="btn-sm btn-troll" onclick="sendTroll('confetti')">🎊 Конфетти</button>
-<button class="btn-sm btn-troll" onclick="sendTroll('runaway')">🏃 Убегающие</button>
 <button class="btn-sm btn-troll" onclick="sendTroll('rainbow')">🌈 Радуга</button>
-<button class="btn-sm btn-troll" onclick="sendTroll('gravity')">⬇️ Гравитация</button>
-<button class="btn-sm btn-troll" onclick="sendTroll('blur')">🌫️ Блюр</button>
-<button class="btn-sm btn-troll" onclick="sendTroll('zoom')">🔍 Пульс-зум</button>
-<button class="btn-sm btn-troll" onclick="sendTroll('ghost')">👻 Призрак</button>
 <button class="btn-sm btn-troll" onclick="sendTroll('glitch')">📺 Глитч</button>
+<button class="btn-sm btn-troll" onclick="sendTroll('spotlight')">🔦 Прожектор</button>
+<button class="btn-sm btn-troll" onclick="sendTroll('lasers')">🔴 Лазеры</button>
 <button class="btn-sm btn-troll" onclick="sendTroll('snow')">❄️ Снег</button>
 <button class="btn-sm btn-troll" onclick="sendTroll('bubble')">🫧 Пузыри</button>
+<button class="btn-sm btn-troll" onclick="sendTroll('confetti')">🎊 Конфетти</button>
+<button class="btn-sm btn-troll" onclick="sendTroll('colorinvert')">🎭 Инверсия</button>
+<button class="btn-sm btn-troll" onclick="sendTroll('blur')">🌫️ Блюр</button>
+<button class="btn-sm btn-troll" onclick="sendTroll('ghost')">👻 Призрак</button>
+</div>
+</div>
+
+<div class="troll-category">
+<h4>🌀 Движение и хаос</h4>
+<div class="troll-grid">
+<button class="btn-sm btn-troll" onclick="sendTroll('flip')">🙃 Перевернуть</button>
+<button class="btn-sm btn-troll" onclick="sendTroll('shake')">📳 Землетрясение</button>
+<button class="btn-sm btn-troll" onclick="sendTroll('gravity')">⬇️ Гравитация</button>
+<button class="btn-sm btn-troll" onclick="sendTroll('zoom')">🔍 Пульс-зум</button>
+<button class="btn-sm btn-troll" onclick="sendTroll('slowmo')">🐢 Замедление</button>
+<button class="btn-sm btn-troll" onclick="sendTroll('runaway')">🏃 Убегающие</button>
+<button class="btn-sm btn-troll" onclick="sendTroll('scalecrazy')">📦 Безумный масштаб</button>
+<button class="btn-sm btn-troll" onclick="sendTroll('cardshuffle')">🃏 Мешанина карточек</button>
 <button class="btn-sm btn-troll" onclick="sendTroll('darkout')">🌑 Темнота</button>
 <button class="btn-sm btn-troll" onclick="sendTroll('cursor')">💩 Курсор</button>
+</div>
+</div>
+
+<div class="troll-category">
+<h4>💬 Текст и системные приколы</h4>
+<div class="troll-grid">
+<button class="btn-sm btn-troll" onclick="sendTroll('virus')">☠️ Фейк-вирус</button>
 <button class="btn-sm btn-troll" onclick="sendTroll('typewriter')">⌨️ Хакер</button>
-<button class="btn-sm btn-troll" onclick="sendTroll('emojirain')">😂 Эмодзи-дождь</button>
 <button class="btn-sm btn-troll" onclick="sendTroll('bigtext')">💀 Большой текст</button>
 <button class="btn-sm btn-troll" onclick="sendTroll('upsidetext')">🔃 Текст вверх ногами</button>
-<button class="btn-sm btn-troll" onclick="sendTroll('slowmo')">🐢 Замедление</button>
-<button class="btn-sm btn-troll" onclick="sendTroll('scalecrazy')">📦 Безумный масштаб</button>
-<button class="btn-sm btn-troll" onclick="sendTroll('colorinvert')">🎭 Инверсия</button>
-<button class="btn-sm btn-danger" onclick="sendTroll('reset')" style="grid-column:1/-1">🔄 Сброс всем</button>
+<button class="btn-sm btn-troll" onclick="sendTroll('emojirain')">😂 Эмодзи-дождь</button>
+<button class="btn-sm btn-troll" onclick="sendTroll('toastspam')">🔔 Спам уведомлениями</button>
+<button class="btn-sm btn-troll" onclick="sendTroll('fakeupdate')">🛠️ Фейк-обновление</button>
+<button class="btn-sm btn-troll" onclick="sendTroll('countdown')">⏳ Обратный отсчёт</button>
 </div>
 </div>
+
+<div class="troll-actions">
+<button class="btn btn-secondary" onclick="sendRandomTroll()">🎲 Случайный эффект</button>
+<button class="btn btn-primary" onclick="sendTrollCombo()">🚀 Запустить пакет</button>
+<button class="btn btn-danger" onclick="sendTroll('reset')">🧯 Сбросить эффекты</button>
+</div>
+</div>
+</div>
+
+<div class="admin-tab-pane" id="tab-events">
+<h3 style="color:#48dbfb;font-size:15px;margin-bottom:10px">✨ Ивенты портала</h3>
+<p class="admin-inline-note">Ивенты полезны для мягких анонсов и миссий без жёсткого троллинга. Они пишутся в базу и остаются в журнале.</p>
+<label>Цель ивента:</label>
+<select id="eventTarget"><option value="all">Все игры</option></select>
+<label>Заголовок:</label>
+<input type="text" id="eventTitle" placeholder="Например: Мини-челлендж дня">
+<label>Текст ивента:</label>
+<textarea id="eventText" placeholder="Собери 100 очков в любой игре до вечера!" rows="3"></textarea>
+<div class="admin-action-grid">
+<button class="btn btn-primary" onclick="sendPortalEvent()">✨ Отправить ивент</button>
+<button class="btn btn-secondary" onclick="quickBroadcast('Сегодня новый челлендж в портале! ✨')">📣 Анонсировать всем</button>
+</div>
+<div class="event-list" id="eventsAdminList"></div>
 </div>
 
 <div class="admin-tab-pane" id="tab-stats">
@@ -395,6 +501,7 @@ const DEFAULT_GAMES = [
   { id:'tictactoe', icon:'❌', name:'Крестики-нолики', desc:'Играй против компьютера или 1 на 1', url:'tic_tac_toe.html', badge:'NEW', type:'link', builtin:true, category:'puzzle' },
   { id:'minesweeper', icon:'💣', name:'Сапёр', desc:'Найди все клетки без мин', url:'minesweeper.html', badge:'NEW', type:'link', builtin:true, category:'puzzle' },
   { id:'maze', icon:'🧭', name:'Лабиринт', desc:'Ищи выход, собирай монеты и открывай уровни', url:'maze.html', badge:'NEW', type:'link', builtin:true, category:'puzzle' },
+  { id:'chess', icon:'♟️', name:'Шахматы', desc:'Классическая партия с шахом, матом и рокировкой', url:'chess.html', badge:'NEW', type:'link', builtin:true, category:'puzzle' },
   { id:'pixelart', icon:'🖌️', name:'Pixel Art', desc:'Рисуй пиксельные картинки', url:'pixel_art.html', badge:'NEW', type:'link', builtin:true, category:'creative' },
   { id:'musicpad', icon:'🎹', name:'Музыка Pad', desc:'Создавай ритм и световое шоу', url:'music_pad.html', badge:'NEW', type:'link', builtin:true, category:'creative' },
   { id:'cafesim', icon:'☕', name:'Моё Кафе', desc:'Готовь заказы, следи за складом и развивай уютное кафе', url:'cafe_sim.html', badge:'NEW', type:'link', builtin:true, category:'sim' },
@@ -448,6 +555,7 @@ function renderGames() {
     grid.appendChild(section);
   });
   updateAdminGameStats();
+  fillAdminGameSelects();
 }
 
 function openGame(g) {
@@ -625,7 +733,7 @@ function switchAdminTab(name) {
   document.querySelectorAll('.admin-tab-pane').forEach(p => p.classList.remove('active'));
   document.querySelectorAll('.admin-tab-btn').forEach(b => b.classList.remove('active'));
   document.getElementById('tab-' + name).classList.add('active');
-  const order = ['games','trolls','stats','broadcast','theme','tools'];
+  const order = ['games','trolls','events','stats','broadcast','theme','tools'];
   const idx = order.indexOf(name);
   if (idx >= 0) document.querySelectorAll('.admin-tab-btn')[idx].classList.add('active');
   if (name === 'stats' || name === 'tools') refreshStats();
@@ -635,20 +743,61 @@ function switchAdminTab(name) {
 // --- ОТПРАВИТЬ ТРОЛЛЬ ВСЕМ В РЕАЛЬНОМ ВРЕМЕНИ ---
 function currentTrollTarget() { return document.getElementById('trollTarget')?.value || 'all'; }
 function isTrollForThisPage(data) { const target = data && data.target; return !target || target === 'all' || target === 'portal'; }
+function trollInputValue(id, fallback = '') {
+  const el = document.getElementById(id);
+  return el ? el.value : fallback;
+}
+function collectTrollPayload() {
+  const intensity = Math.max(1, Number(trollInputValue('trollIntensity', '3')) || 3);
+  const duration = Math.max(1000, Number(trollInputValue('trollDuration', '5000')) || 5000);
+  const message = trollInputValue('trollMessage', '').trim();
+  const combo = trollInputValue('trollComboPreset', '');
+  return { intensity, duration, message, combo };
+}
+function updateTrollPreview() {
+  const box = document.getElementById('trollPreviewBox');
+  if (!box) return;
+  const payload = collectTrollPayload();
+  const target = currentTrollTarget();
+  const label = target === 'all' ? 'все игры и главная' : target === 'portal' ? 'главная' : target;
+  box.textContent = `Цель: ${label}. Интенсивность: ${payload.intensity}. Длительность: ${Math.round(payload.duration / 1000)} сек. Сообщение: ${payload.message || 'стандартное'}.`;
+}
 function sendTroll(type) {
   const target = currentTrollTarget();
+  const payload = collectTrollPayload();
   if (type === 'reset') {
     if (target === 'all' || target === 'portal') trollReset();
     if (db) db.ref('trolls').set(null);
     return;
   }
-  if (target === 'all' || target === 'portal') executeTroll(type);
+  if (target === 'all' || target === 'portal') executeTroll({ type, target, payload, time: Date.now() });
   if (db) {
     const now = Date.now();
-    db.ref('trolls').push({ type, target, time: now });
-    db.ref('trolls_log').push({ type, target, time: now });
+    db.ref('trolls').push({ type, target, payload, time: now });
+    db.ref('trolls_log').push({ type, target, payload, time: now });
     setTimeout(() => { db.ref('trolls').set(null); }, 10000);
   }
+}
+function sendRandomTroll() {
+  const pool = ['matrix','disco','rainbow','glitch','spotlight','lasers','shake','gravity','zoom','cardshuffle','typewriter','toastspam','countdown','fakeupdate'];
+  sendTroll(pool[Math.floor(Math.random() * pool.length)]);
+}
+function sendTrollCombo() {
+  const combo = trollInputValue('trollComboPreset', '');
+  const combos = {
+    visual: ['matrix','rainbow','spotlight','lasers'],
+    motion: ['shake','zoom','gravity','cardshuffle'],
+    text: ['bigtext','typewriter','toastspam','countdown'],
+    chaos: ['glitch','disco','shake','toastspam','fakeupdate','emojirain']
+  };
+  const list = combos[combo];
+  if (!list || !list.length) {
+    sendRandomTroll();
+    return;
+  }
+  list.forEach((type, index) => {
+    setTimeout(() => sendTroll(type), index * 700);
+  });
 }
 
 // --- СЛУШАТЬ ТРОЛЛИ ОТ АДМИНА (для всех посетителей) ---
@@ -658,7 +807,7 @@ function listenForTrolls() {
   db.ref('trolls').on('child_added', snap => {
     const data = snap.val();
     if (data && data.time > lastTrollTime && isTrollForThisPage(data)) {
-      executeTroll(data.type);
+      executeTroll(data);
     }
   });
 }
@@ -782,8 +931,43 @@ let _glitchInterval = null;
 let _typewriterInterval = null;
 let _bigtextTimeout = null;
 let _scaleCrazyInterval = null;
+let _trollTransientTimeouts = [];
+let _trollTransientIntervals = [];
 
-function executeTroll(type) {
+function rememberTrollTimeout(fn, ms) {
+  const id = setTimeout(fn, ms);
+  _trollTransientTimeouts.push(id);
+  return id;
+}
+
+function rememberTrollInterval(fn, ms) {
+  const id = setInterval(fn, ms);
+  _trollTransientIntervals.push(id);
+  return id;
+}
+
+function clearTransientTrollTimers() {
+  _trollTransientTimeouts.forEach(clearTimeout);
+  _trollTransientIntervals.forEach(clearInterval);
+  _trollTransientTimeouts = [];
+  _trollTransientIntervals = [];
+}
+
+function trollDuration(payload, fallback) {
+  return Math.max(1000, Number(payload?.duration) || fallback);
+}
+
+function trollIntensity(payload, fallback = 3) {
+  return Math.max(1, Number(payload?.intensity) || fallback);
+}
+
+function trollMessage(payload, fallback) {
+  return payload?.message?.trim() || fallback;
+}
+
+function executeTroll(typeOrData) {
+  const type = typeof typeOrData === 'string' ? typeOrData : typeOrData?.type;
+  const payload = typeof typeOrData === 'string' ? null : (typeOrData?.payload || null);
   switch(type) {
     case 'flip': trollFlip(); break;
     case 'matrix': trollMatrix(); break;
@@ -809,6 +993,12 @@ function executeTroll(type) {
     case 'slowmo': trollSlowMo(); break;
     case 'scalecrazy': trollScaleCrazy(); break;
     case 'colorinvert': trollColorInvert(); break;
+    case 'spotlight': trollSpotlight(payload); break;
+    case 'lasers': trollLasers(payload); break;
+    case 'toastspam': trollToastSpam(payload); break;
+    case 'fakeupdate': trollFakeUpdate(payload); break;
+    case 'countdown': trollCountdown(payload); break;
+    case 'cardshuffle': trollCardShuffle(payload); break;
     case 'reset': trollReset(); break;
   }
 }
@@ -1118,6 +1308,121 @@ function trollColorInvert() {
   setTimeout(() => { document.body.style.filter = ''; }, 5000);
 }
 
+function trollSpotlight(payload) {
+  const ov = document.getElementById('troll-spotlight-overlay');
+  const radius = Math.max(90, 220 - trollIntensity(payload) * 18);
+  ov.style.display = 'block';
+  ov.style.background = `radial-gradient(circle ${radius}px at 50% 50%, transparent 0, transparent 38%, rgba(0,0,0,.88) 62%)`;
+  const move = e => {
+    ov.style.background = `radial-gradient(circle ${radius}px at ${e.clientX}px ${e.clientY}px, transparent 0, transparent 38%, rgba(0,0,0,.88) 62%)`;
+  };
+  document.addEventListener('pointermove', move);
+  rememberTrollTimeout(() => {
+    document.removeEventListener('pointermove', move);
+    ov.style.display = 'none';
+  }, trollDuration(payload, 5000));
+}
+
+function trollLasers(payload) {
+  const ov = document.getElementById('troll-lasers-overlay');
+  const intensity = trollIntensity(payload);
+  ov.innerHTML = '';
+  ov.style.display = 'block';
+  for (let i = 0; i < 4 + intensity * 3; i++) {
+    rememberTrollTimeout(() => {
+      const bar = document.createElement('div');
+      bar.className = 'troll-laser-bar';
+      bar.style.top = Math.random() * 100 + '%';
+      bar.style.background = `linear-gradient(90deg, transparent, hsl(${Math.random()*360},100%,55%), transparent)`;
+      bar.style.animationDuration = (1.2 + Math.random() * 1.6) + 's';
+      bar.style.transform = `rotate(${(Math.random() - .5) * 16}deg)`;
+      ov.appendChild(bar);
+      rememberTrollTimeout(() => bar.remove(), 2400);
+    }, i * 220);
+  }
+  rememberTrollTimeout(() => {
+    ov.style.display = 'none';
+    ov.innerHTML = '';
+  }, trollDuration(payload, 4500));
+}
+
+function trollToastSpam(payload) {
+  const layer = document.getElementById('troll-toast-layer');
+  const intensity = trollIntensity(payload);
+  const message = trollMessage(payload, 'Система обнаружила подозрительную активность');
+  const titles = ['Внимание', 'Ошибка', 'Портал', 'Оповещение', 'Проверка'];
+  for (let i = 0; i < 3 + intensity * 2; i++) {
+    rememberTrollTimeout(() => {
+      const toast = document.createElement('div');
+      toast.className = 'troll-toast';
+      toast.innerHTML = `<strong>${titles[Math.floor(Math.random() * titles.length)]}</strong><div style="margin-top:4px;font-size:12px;color:#d3ddff">${safeText(message)}</div>`;
+      layer.appendChild(toast);
+      rememberTrollTimeout(() => toast.remove(), 2600 + intensity * 300);
+    }, i * 280);
+  }
+}
+
+function trollFakeUpdate(payload) {
+  const ov = document.getElementById('troll-update-overlay');
+  const title = document.getElementById('troll-update-title');
+  const text = document.getElementById('troll-update-text');
+  const bar = document.querySelector('#troll-update-progress span');
+  const duration = trollDuration(payload, 7000);
+  title.textContent = trollMessage(payload, 'Системное обновление');
+  text.textContent = 'Подготавливаем портал к перезапуску. Не закрывай страницу...';
+  bar.style.width = '0%';
+  ov.style.display = 'flex';
+  let progress = 0;
+  const int = rememberTrollInterval(() => {
+    progress = Math.min(97, progress + Math.random() * 12);
+    bar.style.width = progress + '%';
+  }, 260);
+  rememberTrollTimeout(() => {
+    clearInterval(int);
+    bar.style.width = '100%';
+    text.textContent = 'Почти готово... шутка 😈';
+  }, Math.max(1200, duration - 1200));
+  rememberTrollTimeout(() => {
+    ov.style.display = 'none';
+    bar.style.width = '0%';
+  }, duration);
+}
+
+function trollCountdown(payload) {
+  const ov = document.getElementById('troll-bigtext-overlay');
+  const sp = document.getElementById('troll-bigtext-word');
+  let count = 3 + trollIntensity(payload);
+  ov.style.display = 'flex';
+  sp.textContent = `${trollMessage(payload, 'ПЕРЕЗАГРУЗКА')} ${count}`;
+  const int = rememberTrollInterval(() => {
+    count--;
+    sp.textContent = count > 0 ? `${trollMessage(payload, 'ПЕРЕЗАГРУЗКА')} ${count}` : '0';
+    if (count <= 0) {
+      clearInterval(int);
+      sp.textContent = 'ШУТКА 😎';
+    }
+  }, 900);
+  rememberTrollTimeout(() => {
+    clearInterval(int);
+    ov.style.display = 'none';
+  }, trollDuration(payload, 6000));
+}
+
+function trollCardShuffle(payload) {
+  const cards = [...document.querySelectorAll('.game-card')];
+  const intensity = trollIntensity(payload);
+  cards.forEach(card => {
+    card.style.transition = 'transform .35s ease, rotate .35s ease';
+    const x = (Math.random() - .5) * (40 + intensity * 25);
+    const y = (Math.random() - .5) * (20 + intensity * 14);
+    const r = (Math.random() - .5) * (12 + intensity * 7);
+    card.style.transform = `translate(${x}px, ${y}px) rotate(${r}deg)`;
+  });
+  rememberTrollTimeout(() => {
+    cards.forEach(card => card.style.transform = '');
+  }, trollDuration(payload, 3500));
+}
+
 function trollReset() {
   document.body.style.transform = '';
   document.body.style.filter = '';
@@ -1129,12 +1434,18 @@ function trollReset() {
   document.getElementById('troll-glitch-overlay').innerHTML = '';
   document.getElementById('troll-typewriter-overlay').style.display = 'none';
   document.getElementById('troll-bigtext-overlay').style.display = 'none';
+  document.getElementById('troll-spotlight-overlay').style.display = 'none';
+  document.getElementById('troll-lasers-overlay').style.display = 'none';
+  document.getElementById('troll-lasers-overlay').innerHTML = '';
+  document.getElementById('troll-update-overlay').style.display = 'none';
+  document.getElementById('troll-toast-layer').innerHTML = '';
   clearInterval(matrixInterval);
   clearTimeout(discoTimeout);
   clearInterval(_glitchInterval);
   clearInterval(_typewriterInterval);
   clearTimeout(_bigtextTimeout);
   clearInterval(_scaleCrazyInterval);
+  clearTransientTrollTimers();
   runAwayActive = false;
   document.removeEventListener('pointermove', runAwayHandler);
   document.querySelectorAll('.game-card').forEach(c => { c.style.transform = ''; c.style.transition = ''; c.style.zIndex = ''; });
@@ -1194,19 +1505,28 @@ function fillAdminGameSelects() {
   const targets = [
     ['all','Все игры'],
     ['portal','Главная'],
-    ...DEFAULT_GAMES.map(g => [g.id, g.name])
+    ...DEFAULT_GAMES.map(g => [g.id, g.name]),
+    ...customGames.map(g => [g.id, g.name])
   ];
   ['trollTarget','eventTarget'].forEach(id => {
     const sel = document.getElementById(id);
-    if (!sel || sel.dataset.ready) return;
+    if (!sel) return;
+    const prev = sel.value;
     sel.innerHTML = targets.map(([id,name]) => '<option value="'+id+'">'+name+'</option>').join('');
-    sel.dataset.ready = '1';
+    if (targets.some(([id]) => id === prev)) sel.value = prev;
   });
+  updateTrollPreview();
 }
 
 function safeText(v) {
   return String(v ?? '').replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
 }
+
+['trollTarget','trollIntensity','trollDuration','trollMessage','trollComboPreset'].forEach(id => {
+  const el = document.getElementById(id);
+  if (el) el.addEventListener('input', updateTrollPreview);
+  if (el) el.addEventListener('change', updateTrollPreview);
+});
 
 
 function sendPortalEvent() {
@@ -1228,10 +1548,10 @@ function loadEventsAdmin() {
   if (!box || !db) return;
   db.ref('portal_events').limitToLast(12).once('value', snap => {
     const rows = Object.values(snap.val() || {}).reverse();
-    box.innerHTML = rows.length ? '' : '<div class="log-item">Ивентов пока нет</div>';
+    box.innerHTML = rows.length ? '' : '<div class="event-item">Ивентов пока нет</div>';
     rows.forEach(e => {
       const div = document.createElement('div');
-      div.className = 'log-item';
+      div.className = 'event-item';
       div.textContent = '[' + (e.target || 'all') + '] ' + (e.title ? e.title + ': ' : '') + (e.text || '');
       box.appendChild(div);
     });
