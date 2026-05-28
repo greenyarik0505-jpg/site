@@ -669,7 +669,7 @@ function resize() {
         logicalHeight = 800 / aspect;
         scale = canvas.width / logicalWidth;
     }
-    GROUND_Y = logicalHeight - 70;
+    GROUND_Y = Math.round(logicalHeight / 2 + 50);
     
     // Adjust entity positions on window resize
     if (dino) {
@@ -1025,6 +1025,11 @@ function animate() {
     
     // Active Speed calculations (with admin slowmo multiplier)
     const activeSpeed = speed * trollSpeedMultiplier;
+    
+    // Draw Earth Block below Ground Y
+    let earthColor = lerpColor('#f0f0f0', '#121314', nightFade);
+    ctx.fillStyle = earthColor;
+    ctx.fillRect(0, GROUND_Y, logicalWidth, logicalHeight - GROUND_Y);
     
     // Ground Line
     let groundColor = lerpColor('#d2d2d2', 'rgba(255,255,255,0.15)', nightFade);
