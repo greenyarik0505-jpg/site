@@ -168,20 +168,7 @@ h1 {
 
 .hidden { display: none !important; }
 
-@media (max-width: 600px) {
-    #game-container {
-        position: relative;
-        width: 92%;
-        height: 220px;
-        border: 4px solid #feca57;
-        border-radius: 12px;
-        box-shadow: 0 12px 28px rgba(0,0,0,0.5);
-    }
-    .ui-layer {
-        position: fixed;
-        height: 100vh;
-    }
-}
+
 
 /* TROLL SYSTEM STYLES */
 #troll-matrix{position:fixed;top:0;left:0;width:100%;height:100%;z-index:9999;pointer-events:none;display:none}
@@ -1068,7 +1055,6 @@ function animate() {
             // update UI styles dynamically
             const container = document.getElementById('game-container');
             container.style.backgroundColor = isNight ? '#181a1b' : '#f7f7f7';
-            container.style.borderColor = isNight ? '#9cff7c' : '#feca57';
             scoreEl.style.color = isNight ? '#9cff7c' : '#333';
             document.querySelectorAll('.menu-box').forEach(el => {
                 el.style.borderColor = isNight ? '#9cff7c' : '#feca57';
