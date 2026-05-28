@@ -23,7 +23,8 @@
     cafesim:{ru:['Моё Кафе','Готовь заказы, следи за складом и развивай уютное кафе'],uk:['Моє Кафе','Готуй замовлення, стеж за складом і розвивай затишне кафе'],en:['My Cafe','Cook orders, manage stock, and grow a cozy cafe']},
     clicker:{ru:['Кликер','Покупай улучшения, миссии, престиж и офлайн-доход'],uk:['Клікер','Купуй покращення, місії, престиж і офлайн-дохід'],en:['Clicker','Buy upgrades, missions, prestige, and offline income']},
     farm:{ru:['Мини Ферма','Культуры, вода, животные, заказы и погода'],uk:['Міні Ферма','Культури, вода, тварини, замовлення і погода'],en:['Mini Farm','Crops, water, animals, orders, and weather']},
-    citysim:{ru:['Мини Город','Строй районы, балансируй бюджет, энергию и счастье'],uk:['Міні Місто','Будуй райони, балансуй бюджет, енергію і щастя'],en:['Mini City','Build districts, balance budget, energy, and happiness']}
+    citysim:{ru:['Мини Город','Строй районы, балансируй бюджет, энергию и счастье'],uk:['Міні Місто','Будуй райони, балансуй бюджет, енергію і щастя'],en:['Mini City','Build districts, balance budget, energy, and happiness']},
+    dino:{ru:['Dino Runner','Беги, прыгай и приседай!'],uk:['Dino Runner','Біжи, стрибай та присідай!'],en:['Dino Runner','Run, jump, and crouch!']}
   };
 
   var ui={
@@ -89,7 +90,8 @@
     ['Камень','Камінь','Stone'],['Дерево','Дерево','Wood'],['Металл','Метал','Metal'],['Стекло','Скло','Glass'],['Лёд','Лід','Ice'],['Обсидиан','Обсидіан','Obsidian'],['Кирпич','Цегла','Brick'],['Губка','Губка','Sponge'],
     ['Клон','Клон','Clone'],['Вирус','Вірус','Virus'],['Растение','Рослина','Plant'],['Пустота','Порожнеча','Void'],['Все элементы','Усі елементи','All elements'],['Порошки','Порошки','Powders'],['Жидкости','Рідини','Liquids'],['Газы','Гази','Gases'],['Твёрдые','Тверді','Solids'],['Особые','Особливі','Special'],['Поиск элемента','Пошук елемента','Search element'],
     ['Стрелки или кнопки на экране. Ешь яблоки и не врезайся.','Стрілки або кнопки на екрані. Їж яблука та не врізайся.','Use arrows or on-screen buttons. Eat apples and do not crash.'],
-    ['Стрелки: движение, вверх: поворот, пробел: вниз до конца. Скорость растет с уровнем.','Стрілки: рух, вгору: поворот, пробіл: вниз до кінця. Швидкість росте з рівнем.','Arrows: move, up: rotate, space: hard drop. Speed grows with level.']
+    ['Стрелки: движение, вверх: поворот, пробел: вниз до конца. Скорость растет с уровнем.','Стрілки: рух, вгору: поворот, пробіл: вниз до кінця. Швидкість росте з рівнем.','Arrows: move, up: rotate, space: hard drop. Speed grows with level.'],
+    ['Стрелки или кнопки на экране. Перепрыгивай препятствия и приседай.','Стрілки або кнопки на екрані. Перестрибуй перешкоди та присідай.','Use arrows or on-screen buttons. Jump over obstacles and crouch.']
   ];
 
   phrases=phrases.concat([
@@ -327,7 +329,7 @@
 
   function translateGame(){
     var f=file();
-    var map={'city_sim.html':'citysim','maze.html':'maze','music_pad.html':'musicpad','cafe_sim.html':'cafesim','clicker.html':'clicker','farm.html':'farm','snake.html':'snake','pacman.html':'pacman','tetris.html':'tetris','arkanoid.html':'arkanoid','memory.html':'memory','minesweeper.html':'minesweeper','tic_tac_toe.html':'tictactoe','pixel_art.html':'pixelart','sandbox.html':'sandbox','sandboxels.html':'sandboxels','new_game.html':'bubblepop','flappy_bird.html':'flappy'};
+    var map={'city_sim.html':'citysim','maze.html':'maze','music_pad.html':'musicpad','cafe_sim.html':'cafesim','clicker.html':'clicker','farm.html':'farm','snake.html':'snake','pacman.html':'pacman','tetris.html':'tetris','arkanoid.html':'arkanoid','memory.html':'memory','minesweeper.html':'minesweeper','tic_tac_toe.html':'tictactoe','pixel_art.html':'pixelart','sandbox.html':'sandbox','sandboxels.html':'sandboxels','new_game.html':'bubblepop','flappy_bird.html':'flappy','dino.html':'dino'};
     var id=map[f],tr=game(id);
     document.querySelectorAll('.portal-home-btn').forEach(function(a){a.textContent=t('home')});
     if(tr){
