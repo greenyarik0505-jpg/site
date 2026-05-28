@@ -660,19 +660,27 @@ function resize() {
     
     const oldGround = GROUND_Y;
     const aspect = canvas.width / canvas.height;
-    if (aspect > 800 / 300) {
-        logicalHeight = 300;
-        logicalWidth = 300 * aspect;
-        scale = canvas.height / logicalHeight;
-    } else {
+    
+    if (aspect > 1.6) {
+        // Landscape (Desktop/Tablet)
         logicalWidth = 800;
         logicalHeight = 800 / aspect;
-        scale = canvas.width / logicalWidth;
+    } else if (aspect > 0.7) {
+        // Tablet Portrait / Mobile Landscape
+        logicalWidth = 600;
+        logicalHeight = 600 / aspect;
+    } else {
+        // Mobile Portrait (Phone)
+        logicalWidth = 480;
+        logicalHeight = 480 / aspect;
     }
+    
+    scale = canvas.width / logicalWidth;
     GROUND_Y = Math.round(logicalHeight / 2 + 50);
     
     // Adjust entity positions on window resize
     if (dino) {
+        dino.x = Math.round(logicalWidth * 0.1);
         if (!dino.isJumping) {
             dino.y = GROUND_Y - DINO_HEIGHT;
         } else {
@@ -691,7 +699,7 @@ resize();
 // --- ENTITIES CLASS ---
 class Dino {
     constructor() {
-        this.x = 80;
+        this.x = Math.round(logicalWidth * 0.1);
         this.y = GROUND_Y - DINO_HEIGHT;
         this.vy = 0;
         this.width = DINO_WIDTH;
