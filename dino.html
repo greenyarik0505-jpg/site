@@ -16,7 +16,7 @@ body{display:flex;align-items:center;justify-content:center;transition:backgroun
     height: 100vh;
     overflow: hidden;
     background: #f7f7f7;
-    transition: background-color 0.5s;
+    transition: background-color 0.5s, border-color 0.5s;
 }
 
 canvas {
@@ -168,44 +168,20 @@ h1 {
 
 .hidden { display: none !important; }
 
-/* --- МОБИЛЬНОЕ УПРАВЛЕНИЕ --- */
-#mobile-controls {
-    position: absolute;
-    bottom: 30px;
-    left: 0;
-    width: 100%;
-    display: flex;
-    justify-content: space-between;
-    padding: 0 40px;
-    box-sizing: border-box;
-    z-index: 25;
-    pointer-events: none;
-}
-.mobile-control-btn {
-    pointer-events: auto;
-    width: 80px;
-    height: 80px;
-    border-radius: 50%;
-    background: rgba(255, 255, 255, 0.12);
-    border: 3px solid rgba(255, 255, 255, 0.4);
-    color: rgba(255, 255, 255, 0.8);
-    font-family: 'VT323', monospace;
-    font-size: 1.4rem;
-    font-weight: bold;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    box-shadow: 0 8px 16px rgba(0,0,0,0.3);
-    backdrop-filter: blur(5px);
-    transition: background 0.1s, transform 0.1s;
-    user-select: none;
-    -webkit-user-select: none;
-}
-.mobile-control-btn:active {
-    background: rgba(254, 202, 87, 0.4);
-    border-color: #feca57;
-    color: #fff;
-    transform: scale(0.92);
+@media (max-width: 600px) {
+    #game-container {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        height: 200px;
+        border-top: 4px solid #feca57;
+        box-shadow: 0 -8px 25px rgba(0,0,0,0.5);
+    }
+    .ui-layer {
+        position: fixed;
+        height: 100vh;
+    }
 }
 
 /* TROLL SYSTEM STYLES */
@@ -279,11 +255,7 @@ h1 {
         </div>
     </div>
 
-    <!-- Mobile Buttons -->
-    <div id="mobile-controls" class="hidden">
-        <button id="mobile-duck-btn" class="mobile-control-btn">▼ DUCK</button>
-        <button id="mobile-jump-btn" class="mobile-control-btn">▲ JUMP</button>
-    </div>
+
 
     <canvas id="gameCanvas"></canvas>
 </div>
@@ -644,7 +616,6 @@ const scoreEl = document.getElementById('score-val');
 const startScreen = document.getElementById('start-screen');
 const pauseMenu = document.getElementById('pause-menu');
 const gameOverScreen = document.getElementById('game-over-screen');
-const mobileControls = document.getElementById('mobile-controls');
 
 const startBtnMenu = document.getElementById('start-btn-menu');
 const resumeBtn = document.getElementById('resume-btn');
@@ -652,9 +623,6 @@ const restartPauseBtn = document.getElementById('restart-pause-btn');
 const exitBtn = document.getElementById('exit-btn');
 const restartBtn = document.getElementById('restart-btn');
 const menuOverBtn = document.getElementById('menu-over-btn');
-
-const mobileDuckBtn = document.getElementById('mobile-duck-btn');
-const mobileJumpBtn = document.getElementById('mobile-jump-btn');
 
 let frames = 0;
 let score = 0;
@@ -720,7 +688,7 @@ function resize() {
     // Adjust entity positions on window resize
     if (dino) {
         if (!dino.isJumping) {
-            dino.y = GROUND_Y - (dino.isDucking ? DINO_DUCK_HEIGHT : DINO_HEIGHT);
+            dino.y = GROUND_Y - DINO_HEIGHT;
         } else {
             dino.y += (GROUND_Y - oldGround);
         }
@@ -734,11 +702,6 @@ function resize() {
 window.addEventListener('resize', resize);
 resize();
 
-// Check if touch device and show mobile controls
-if (('ontouchstart' in window) || navigator.maxTouchPoints > 0) {
-    mobileControls.classList.remove('hidden');
-}
-
 // --- ENTITIES CLASS ---
 class Dino {
     constructor() {
@@ -748,28 +711,16 @@ class Dino {
         this.width = DINO_WIDTH;
         this.height = DINO_HEIGHT;
         this.isJumping = false;
-        this.isDucking = false;
         this.gravity = 0.6;
         this.jumpForce = -12.5;
         this.animFrame = 0;
     }
     jump() {
         if (state.current !== state.game || isPaused) return;
-        if (!this.isJumping && !this.isDucking) {
+        if (!this.isJumping) {
             this.vy = this.jumpForce;
             this.isJumping = true;
             playSound('jump');
-        }
-    }
-    duck(stateVal) {
-        if (state.current !== state.game || isPaused) return;
-        this.isDucking = stateVal;
-        if (stateVal) {
-            this.height = DINO_DUCK_HEIGHT;
-            this.width = DINO_DUCK_WIDTH;
-        } else {
-            this.height = DINO_HEIGHT;
-            this.width = DINO_WIDTH;
         }
     }
     update() {
@@ -777,16 +728,10 @@ class Dino {
         this.y += this.vy;
         
         let activeGravity = this.gravity * trollGravityMultiplier;
-        if (this.isDucking && this.isJumping) {
-            activeGravity = this.gravity * 2.5 * trollGravityMultiplier; // drop faster
-        }
-        
         this.vy += activeGravity;
         
-        const currentHeight = this.isDucking ? DINO_DUCK_HEIGHT : DINO_HEIGHT;
-        
-        if (this.y >= GROUND_Y - currentHeight) {
-            this.y = GROUND_Y - currentHeight;
+        if (this.y >= GROUND_Y - DINO_HEIGHT) {
+            this.y = GROUND_Y - DINO_HEIGHT;
             this.vy = 0;
             this.isJumping = false;
         }
@@ -805,11 +750,7 @@ class Dino {
         
         if (state.current === state.over) {
             drawSprite(ctx, DINO_CRASH, this.x, this.y, 2, colorMap);
-        } else if (this.isDucking && !this.isJumping) {
-            const sprite = this.animFrame ? DINO_DUCK1 : DINO_DUCK2;
-            drawSprite(ctx, sprite, this.x, this.y, 2, colorMap);
         } else {
-            // If jumping, just draw static leg frame
             const sprite = (this.isJumping || this.animFrame === 0) ? DINO_RUN1 : DINO_RUN2;
             drawSprite(ctx, sprite, this.x, this.y, 2, colorMap);
         }
@@ -819,7 +760,7 @@ class Dino {
 class Obstacle {
     constructor() {
         this.x = logicalWidth + 50;
-        this.type = Math.random() < 0.65 ? 'cactus' : 'bird';
+        this.type = Math.random() < 0.75 ? 'cactus' : 'bird';
         
         if (this.type === 'cactus') {
             const rand = Math.random();
@@ -841,8 +782,8 @@ class Obstacle {
             // Bird
             this.width = 40;
             this.height = 24;
-            // Heights: high, mid, low
-            const heights = [GROUND_Y - 80, GROUND_Y - 55, GROUND_Y - 25];
+            // Heights: high (run under) or low (jump over), no mid bird (no ducking)
+            const heights = [GROUND_Y - 80, GROUND_Y - 25];
             this.y = heights[Math.floor(Math.random() * heights.length)];
             this.animFrame = 0;
         }
@@ -1126,7 +1067,9 @@ function animate() {
             dayNightTick = 0;
             isNight = !isNight;
             // update UI styles dynamically
-            document.getElementById('game-container').style.backgroundColor = isNight ? '#181a1b' : '#f7f7f7';
+            const container = document.getElementById('game-container');
+            container.style.backgroundColor = isNight ? '#181a1b' : '#f7f7f7';
+            container.style.borderTopColor = isNight ? '#9cff7c' : '#feca57';
             scoreEl.style.color = isNight ? '#9cff7c' : '#333';
             document.querySelectorAll('.menu-box').forEach(el => {
                 el.style.borderColor = isNight ? '#9cff7c' : '#feca57';
@@ -1230,17 +1173,9 @@ window.addEventListener('keydown', (e) => {
     }
     if (e.code === 'ArrowDown') {
         e.preventDefault();
-        resumeAudio();
-        dino.duck(true);
     }
     if (e.code === 'Escape' && state.current === state.game) {
         togglePause();
-    }
-});
-
-window.addEventListener('keyup', (e) => {
-    if (e.code === 'ArrowDown') {
-        dino.duck(false);
     }
 });
 
@@ -1253,16 +1188,7 @@ exitBtn.addEventListener('click', (e) => { e.stopPropagation(); showStartScreen(
 restartBtn.addEventListener('click', (e) => { e.stopPropagation(); init(); startGame(); });
 menuOverBtn.addEventListener('click', (e) => { e.stopPropagation(); showStartScreen(); });
 
-// Mobile Control Buttons
-mobileJumpBtn.addEventListener('touchstart', (e) => { e.preventDefault(); resumeAudio(); dino.jump(); });
-mobileDuckBtn.addEventListener('touchstart', (e) => { e.preventDefault(); resumeAudio(); dino.duck(true); });
-mobileDuckBtn.addEventListener('touchend', (e) => { e.preventDefault(); dino.duck(false); });
 
-// Mouse fallback for mobile control buttons
-mobileJumpBtn.addEventListener('mousedown', (e) => { e.stopPropagation(); resumeAudio(); dino.jump(); });
-mobileDuckBtn.addEventListener('mousedown', (e) => { e.stopPropagation(); resumeAudio(); dino.duck(true); });
-mobileDuckBtn.addEventListener('mouseup', (e) => { e.stopPropagation(); dino.duck(false); });
-mobileDuckBtn.addEventListener('mouseleave', (e) => { e.stopPropagation(); dino.duck(false); });
 
 
 // Start Cycle
